@@ -1,0 +1,39 @@
+{
+  "name": "ai-cademy",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "postinstall": "prisma generate"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sizovda93/AI-cademy.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/sizovda93/AI-cademy/issues"
+  },
+  "homepage": "https://github.com/sizovda93/AI-cademy#readme",
+  "dependencies": {
+    "@prisma/client": "^6.19.2",
+    "next": "^16.2.1",
+    "prisma": "^6.19.2",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
+    "@types/node": "^25.5.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^6.0.2"
+  }
+}

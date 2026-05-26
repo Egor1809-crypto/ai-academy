@@ -29,6 +29,10 @@ yarn-error.log*
 .env
 .env*.local
 .env.production
+bot/.env
+
+# bot
+bot/node_modules
 
 # vercel
 .vercel

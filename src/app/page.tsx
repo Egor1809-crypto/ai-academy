@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Ticker from "@/components/Ticker";
+import TrustBadges from "@/components/TrustBadges";
 import WhyNow from "@/components/WhyNow";
 import Audience from "@/components/Audience";
 import UseCases from "@/components/UseCases";
@@ -19,6 +20,7 @@ export default function Home() {
       <Navbar />
       <Hero />
       <Ticker />
+      <TrustBadges />
       <WhyNow />
       <Audience />
       <UseCases />

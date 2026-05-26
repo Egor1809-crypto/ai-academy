@@ -2,45 +2,64 @@ const cases = [
   { n: "01", title: "Дизайн страниц и презентаций", desc: "Создание убедительных визуальных материалов для судов и клиентов без дизайнера." },
   { n: "02", title: "Посты и видео для продвижения", desc: "Генерация контент-планов, статей и сценариев для развития личного бренда юриста." },
   { n: "03", title: "Аналитические статьи", desc: "Быстрый сбор фактуры и написание экспертных материалов для профильных изданий." },
-  { n: "04", title: "Автоматизированный анализ судебной практики", desc: "Поиск прецедентов, суммаризация многостраничных актов за считанные секунды.", highlight: true },
-  { n: "05", title: "Разработка судебных документов", desc: "Черновики исков, отзывов, ходатайств по заданным шаблонам с учетом норм права." },
-  { n: "06", title: "Анализ договоров", desc: "Выявление рисков, несоответствий и скрытых условий в объемных контрактах." },
-  { n: "07", title: "Интерактивное обучение", desc: "Создание тренажеров для младших юристов, симуляция судебных заседаний." },
+  { n: "04", title: "Анализ судебной практики", desc: "Поиск прецедентов, суммаризация многостраничных актов за считанные секунды.", highlight: true },
+  { n: "05", title: "Разработка судебных документов", desc: "Черновики исков, отзывов, ходатайств по заданным шаблонам с учётом норм права." },
+  { n: "06", title: "Анализ договоров", desc: "Выявление рисков, несоответствий и скрытых условий в объёмных контрактах.", highlight: true },
+  { n: "07", title: "Интерактивное обучение", desc: "Создание тренажёров для младших юристов, симуляция судебных заседаний." },
   { n: "08", title: "Управление проектами", desc: "Декомпозиция задач, планирование ресурсов и сроков по сложным делам." },
   { n: "09", title: "Автоматизация коммуникаций", desc: "Генерация ответов на типовые запросы доверителей, саммари встреч." },
 ];
 
-const tools = ["CHATGPT", "CLAUDE", "MIDJOURNEY", "GEMINI", "RUNWAY", "SUNO"];
+const tools = ["CHATGPT", "CLAUDE", "MIDJOURNEY", "GEMINI", "PERPLEXITY", "RUNWAY"];
 
 export default function UseCases() {
   return (
-    <section className="py-24 bg-tech-grid relative">
-      <div className="max-w-7xl mx-auto px-6">
-        <h2 className="text-3xl md:text-5xl font-bold mb-4 text-center">
-          Решайте реальные задачи с AI
-        </h2>
-        <p className="text-center text-gray-400 mb-16 font-mono text-sm uppercase tracking-widest">
-          Практическое применение в работе
-        </p>
+    <section className="py-28 bg-tech-grid relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
+
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-5xl font-bold mb-4">
+            Решайте <span className="text-gold">реальные задачи</span> с AI
+          </h2>
+          <p className="text-gray-400 font-mono text-sm uppercase tracking-widest">
+            Практическое применение в работе
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1">
           {cases.map((c) => (
-            <div key={c.n} className="bg-navy-900 p-8 border border-white/5 group hover:border-gold hover:bg-navy-800 transition-all">
-              <div className="text-2xl font-bold text-white/10 group-hover:text-gold/20 mb-4 font-heading">
+            <div
+              key={c.n}
+              className={`bg-navy-900 p-8 border border-white/5 group hover:border-gold/30 transition-all duration-500 ${
+                c.highlight ? "bg-white/[0.03]" : ""
+              }`}
+            >
+              <div className="text-2xl font-bold text-white/10 group-hover:text-gold/30 mb-4 font-heading transition-colors duration-500">
                 {c.n}
               </div>
-              <h3 className={`text-xl font-bold mb-3 ${c.highlight ? "text-gold" : ""}`}>
+              <h3 className={`text-xl font-bold mb-3 ${c.highlight ? "text-gold" : "group-hover:text-gold transition-colors duration-500"}`}>
                 {c.title}
               </h3>
-              <p className="text-gray-400 text-sm">{c.desc}</p>
+              <p className="text-gray-400 text-sm leading-relaxed">{c.desc}</p>
             </div>
           ))}
         </div>
-        <div className="mt-16 pt-8 border-t border-white/10 flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-          {tools.map((t) => (
-            <span key={t} className="font-heading font-bold text-2xl tracking-widest">
-              {t}
-            </span>
-          ))}
+
+        <div className="mt-16 pt-8 border-t border-white/10">
+          <p className="text-center text-xs text-gray-500 font-mono uppercase tracking-widest mb-6">
+            Инструменты, которые вы освоите
+          </p>
+          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
+            {tools.map((t) => (
+              <span
+                key={t}
+                className="font-heading font-bold text-xl md:text-2xl tracking-widest text-white/20 hover:text-gold/60 transition-colors duration-500 cursor-default"
+              >
+                {t}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
     </section>

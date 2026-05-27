@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Program from "@/components/Program";
 import CTA from "@/components/CTA";
+import PageMascot from "@/components/PageMascot";
 
 export const metadata = {
   title: "Программа курса | AI Legal — Нейросети для юристов",
@@ -67,6 +68,12 @@ export default function ProgramPage() {
 
         <Program />
         <CTA />
+        <PageMascot
+          variant="idle"
+          position="bottom-right"
+          size="sm"
+          speech="4 модуля, 8 недель — и ты AI-юрист!"
+        />
       </main>
       <Footer />
     </>

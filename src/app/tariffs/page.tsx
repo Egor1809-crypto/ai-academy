@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import Tariffs from "@/components/Tariffs";
 import FAQ from "@/components/FAQ";
 import CTA from "@/components/CTA";
+import PageMascot from "@/components/PageMascot";
 
 export const metadata = {
   title: "Тарифы | AI Legal — Нейросети для юристов",
@@ -68,6 +69,12 @@ export default function TariffsPage() {
 
         <Tariffs />
         <FAQ />
+        <PageMascot
+          variant="greeting"
+          position="bottom-left"
+          size="sm"
+          speech="Выбирай тариф — не пожалеешь! Рассрочка 0% &#128640;"
+        />
       </main>
       <Footer />
     </>

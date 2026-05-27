@@ -74,24 +74,23 @@ export default function Hero() {
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gold/8 rounded-full blur-[120px] pointer-events-none" />
               <div className="absolute top-1/3 left-1/3 w-[300px] h-[300px] bg-cyber-purple/6 rounded-full blur-[100px] pointer-events-none" />
 
-              {/* Mascot — no container, floating freely, scaled up */}
-              <div className="mascot-float relative z-10 lg:scale-[1.15] origin-bottom">
+              {/* Mascot — no container, floating freely, masked edges */}
+              <div className="mascot-float relative z-10 lg:scale-[1.2] origin-bottom">
                 <video
                   autoPlay
                   loop
                   muted
                   playsInline
                   poster="/mascot/mascot-idle.jpg"
-                  className="w-full h-auto object-contain mix-blend-lighten drop-shadow-[0_0_50px_rgba(0,207,255,0.2)] brightness-110 contrast-110"
-                  style={{ background: "transparent" }}
+                  className="w-full h-auto object-contain mix-blend-lighten brightness-110 contrast-110"
+                  style={{
+                    background: "transparent",
+                    maskImage: "radial-gradient(ellipse 70% 60% at 52% 35%, black 55%, transparent 88%)",
+                    WebkitMaskImage: "radial-gradient(ellipse 70% 60% at 52% 35%, black 55%, transparent 88%)",
+                  }}
                 >
                   <source src="/mascot/idle.mp4" type="video/mp4" />
                 </video>
-                {/* Edge fades to blend video seamlessly into dark background */}
-                <div className="absolute bottom-0 left-0 right-0 h-[45%] bg-gradient-to-t from-navy-900 via-navy-900/70 to-transparent pointer-events-none" />
-                <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-navy-900/30 to-transparent pointer-events-none" />
-                <div className="absolute top-0 left-0 bottom-0 w-12 bg-gradient-to-r from-navy-900/20 to-transparent pointer-events-none" />
-                <div className="absolute top-0 right-0 bottom-0 w-12 bg-gradient-to-l from-navy-900/20 to-transparent pointer-events-none" />
               </div>
 
               {/* Status badge */}

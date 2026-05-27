@@ -1,5 +1,21 @@
 import type { Metadata } from "next";
+import { Space_Grotesk, Inter } from "next/font/google";
+import ScrollProgress from "@/components/ScrollProgress";
 import "./globals.css";
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "600", "700"],
+  variable: "--font-space-grotesk",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin", "latin-ext", "cyrillic"],
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Нейросети для юристов | AI Legal — курс от экспертов",
@@ -40,20 +56,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ru" className="scroll-smooth">
+    <html lang="ru" className={`scroll-smooth ${spaceGrotesk.variable} ${inter.variable}`}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
-          rel="stylesheet"
-        />
+        <link rel="icon" href="/favicon.jpg" type="image/jpeg" />
       </head>
       <body className="antialiased selection:bg-gold selection:text-navy-900">
+        <ScrollProgress />
         {children}
       </body>
     </html>

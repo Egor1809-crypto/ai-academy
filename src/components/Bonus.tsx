@@ -74,7 +74,7 @@ export default function Bonus() {
               <p className="text-center text-xs uppercase text-gray-500 font-mono mb-4 tracking-widest">
                 Предложение истекает
               </p>
-              <CountdownTimer targetDate="2025-07-15T00:00:00" />
+              <CountdownTimer targetDate="2026-08-15T00:00:00" />
             </div>
           </div>
         </div>

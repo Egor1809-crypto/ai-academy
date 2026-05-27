@@ -14,12 +14,14 @@ import FAQ from "@/components/FAQ";
 import Testimonials from "@/components/Testimonials";
 import CTA from "@/components/CTA";
 import Footer from "@/components/Footer";
+import FloatingTelegram from "@/components/FloatingTelegram";
 
 export default function Home() {
   return (
     <>
       <Navbar />
       <Hero />
+      <FloatingTelegram />
       <Ticker />
       <TrustBadges />
       <SectionDivider />

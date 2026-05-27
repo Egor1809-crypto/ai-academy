@@ -4,6 +4,8 @@ import Audience from "@/components/Audience";
 import WhyNow from "@/components/WhyNow";
 import TrustBadges from "@/components/TrustBadges";
 import CTA from "@/components/CTA";
+import MissionSection from "./MissionSection";
+import FomoSection from "./FomoSection";
 
 export const metadata = {
   title: "О курсе | AI Legal — Нейросети для юристов",
@@ -131,6 +133,8 @@ export default function AboutPage() {
         <WhyNow />
         <Audience />
         <TrustBadges />
+        <MissionSection />
+        <FomoSection />
         <CTA />
       </main>
       <Footer />

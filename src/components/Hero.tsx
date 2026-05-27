@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import Link from "next/link";
 import AnimatedCounter from "./AnimatedCounter";
 
@@ -65,7 +64,7 @@ export default function Hero() {
             </div>
 
             <p className="text-sm text-gray-500 font-mono">
-              Старт ближайшего потока: <span className="text-gold font-bold">15 Июня 2025</span>
+              Старт ближайшего потока: <span className="text-gold font-bold">15 Июля 2026</span>
             </p>
           </div>
 
@@ -77,14 +76,20 @@ export default function Hero() {
                 <div className="hud-corner-tl" />
                 <div className="hud-corner-br" />
 
-                <Image
-                  src="/hero.png"
-                  alt="AI технологии для юристов — девушка-юрист работает с нейросетями"
-                  width={600}
-                  height={500}
-                  className="w-full h-auto object-cover"
-                  priority
-                />
+                <div className="mascot-float relative">
+                  <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    poster="/mascot/mascot-idle.jpg"
+                    className="w-full h-auto object-contain mix-blend-lighten"
+                    style={{ background: "transparent" }}
+                  >
+                    <source src="/mascot/idle.mp4" type="video/mp4" />
+                  </video>
+                  <div className="absolute inset-0 bg-gradient-to-b from-navy-900/30 via-transparent to-navy-900/50 pointer-events-none" />
+                </div>
 
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-navy-900/80 via-navy-900/20 to-transparent p-6 pt-16">
                   <div className="flex items-center gap-3">

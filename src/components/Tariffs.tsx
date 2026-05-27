@@ -77,7 +77,7 @@ export default function Tariffs() {
             <p className="text-center text-xs uppercase text-gray-500 font-mono tracking-widest mb-4">
               Спецпредложение истекает через
             </p>
-            <CountdownTimer targetDate="2025-07-15T00:00:00" />
+            <CountdownTimer targetDate="2026-08-15T00:00:00" />
           </div>
 
           <div className="grid lg:grid-cols-3 gap-6 max-w-5xl mx-auto">

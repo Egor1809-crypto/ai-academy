@@ -2,32 +2,78 @@
 
 import ScrollReveal from "./ScrollReveal";
 
+const frontman = {
+  name: "Дмитрий Сизов",
+  role: "Основатель AI Legal · Управляющий партнёр",
+  desc: "Руководитель команды арбитражных управляющих. Интегрировал AI-системы в работу 50+ юридических компаний. Автор методологии «AI-First Legal Practice».",
+  initials: "ДС",
+};
+
 const experts = [
   {
-    name: "Олег Пащенко",
-    role: "LegalTech специалист",
-    desc: "Внедрение AI в корпоративные процессы. 10+ лет в юриспруденции.",
-    initials: "ОП",
-  },
-  {
     name: "Владислав Галкин",
-    role: "AI-дизайнер",
-    desc: "Специалист по нейросетям для дизайна и визуального контента юриста.",
+    role: "Директор по AI-дизайну",
+    desc: "Создаёт визуальные стратегии для юридического маркетинга с помощью Midjourney и Runway. Обучил 300+ юристов Legal Design.",
     initials: "ВГ",
   },
   {
-    name: "Дмитрий Сизов",
-    role: "Управляющий партнёр",
-    desc: "Эксперт по автоматизации судебно-претензионной работы.",
-    initials: "ДС",
-  },
-  {
     name: "Василий Артин",
-    role: "Промпт-инженер",
-    desc: "Разработчик специализированных решений для анализа договоров.",
+    role: "Ведущий промпт-инженер",
+    desc: "Архитектор AI-промптов для судебной практики. Разработал 200+ специализированных промптов для анализа договоров и подготовки исков.",
     initials: "ВА",
   },
+  {
+    name: "Дмитрий Путин",
+    role: "Эксперт по AI-автоматизации",
+    desc: "Специалист по внедрению нейросетей в корпоративные юридические процессы. Сократил время обработки документов в 5 раз для крупных юрфирм.",
+    initials: "ДП",
+  },
+  {
+    name: "Егор Шабалин",
+    role: "AI-стратег · Технический директор",
+    desc: "Выстраивает AI-инфраструктуру для юридических команд. Эксперт по интеграции ChatGPT, Claude и кастомных LLM-решений.",
+    initials: "ЕШ",
+  },
 ];
+
+function CornerSVGs({ className }: { className?: string }) {
+  return (
+    <>
+      <svg
+        className={`absolute top-2 left-2 w-4 h-4 text-gold/50 z-20 ${className ?? ""}`}
+        viewBox="0 0 16 16"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M0 10V0h10" stroke="currentColor" strokeWidth="1" />
+      </svg>
+      <svg
+        className={`absolute top-2 right-2 w-4 h-4 text-gold/50 z-20 ${className ?? ""}`}
+        viewBox="0 0 16 16"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M16 10V0H6" stroke="currentColor" strokeWidth="1" />
+      </svg>
+      <svg
+        className={`absolute bottom-2 left-2 w-4 h-4 text-gold/50 z-20 ${className ?? ""}`}
+        viewBox="0 0 16 16"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M0 6V16h10" stroke="currentColor" strokeWidth="1" />
+      </svg>
+      <svg
+        className={`absolute bottom-2 right-2 w-4 h-4 text-gold/50 z-20 ${className ?? ""}`}
+        viewBox="0 0 16 16"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M16 6V16H6" stroke="currentColor" strokeWidth="1" />
+      </svg>
+    </>
+  );
+}
 
 export default function Experts() {
   return (
@@ -42,64 +88,70 @@ export default function Experts() {
               Эксперты-<span className="text-gold">практики</span>
             </h2>
             <p className="text-gray-400 max-w-xl mx-auto">
-              Преподаватели с реальным опытом внедрения AI в юридическую практику
+              Не теоретики — практикующие специалисты, которые ежедневно используют AI в юридической работе
             </p>
           </div>
         </ScrollReveal>
 
+        {/* Frontman — featured horizontal card */}
+        <ScrollReveal direction="up" delay={0}>
+          <div className="group mb-10">
+            <span className="font-mono text-xs text-gray-600 mb-2 block">01</span>
+            <div className="relative flex flex-col md:flex-row bg-navy-800 border border-white/10 overflow-hidden hover:border-gold/40 hover:shadow-[0_0_30px_rgba(0,207,255,0.15)] hover:-translate-y-1 transition-all duration-500">
+              {/* Left: initials area */}
+              <div className="relative w-full md:w-80 aspect-square md:aspect-auto md:min-h-[320px] bg-navy-700 flex items-center justify-center shrink-0">
+                <CornerSVGs />
+                <div className="absolute inset-0 bg-gradient-to-br from-gold/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <span className="text-8xl md:text-9xl font-heading font-bold text-white/10 group-hover:text-gold/25 transition-colors duration-500 select-none">
+                  {frontman.initials}
+                </span>
+              </div>
+
+              {/* Right: text content */}
+              <div className="flex flex-col justify-center p-8 md:p-12 flex-1">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-gold/10 border border-gold/20 w-fit mb-5">
+                  <span className="w-1.5 h-1.5 bg-gold rounded-full animate-pulse" />
+                  <span className="text-gold text-xs font-mono uppercase tracking-widest">Основатель</span>
+                </div>
+                <h3 className="font-heading font-bold text-3xl md:text-4xl uppercase mb-2">
+                  {frontman.name}
+                </h3>
+                <p className="text-gold text-sm font-medium">{frontman.role}</p>
+                <div className="w-12 h-px bg-gold/40 mt-3 mb-5" />
+                <p className="text-gray-400 leading-relaxed max-w-xl group-hover:text-gray-300 transition-colors">
+                  {frontman.desc}
+                </p>
+                <div className="flex gap-8 mt-8">
+                  <div>
+                    <p className="text-2xl font-heading font-bold text-gold">50+</p>
+                    <p className="text-xs text-gray-500 font-mono uppercase tracking-wider mt-1">AI-интеграций</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-heading font-bold text-gold">15+</p>
+                    <p className="text-xs text-gray-500 font-mono uppercase tracking-wider mt-1">Лет в юриспруденции</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ScrollReveal>
+
+        {/* Other experts — 4-col grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {experts.map((e, i) => (
-            <ScrollReveal key={e.name} direction="up" delay={i * 100}>
+            <ScrollReveal key={e.name} direction="up" delay={(i + 1) * 100}>
               <div className="group">
-                {/* Expert number */}
                 <span className="font-mono text-xs text-gray-600 mb-2 block">
-                  {String(i + 1).padStart(2, "0")}
+                  {String(i + 2).padStart(2, "0")}
                 </span>
 
-                <div className="relative w-full aspect-[4/5] bg-navy-800 border border-white/10 mb-4 overflow-hidden group-hover:border-gold/30 group-hover:shadow-[0_0_20px_rgba(0,207,255,0.12)] transition-all duration-500">
+                <div className="relative w-full aspect-[4/5] bg-navy-800 border border-white/10 mb-4 overflow-hidden hover:border-gold/30 hover:shadow-[0_0_20px_rgba(0,207,255,0.12)] hover:-translate-y-1 transition-all duration-500">
                   <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-navy-900/90 z-10" />
                   <div className="absolute inset-0 bg-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-[5]" />
 
                   <div className="w-full h-full bg-navy-700 flex items-center justify-center relative">
-                    {/* SVG Corner Decorations on photo placeholder */}
-                    {/* Top-left */}
-                    <svg
-                      className="absolute top-2 left-2 w-4 h-4 text-gold/50 z-20"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path d="M0 10V0h10" stroke="currentColor" strokeWidth="1" />
-                    </svg>
-                    {/* Top-right */}
-                    <svg
-                      className="absolute top-2 right-2 w-4 h-4 text-gold/50 z-20"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path d="M16 10V0H6" stroke="currentColor" strokeWidth="1" />
-                    </svg>
-                    {/* Bottom-left */}
-                    <svg
-                      className="absolute bottom-2 left-2 w-4 h-4 text-gold/50 z-20"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path d="M0 6V16h10" stroke="currentColor" strokeWidth="1" />
-                    </svg>
-                    {/* Bottom-right */}
-                    <svg
-                      className="absolute bottom-2 right-2 w-4 h-4 text-gold/50 z-20"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path d="M16 6V16H6" stroke="currentColor" strokeWidth="1" />
-                    </svg>
-
-                    <span className="text-5xl font-heading font-bold text-white/10 group-hover:text-gold/20 transition-colors duration-500">
+                    <CornerSVGs />
+                    <span className="text-5xl font-heading font-bold text-white/10 group-hover:text-gold/20 transition-colors duration-500 select-none">
                       {e.initials}
                     </span>
                   </div>
@@ -108,7 +160,6 @@ export default function Experts() {
                     <div className="w-8 h-1 bg-gold mb-3 transform origin-left group-hover:scale-x-150 transition-transform duration-500" />
                     <h3 className="font-heading font-bold text-xl uppercase">{e.name}</h3>
                     <p className="text-gold text-sm font-medium mt-1">{e.role}</p>
-                    {/* Gold divider under role */}
                     <div className="w-10 h-px bg-gold/40 mt-2" />
                   </div>
                 </div>

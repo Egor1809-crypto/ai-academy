@@ -106,3 +106,38 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 .animate-slideUp {
   animation: slideUp 0.3s ease-out;
 }
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 15px rgba(0, 207, 255, 0.1); }
+  50% { box-shadow: 0 0 25px rgba(0, 207, 255, 0.25); }
+}
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.card-glow-hover {
+  transition: box-shadow 0.5s ease, border-color 0.5s ease, transform 0.5s ease;
+}
+.card-glow-hover:hover {
+  box-shadow: 0 0 25px rgba(0, 207, 255, 0.15);
+  border-color: rgba(0, 207, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Smooth focus visible for accessibility */
+*:focus-visible {
+  outline: 2px solid rgba(0, 207, 255, 0.5);
+  outline-offset: 2px;
+}
+
+/* Smooth image loading */
+img {
+  transition: opacity 0.3s ease;
+}
+
+.text-gradient-purple {
+  background: linear-gradient(135deg, #FF007A 0%, #FF61A6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

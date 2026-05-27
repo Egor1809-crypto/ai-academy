@@ -42,8 +42,8 @@ export default function AnimatedCounter({ end, suffix = "", prefix = "", duratio
   }, [end, duration]);
 
   return (
-    <div ref={ref} className="text-center">
-      <div className="text-4xl md:text-5xl font-heading font-bold text-gradient-gold">
+    <div ref={ref} className="text-left group">
+      <div className="text-4xl md:text-5xl font-heading font-bold text-gradient-gold transition-all duration-500 group-hover:drop-shadow-[0_0_8px_rgba(0,207,255,0.4)]">
         {prefix}{count}{suffix}
       </div>
       <div className="text-sm text-gray-400 mt-2 uppercase tracking-wider font-mono">{label}</div>

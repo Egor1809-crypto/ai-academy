@@ -94,12 +94,12 @@ export default function Hero() {
                 </div>
               </div>
 
-              <div className="absolute -right-3 top-8 bg-navy-800/90 border border-gold/30 backdrop-blur-md px-4 py-3 hidden xl:block">
+              <div className="absolute -right-3 top-8 bg-navy-800/90 border border-gold/30 backdrop-blur-md px-4 py-3 hidden xl:block animate-[slideUp_0.6s_ease-out_0.4s_both] hover:shadow-[0_0_15px_rgba(0,207,255,0.2)] transition-shadow duration-300">
                 <p className="text-[10px] text-gray-500 font-mono uppercase tracking-wider mb-1">Экономия времени</p>
                 <p className="text-2xl font-heading font-bold text-gold">x10</p>
               </div>
 
-              <div className="absolute -left-3 bottom-20 bg-navy-800/90 border border-white/10 backdrop-blur-md px-4 py-3 hidden xl:block">
+              <div className="absolute -left-3 bottom-20 bg-navy-800/90 border border-white/10 backdrop-blur-md px-4 py-3 hidden xl:block animate-[slideUp_0.6s_ease-out_0.6s_both] hover:shadow-[0_0_15px_rgba(0,207,255,0.2)] transition-shadow duration-300">
                 <p className="text-[10px] text-gray-500 font-mono uppercase tracking-wider mb-1">Точность анализа</p>
                 <p className="text-2xl font-heading font-bold text-white">98%</p>
               </div>

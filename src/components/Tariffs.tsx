@@ -3,6 +3,7 @@
 import { useState } from "react";
 import RegistrationModal from "./RegistrationModal";
 import CountdownTimer from "./CountdownTimer";
+import ScrollReveal from "./ScrollReveal";
 
 const tariffs = [
   {
@@ -61,14 +62,16 @@ export default function Tariffs() {
         <div className="absolute top-1/2 right-0 w-[400px] h-[400px] bg-cyber-purple/5 rounded-full blur-[150px] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">
-              Выберите свой <span className="text-gold">тариф</span>
-            </h2>
-            <p className="text-gray-400 max-w-xl mx-auto mb-8">
-              Рассрочка на 12 месяцев без переплат. Возврат 13% через налоговый вычет.
-            </p>
-          </div>
+          <ScrollReveal direction="up">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl md:text-5xl font-bold mb-4">
+                Выберите свой <span className="text-gold">тариф</span>
+              </h2>
+              <p className="text-gray-400 max-w-xl mx-auto mb-8">
+                Рассрочка на 12 месяцев без переплат. Возврат 13% через налоговый вычет.
+              </p>
+            </div>
+          </ScrollReveal>
 
           <div className="max-w-xs mx-auto mb-16">
             <p className="text-center text-xs uppercase text-gray-500 font-mono tracking-widest mb-4">
@@ -78,13 +81,13 @@ export default function Tariffs() {
           </div>
 
           <div className="grid lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {tariffs.map((t) => (
+            {tariffs.map((t, i) => (
+              <ScrollReveal key={t.name} direction="up" delay={i * 120}>
               <div
-                key={t.name}
-                className={`p-8 flex flex-col relative transition-all duration-500 ${
+                className={`p-8 flex flex-col relative transition-all duration-500 h-full ${
                   t.popular
                     ? "bg-white/[0.05] backdrop-blur-sm border-2 border-gold transform lg:-translate-y-4 shadow-[0_0_40px_rgba(0,207,255,0.12)]"
-                    : "bg-white/[0.02] border border-white/10 hover:border-white/25"
+                    : "bg-white/[0.02] border border-white/10 hover:border-white/25 hover:shadow-[0_0_20px_rgba(0,207,255,0.08)]"
                 }`}
               >
                 {t.popular && (
@@ -139,6 +142,7 @@ export default function Tariffs() {
                   Выбрать {t.name}
                 </button>
               </div>
+              </ScrollReveal>
             ))}
           </div>
 

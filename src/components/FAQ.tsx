@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import ScrollReveal from "./ScrollReveal";
 
 const faqs = [
   {
@@ -45,39 +46,42 @@ export default function FAQ() {
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4">
-            Частые <span className="text-gold">вопросы</span>
-          </h2>
-        </div>
+        <ScrollReveal direction="up">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">
+              Частые <span className="text-gold">вопросы</span>
+            </h2>
+          </div>
+        </ScrollReveal>
 
         <div className="space-y-3">
           {faqs.map((faq, i) => (
-            <div
-              key={i}
-              className={`border transition-all duration-300 ${
-                open === i
-                  ? "border-gold/30 bg-white/[0.03]"
-                  : "border-white/10 hover:border-white/20"
-              }`}
-            >
-              <button
-                className="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none cursor-pointer gap-4"
-                onClick={() => setOpen(open === i ? null : i)}
+            <ScrollReveal key={i} direction="up" delay={i * 50}>
+              <div
+                className={`border transition-all duration-300 ${
+                  open === i
+                    ? "border-gold/30 bg-white/[0.03]"
+                    : "border-white/10 hover:border-white/20"
+                }`}
               >
-                <span className="font-medium text-lg">{faq.q}</span>
-                <span
-                  className={`text-gold text-2xl font-light shrink-0 transition-transform duration-300 ${
-                    open === i ? "rotate-45" : ""
-                  }`}
+                <button
+                  className="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none cursor-pointer gap-4"
+                  onClick={() => setOpen(open === i ? null : i)}
                 >
-                  +
-                </span>
-              </button>
-              <div className={`accordion-content px-6 ${open === i ? "open" : ""}`}>
-                <p className="pb-5 text-gray-400 text-sm leading-relaxed">{faq.a}</p>
+                  <span className="font-medium text-lg">{faq.q}</span>
+                  <span
+                    className={`text-gold text-2xl font-light shrink-0 transition-transform duration-300 ${
+                      open === i ? "rotate-45" : ""
+                    }`}
+                  >
+                    +
+                  </span>
+                </button>
+                <div className={`accordion-content px-6 ${open === i ? "open" : ""}`}>
+                  <p className="pb-5 text-gray-400 text-sm leading-relaxed">{faq.a}</p>
+                </div>
               </div>
-            </div>
+            </ScrollReveal>
           ))}
         </div>
       </div>

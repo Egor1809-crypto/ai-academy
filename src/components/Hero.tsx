@@ -68,43 +68,47 @@ export default function Hero() {
             </p>
           </div>
 
-          <div className="relative flex justify-center lg:justify-end">
-            <div className="relative w-full max-w-lg">
-              <div className="absolute -inset-4 bg-gradient-to-tr from-gold/20 via-cyber-purple/10 to-transparent rounded-sm blur-2xl pointer-events-none" />
+          <div className="relative flex justify-center lg:justify-end lg:-mr-8">
+            <div className="relative w-full max-w-xl lg:max-w-[620px]">
+              {/* Glow effects behind mascot */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gold/8 rounded-full blur-[120px] pointer-events-none" />
+              <div className="absolute top-1/3 left-1/3 w-[300px] h-[300px] bg-cyber-purple/6 rounded-full blur-[100px] pointer-events-none" />
 
-              <div className="relative overflow-hidden border border-white/10 bg-navy-800/40 backdrop-blur-sm">
-                <div className="hud-corner-tl" />
-                <div className="hud-corner-br" />
+              {/* Mascot — no container, floating freely, scaled up */}
+              <div className="mascot-float relative z-10 lg:scale-[1.15] origin-bottom">
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  poster="/mascot/mascot-idle.jpg"
+                  className="w-full h-auto object-contain mix-blend-lighten drop-shadow-[0_0_50px_rgba(0,207,255,0.2)] brightness-110 contrast-110"
+                  style={{ background: "transparent" }}
+                >
+                  <source src="/mascot/idle.mp4" type="video/mp4" />
+                </video>
+                {/* Edge fades to blend video seamlessly into dark background */}
+                <div className="absolute bottom-0 left-0 right-0 h-[45%] bg-gradient-to-t from-navy-900 via-navy-900/70 to-transparent pointer-events-none" />
+                <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-navy-900/30 to-transparent pointer-events-none" />
+                <div className="absolute top-0 left-0 bottom-0 w-12 bg-gradient-to-r from-navy-900/20 to-transparent pointer-events-none" />
+                <div className="absolute top-0 right-0 bottom-0 w-12 bg-gradient-to-l from-navy-900/20 to-transparent pointer-events-none" />
+              </div>
 
-                <div className="mascot-float relative">
-                  <video
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    poster="/mascot/mascot-idle.jpg"
-                    className="w-full h-auto object-contain mix-blend-lighten"
-                    style={{ background: "transparent" }}
-                  >
-                    <source src="/mascot/idle.mp4" type="video/mp4" />
-                  </video>
-                  <div className="absolute inset-0 bg-gradient-to-b from-navy-900/30 via-transparent to-navy-900/50 pointer-events-none" />
-                </div>
-
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-navy-900/80 via-navy-900/20 to-transparent p-6 pt-16">
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-gold rounded-full animate-pulse" />
-                    <span className="text-xs font-mono text-gold uppercase tracking-widest">AI-ассистент активен</span>
-                  </div>
+              {/* Status badge */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
+                <div className="flex items-center gap-3 px-4 py-2 bg-navy-800/80 border border-gold/20 backdrop-blur-sm">
+                  <div className="w-2 h-2 bg-gold rounded-full animate-pulse" />
+                  <span className="text-xs font-mono text-gold uppercase tracking-widest">AI-ассистент активен</span>
                 </div>
               </div>
 
-              <div className="absolute -right-3 top-8 bg-navy-800/90 border border-gold/30 backdrop-blur-md px-4 py-3 hidden xl:block animate-[slideUp_0.6s_ease-out_0.4s_both] hover:shadow-[0_0_15px_rgba(0,207,255,0.2)] transition-shadow duration-300">
+              {/* Floating stat badges */}
+              <div className="absolute -right-4 top-12 bg-navy-800/90 border border-gold/30 backdrop-blur-md px-4 py-3 hidden xl:block animate-[slideUp_0.6s_ease-out_0.4s_both] hover:shadow-[0_0_15px_rgba(0,207,255,0.2)] transition-shadow duration-300 z-20">
                 <p className="text-[10px] text-gray-500 font-mono uppercase tracking-wider mb-1">Экономия времени</p>
                 <p className="text-2xl font-heading font-bold text-gold">x10</p>
               </div>
 
-              <div className="absolute -left-3 bottom-20 bg-navy-800/90 border border-white/10 backdrop-blur-md px-4 py-3 hidden xl:block animate-[slideUp_0.6s_ease-out_0.6s_both] hover:shadow-[0_0_15px_rgba(0,207,255,0.2)] transition-shadow duration-300">
+              <div className="absolute -left-6 bottom-32 bg-navy-800/90 border border-white/10 backdrop-blur-md px-4 py-3 hidden xl:block animate-[slideUp_0.6s_ease-out_0.6s_both] hover:shadow-[0_0_15px_rgba(0,207,255,0.2)] transition-shadow duration-300 z-20">
                 <p className="text-[10px] text-gray-500 font-mono uppercase tracking-wider mb-1">Точность анализа</p>
                 <p className="text-2xl font-heading font-bold text-white">98%</p>
               </div>

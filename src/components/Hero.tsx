@@ -74,21 +74,16 @@ export default function Hero() {
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gold/8 rounded-full blur-[120px] pointer-events-none" />
               <div className="absolute top-1/3 left-1/3 w-[300px] h-[300px] bg-cyber-purple/6 rounded-full blur-[100px] pointer-events-none" />
 
-              {/* Mascot — no container, floating freely, masked edges */}
+              {/* Mascot — WebM with alpha transparency, no background at all */}
               <div className="mascot-float relative z-10 lg:scale-[1.2] origin-bottom">
                 <video
                   autoPlay
                   loop
                   muted
                   playsInline
-                  poster="/mascot/mascot-idle.jpg"
-                  className="w-full h-auto object-contain mix-blend-lighten brightness-110 contrast-110"
-                  style={{
-                    background: "transparent",
-                    maskImage: "radial-gradient(ellipse 70% 60% at 52% 35%, black 55%, transparent 88%)",
-                    WebkitMaskImage: "radial-gradient(ellipse 70% 60% at 52% 35%, black 55%, transparent 88%)",
-                  }}
+                  className="w-full h-auto object-contain drop-shadow-[0_0_60px_rgba(0,207,255,0.15)]"
                 >
+                  <source src="/mascot/idle-alpha.webm" type="video/webm" />
                   <source src="/mascot/idle.mp4" type="video/mp4" />
                 </video>
               </div>

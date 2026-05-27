@@ -28,8 +28,8 @@ const positionMap = {
 };
 
 const videoMap = {
-  idle: "/mascot/idle.mp4",
-  greeting: "/mascot/greeting.mp4",
+  idle: "/mascot/idle-alpha.webm",
+  greeting: "/mascot/greeting-alpha.webm",
 };
 
 export default function PageMascot({
@@ -86,9 +86,7 @@ export default function PageMascot({
           loop
           muted
           playsInline
-          poster="/mascot/mascot-idle.jpg"
           className="w-full h-full object-contain mix-blend-lighten relative z-10"
-          style={{ background: "transparent" }}
         >
           <source src={videoMap[variant]} type="video/mp4" />
         </video>

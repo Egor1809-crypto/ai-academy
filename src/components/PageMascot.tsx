@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+
+const MascotSprite = dynamic(() => import("./MascotSprite"), { ssr: false });
 
 interface PageMascotProps {
-  /** Which video to play */
+  /** Which animation variant */
   variant?: "idle" | "greeting";
   /** Position on the page */
   position?: "bottom-right" | "bottom-left" | "center-right";
@@ -25,11 +28,6 @@ const positionMap = {
   "bottom-right": "fixed bottom-24 right-6 z-40",
   "bottom-left": "fixed bottom-24 left-6 z-40",
   "center-right": "absolute right-0 top-1/2 -translate-y-1/2 z-20",
-};
-
-const videoMap = {
-  idle: "/mascot/idle-alpha.webm",
-  greeting: "/mascot/greeting-alpha.webm",
 };
 
 export default function PageMascot({
@@ -78,18 +76,14 @@ export default function PageMascot({
         </div>
       )}
 
-      {/* Mascot video */}
+      {/* Mascot sprite animation */}
       <div className={`${sizeMap[size]} mascot-float relative`}>
         <div className="absolute -inset-2 bg-gold/5 rounded-full blur-xl" />
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-full object-contain mix-blend-lighten relative z-10"
-        >
-          <source src={videoMap[variant]} type="video/mp4" />
-        </video>
+        <MascotSprite
+          frameCount={16}
+          fps={variant === "greeting" ? 12 : 10}
+          className="w-full h-full relative z-10"
+        />
       </div>
     </div>
   );

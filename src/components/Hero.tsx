@@ -8,6 +8,10 @@ const ParticleBackground = dynamic(() => import("./ParticleBackground"), {
   ssr: false,
 });
 
+const MascotSprite = dynamic(() => import("./MascotSprite"), {
+  ssr: false,
+});
+
 export default function Hero() {
   return (
     <section className="relative pt-28 pb-20 overflow-hidden">
@@ -70,22 +74,18 @@ export default function Hero() {
 
           <div className="relative flex justify-center lg:justify-end lg:-mr-8">
             <div className="relative w-full max-w-xl lg:max-w-[620px]">
-              {/* Glow effects behind mascot */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gold/8 rounded-full blur-[120px] pointer-events-none" />
-              <div className="absolute top-1/3 left-1/3 w-[300px] h-[300px] bg-cyber-purple/6 rounded-full blur-[100px] pointer-events-none" />
+              {/* Glow effects behind mascot — ChainGPT-style multi-layer glow */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gold/10 rounded-full blur-[150px] pointer-events-none animate-pulse" />
+              <div className="absolute top-1/3 left-1/3 w-[350px] h-[350px] bg-cyber-purple/8 rounded-full blur-[120px] pointer-events-none" />
+              <div className="absolute bottom-1/4 right-1/4 w-[250px] h-[250px] bg-gold/6 rounded-full blur-[80px] pointer-events-none" />
 
-              {/* Mascot — WebM with alpha transparency, no background at all */}
-              <div className="mascot-float relative z-10 lg:scale-[1.2] origin-bottom">
-                <video
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="w-full h-auto object-contain drop-shadow-[0_0_60px_rgba(0,207,255,0.15)]"
-                >
-                  <source src="/mascot/idle-alpha.webm" type="video/webm" />
-                  <source src="/mascot/idle.mp4" type="video/mp4" />
-                </video>
+              {/* Mascot — Canvas sprite animation with transparent frames */}
+              <div className="mascot-float relative z-10 lg:scale-[1.15] origin-bottom">
+                <MascotSprite
+                  frameCount={16}
+                  fps={10}
+                  className="w-full h-auto drop-shadow-[0_0_80px_rgba(0,207,255,0.2)]"
+                />
               </div>
 
               {/* Status badge */}

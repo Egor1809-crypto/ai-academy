@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CTA from "@/components/CTA";
 import ScrollReveal from "@/components/ScrollReveal";
-import PageMascot from "@/components/PageMascot";
+
 
 const products = [
   {
@@ -290,12 +290,7 @@ export default function ProductsPage() {
         </section>
 
         <CTA />
-        <PageMascot
-          variant="greeting"
-          position="bottom-right"
-          size="md"
-          speech="Привет! Выбирай продукт, который тебе подходит!"
-        />
+
       </main>
       <Footer />
     </>

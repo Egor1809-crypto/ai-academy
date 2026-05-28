@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import RegistrationModal from "./RegistrationModal";
 
 const navLinks = [
   { href: "/about", label: "О курсе" },
@@ -15,6 +16,7 @@ const navLinks = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [showRegistration, setShowRegistration] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -38,6 +40,7 @@ export default function Navbar() {
   };
 
   return (
+    <>
     <nav
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         scrolled
@@ -72,12 +75,12 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Link
-            href="/tariffs"
-            className="hidden md:block px-6 py-2.5 bg-transparent border border-gold text-gold font-heading font-bold hover:bg-gold hover:text-navy-900 transition-all duration-300 uppercase tracking-wide text-sm glow-gold-hover"
+          <button
+            onClick={() => setShowRegistration(true)}
+            className="hidden md:block px-6 py-2.5 bg-transparent border border-gold text-gold font-heading font-bold hover:bg-gold hover:text-navy-900 transition-all duration-300 uppercase tracking-wide text-sm glow-gold-hover cursor-pointer"
           >
             Регистрация
-          </Link>
+          </button>
 
           <button
             className="md:hidden w-10 h-10 flex flex-col items-center justify-center gap-1.5 cursor-pointer"
@@ -108,14 +111,22 @@ export default function Navbar() {
               {l.label}
             </Link>
           ))}
-          <Link
-            href="/tariffs"
-            className="mt-2 py-3 bg-gold text-navy-900 font-heading font-bold uppercase text-sm text-center"
+          <button
+            onClick={() => { setShowRegistration(true); setMobileOpen(false); }}
+            className="mt-2 py-3 bg-gold text-navy-900 font-heading font-bold uppercase text-sm text-center cursor-pointer"
           >
             Регистрация
-          </Link>
+          </button>
         </div>
       </div>
     </nav>
+
+    {showRegistration && (
+      <RegistrationModal
+        tariff="Стандарт"
+        onClose={() => setShowRegistration(false)}
+      />
+    )}
+    </>
   );
 }

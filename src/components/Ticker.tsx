@@ -1,14 +1,6 @@
-"use client";
+import { TICKER_ITEMS } from "@/data/content";
 
-const items = [
-  "500+ Выпускников",
-  "40 часов экономии в месяц",
-  "15+ Готовых промптов",
-  "Доступ к AI-сервисам",
-  "Практика на реальных кейсах",
-  "Гарантия возврата 7 дней",
-  "Рассрочка 0%",
-];
+const items = TICKER_ITEMS;
 
 export default function Ticker() {
   const row = items.map((item, i) => (

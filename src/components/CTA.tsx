@@ -1,9 +1,21 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import ScrollReveal from "./ScrollReveal";
+import { COURSE } from "@/data/content";
 
 export default function CTA() {
+  const [spotsLeft, setSpotsLeft] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch("/api/spots")
+      .then((r) => r.json())
+      .then((d) => {
+        if (typeof d.spotsLeft === "number") setSpotsLeft(d.spotsLeft);
+      })
+      .catch(() => {});
+  }, []);
   return (
     <section className="py-28 relative overflow-hidden">
       <div className="absolute inset-0 bg-linear-to-b from-navy-900 to-black z-0" />
@@ -51,7 +63,9 @@ export default function CTA() {
           <div className="absolute inset-0 border-2 border-white/20 scale-105 opacity-0 group-hover:scale-110 group-hover:opacity-100 transition-all duration-300" />
         </Link>
         <p className="mt-6 text-sm text-gray-500 font-mono uppercase tracking-wider">
-          Осталось 12 мест на ближайший поток
+          {spotsLeft !== null
+            ? `Осталось ${spotsLeft} мест на ближайший поток`
+            : "Места ограничены — набор открыт"}
         </p>
 
         <div className="mt-10 flex flex-wrap justify-center gap-6 text-xs text-gray-500">

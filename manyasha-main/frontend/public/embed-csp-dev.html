@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' http://127.0.0.1:8000; style-src 'self' 'unsafe-inline'; img-src 'self' data: http://127.0.0.1:8000 http://127.0.0.1:5173; frame-src http://127.0.0.1:5173 http://127.0.0.1:8000; connect-src 'self' http://127.0.0.1:8000 http://127.0.0.1:5173;">
+  <title>Manyasha CSP Embed (allow)</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      color: #173a62;
+      background:
+        radial-gradient(900px 560px at -10% -20%, #e8f1ff 0%, transparent 56%),
+        radial-gradient(700px 480px at 110% -10%, #fff2df 0%, transparent 60%),
+        #f8fbff;
+    }
+    .wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 92px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(24px, 4.8vw, 40px);
+      color: #1b467a;
+      line-height: 1.12;
+    }
+    p {
+      margin: 0;
+      color: #5b7698;
+      line-height: 1.55;
+    }
+    .card {
+      margin-top: 16px;
+      border-radius: 18px;
+      border: 1px solid #d6e6fb;
+      background: #fff;
+      box-shadow: 0 12px 34px rgba(26, 66, 114, 0.09);
+      padding: 16px;
+    }
+    .actions {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    button {
+      border: 1px solid #d1e1f6;
+      background: #fff;
+      color: #1c4a7f;
+      font-weight: 700;
+      border-radius: 10px;
+      padding: 8px 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(29, 77, 131, 0.12);
+    }
+    #manyasha-status {
+      margin-top: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #496b93;
+      white-space: pre-line;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>CSP smoke: embed разрешен</h1>
+    <p>Страница имитирует строгий host-сайт с CSP. Здесь iframe для Маняши явно разрешен.</p>
+    <div class="card">
+      <strong>Статус интеграции</strong>
+      <div id="manyasha-status">SDK: ожидание загрузки...</div>
+      <div class="actions">
+        <button id="btn-open" type="button">Открыть</button>
+        <button id="btn-close" type="button">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <script
+    src="http://127.0.0.1:8000/embed.js?id=default&v=cspallow1"
+    data-instance="ext-csp-allow"
+    data-size="large"
+    data-side="right"
+    data-launcher="avatar"
+    data-api-origin="http://127.0.0.1:8000"
+    data-widget-origin="http://127.0.0.1:5173"
+    data-offset-x="16"
+    data-offset-y="16"
+    defer
+  ></script>
+
+  <script>
+    (function () {
+      var statusEl = document.getElementById('manyasha-status');
+      var openBtn = document.getElementById('btn-open');
+      var closeBtn = document.getElementById('btn-close');
+
+      function getApi() {
+        if (!window.ManyashaWidget || typeof window.ManyashaWidget.get !== 'function') return null;
+        return window.ManyashaWidget.get('ext-csp-allow');
+      }
+
+      function healthText(api) {
+        if (!api || typeof api.getInstallHealth !== 'function') return 'health: unknown';
+        var health = api.getInstallHealth() || {};
+        return 'health: ' + String(health.status || 'unknown') + '/' + String(health.code || 'unknown')
+          + (health.message ? ('\n' + String(health.message)) : '');
+      }
+
+      function syncStatus() {
+        var api = getApi();
+        if (!api) {
+          statusEl.textContent = 'SDK: не найден (ждём загрузку)';
+          return;
+        }
+        statusEl.textContent = 'SDK: готов, состояние ' + (api.isOpen() ? 'OPEN' : 'CLOSED') + '\n' + healthText(api);
+      }
+
+      openBtn.addEventListener('click', function () {
+        var api = getApi();
+        if (api) api.open();
+        syncStatus();
+      });
+      closeBtn.addEventListener('click', function () {
+        var api = getApi();
+        if (api) api.close();
+        syncStatus();
+      });
+
+      window.addEventListener('manyasha:install-health', syncStatus);
+      setInterval(syncStatus, 700);
+      syncStatus();
+    })();
+  </script>
+</body>
+</html>

@@ -8,7 +8,7 @@ interface Props {
 }
 
 export default function RegistrationModal({ tariff, onClose }: Props) {
-  const [form, setForm] = useState({ name: "", phone: "", email: "", comment: "" });
+  const [form, setForm] = useState({ name: "", phone: "", email: "", comment: "", website: "" });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
@@ -91,6 +91,20 @@ export default function RegistrationModal({ tariff, onClose }: Props) {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Honeypot — invisible to users, bots fill it */}
+              <div className="absolute -left-[9999px] -top-[9999px]" aria-hidden="true">
+                <label htmlFor="website">Website</label>
+                <input
+                  type="text"
+                  id="website"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={form.website}
+                  onChange={(e) => setForm({ ...form, website: e.target.value })}
+                />
+              </div>
+
               <div>
                 <label className="block text-xs text-gray-500 uppercase tracking-wider font-mono mb-1.5">
                   Имя *
@@ -172,7 +186,7 @@ export default function RegistrationModal({ tariff, onClose }: Props) {
 
               <p className="text-[10px] text-gray-600 text-center">
                 Нажимая кнопку, вы соглашаетесь с{" "}
-                <a href="#" className="text-gold/60 hover:text-gold underline underline-offset-2">
+                <a href="/legal/privacy" target="_blank" className="text-gold/60 hover:text-gold underline underline-offset-2">
                   политикой конфиденциальности
                 </a>
               </p>

@@ -4,53 +4,7 @@ import { useState } from "react";
 import RegistrationModal from "./RegistrationModal";
 import CountdownTimer from "./CountdownTimer";
 import ScrollReveal from "./ScrollReveal";
-
-const tariffs = [
-  {
-    name: "БАЗОВЫЙ",
-    desc: "Основы работы с AI для ежедневных задач юриста.",
-    price: "45 000",
-    monthly: "от 3 750",
-    features: [
-      "Все основные модули программы",
-      "Доступ к платформе на 3 месяца",
-      "Общий чат участников",
-      "15 готовых промптов для юристов",
-    ],
-    popular: false,
-  },
-  {
-    name: "ПРЕМИУМ",
-    desc: "Полное погружение + готовые инструменты.",
-    price: "75 000",
-    monthly: "от 6 250",
-    features: [
-      "Всё из Базового тарифа",
-      "Доступ к AI-сервисам на 3 месяца",
-      "Проверка домашних заданий",
-      "Закрытые мастермайнды",
-      "50+ продвинутых промптов",
-      "Сертификат о прохождении",
-    ],
-    popular: true,
-    bonus: "В подарок — готовый сайт для юриста",
-  },
-  {
-    name: "VIP",
-    desc: "Индивидуальная работа и внедрение AI в компанию.",
-    price: "150 000",
-    monthly: "от 12 500",
-    features: [
-      "Всё из тарифа Премиум",
-      "Индивидуальные консультации с куратором",
-      "Аудит процессов вашей юр. фирмы",
-      "Доступ к AI-сервисам на 6 месяцев",
-      "Персональный план внедрения AI",
-      "Приоритетная поддержка 24/7",
-    ],
-    popular: false,
-  },
-];
+import { TARIFFS, COURSE } from "@/data/content";
 
 export default function Tariffs() {
   const [modal, setModal] = useState<string | null>(null);
@@ -77,12 +31,12 @@ export default function Tariffs() {
             <p className="text-center text-xs uppercase text-gray-500 font-mono tracking-widest mb-4">
               Спецпредложение истекает через
             </p>
-            <CountdownTimer targetDate="2026-08-15T00:00:00" />
+            <CountdownTimer targetDate={COURSE.offerDeadline} />
           </div>
 
           <div className="grid lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {tariffs.map((t, i) => (
-              <ScrollReveal key={t.name} direction="up" delay={i * 120}>
+            {TARIFFS.map((t, i) => (
+              <ScrollReveal key={t.id} direction="up" delay={i * 120}>
               <div
                 className={`p-8 flex flex-col relative transition-all duration-500 h-full ${
                   t.popular
@@ -96,14 +50,14 @@ export default function Tariffs() {
                   </div>
                 )}
 
-                <h3 className={`text-2xl font-heading font-bold mb-2 ${t.popular ? "text-gold" : ""}`}>
+                <h3 className={`text-2xl font-heading font-bold mb-2 uppercase ${t.popular ? "text-gold" : ""}`}>
                   {t.name}
                 </h3>
                 <p className="text-gray-400 text-sm mb-6 min-h-[40px]">{t.desc}</p>
 
                 <div className="mb-2">
                   <span className={`text-4xl font-bold ${t.popular ? "text-gradient-gold" : ""}`}>
-                    {t.price}
+                    {t.priceFormatted}
                   </span>
                   <span className="text-gray-400 text-lg ml-1">&#8381;</span>
                 </div>
@@ -154,7 +108,7 @@ export default function Tariffs() {
               <span>
                 Корпоративное обучение от 5 человек — <span className="text-gold font-bold">индивидуальные условия</span>
               </span>
-              <a href="#" className="text-gold hover:text-gold-light underline underline-offset-2 ml-2">
+              <a href="https://t.me/ailegal_academy_bot" target="_blank" rel="noopener noreferrer" className="text-gold hover:text-gold-light underline underline-offset-2 ml-2">
                 Узнать
               </a>
             </div>

@@ -28,6 +28,9 @@ const BOT_TOKEN = env.BOT_TOKEN;
 const SITE_URL = env.SITE_URL || "https://ailegal.ru";
 const API_URL = env.API_URL || "http://localhost:3099";
 const ADMIN_CHAT_ID = env.ADMIN_CHAT_ID || "";
+const NAVI_API_KEY = env.NAVI_API_KEY || "";
+const NAVI_BASE_URL = "https://api.navy/v1";
+const AI_MODEL = "deepseek-chat";
 
 const DATA_DIR = resolve(__dirname, "data");
 const USERS_FILE = resolve(DATA_DIR, "users.json");
@@ -107,7 +110,7 @@ const bot = new Bot(BOT_TOKEN);
 
 bot.use(
   session({
-    initial: () => ({ step: null, data: {}, tariffPage: 0 }),
+    initial: () => ({ step: null, data: {}, tariffPage: 0, chatHistory: [] }),
   })
 );
 
@@ -136,8 +139,8 @@ const EXPERTS = [
   },
   {
     name: "Василий Артин",
-    role: "Ведущий промпт-инженер",
-    desc: "Разработчик решений для анализа договоров и генерации юридических документов с помощью AI.",
+    role: "AI-консультант",
+    desc: "Консультант по AI-решениям для анализа договоров и генерации юридических документов.",
     emoji: "🧠",
   },
   {
@@ -190,8 +193,8 @@ const TARIFFS = [
   },
   {
     name: "VIP",
-    price: "150 000 ₽",
-    monthly: "от 12 500 ₽/мес",
+    price: "120 000 ₽",
+    monthly: "от 10 000 ₽/мес",
     icon: "💎",
     features: [
       "Всё из тарифа Премиум",
@@ -228,34 +231,37 @@ const PRODUCTS = [
     id: "seminar",
     name: "Живой семинар",
     icon: "🎤",
-    shortDesc: "2-часовой интерактивный вебинар с экспертами",
+    shortDesc: "Однодневный семинар-погружение для юристов",
     fullDesc:
       "Живой семинар с демонстрацией AI-инструментов в реальном времени.\n\n" +
-      "✅ 2 часа интенсивной практики\n" +
-      "✅ Демонстрация работы нейросетей\n" +
-      "✅ Ответы на вопросы в прямом эфире\n" +
-      "✅ Запись семинара на 30 дней\n\n" +
-      "<b>Формат:</b> онлайн через Zoom",
+      "✅ Полный день интенсивной практики\n" +
+      "✅ Демонстрация работы нейросетей на реальных кейсах\n" +
+      "✅ Ответы на вопросы в живом формате\n" +
+      "✅ Нетворкинг с коллегами-юристами\n" +
+      "✅ Кофе-брейки включены\n\n" +
+      "<b>Формат:</b> очно\n" +
+      "<b>Площадка:</b> Bubble, Саратов",
   },
   {
     id: "workshop",
     name: "Очный практикум",
     icon: "🏢",
-    shortDesc: "Однодневный практикум в Москве",
+    shortDesc: "Двухдневный воркшоп в малых группах",
     fullDesc:
       "Практикум с погружением в AI-инструменты под руководством экспертов.\n\n" +
-      "✅ Полный день практики (6 часов)\n" +
+      "✅ 2 дня интенсивной практики\n" +
       "✅ Работа на вашем ноутбуке\n" +
       "✅ Настройка AI-инструментов вместе\n" +
+      "✅ Решаете свои реальные кейсы с AI\n" +
       "✅ Нетворкинг с коллегами\n" +
       "✅ Обед и кофе-брейки включены\n\n" +
-      "<b>Локация:</b> Москва, коворкинг",
+      "<b>Площадка:</b> Bubble, Саратов",
   },
   {
     id: "automation",
-    name: "Автоматизация бизнеса",
+    name: "Автоматизация юрфирмы",
     icon: "🤖",
-    shortDesc: "Внедрение AI в бизнес-процессы вашей компании",
+    shortDesc: "Аудит + внедрение AI-инструментов в вашу практику",
     fullDesc:
       "Индивидуальный проект автоматизации для вашей юр. фирмы.\n\n" +
       "✅ Аудит текущих процессов\n" +
@@ -263,7 +269,7 @@ const PRODUCTS = [
       "✅ Настройка и интеграция\n" +
       "✅ Обучение сотрудников\n" +
       "✅ Поддержка 3 месяца\n\n" +
-      "<b>Стоимость:</b> от 300 000 ₽ (по результатам аудита)",
+      "<b>Стоимость:</b> от 200 000 ₽ (зависит от масштаба задачи)",
   },
   {
     id: "corporate",
@@ -403,6 +409,84 @@ const LEAD_MAGNET_TEXT =
 // HELPERS: KEYBOARDS
 // ─────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────
+// MANYASHA AI CHAT ENGINE
+// ─────────────────────────────────────────────────────────────
+
+const MANYASHA_SYSTEM_PROMPT = `Ты — Маняша, милый AI-помощник в Telegram-боте курса "Нейросети для юристов" (AI Legal).
+Ты выглядишь как матрёшка в стиле гжель (сине-белая роспись) и держишь книжку "Федеральный закон №127".
+
+Твоя задача — помогать пользователям в Telegram:
+- Отвечать на вопросы о курсе
+- Рассказывать о программе обучения (4 модуля, 8 недель)
+- Помогать выбрать тариф (Базовый 45 000₽, Премиум 75 000₽, VIP 120 000₽)
+- Объяснять, как AI помогает юристам
+
+Информация о курсе:
+- Курс "Нейросети для юристов" — практический курс от экспертов-юристов
+- 500+ выпускников, 98% рекомендуют, 5 спикеров
+- Экономия до 40 часов в месяц
+- Старт ближайшего потока: 15 Июля 2026
+- Всего 100 мест на поток
+- Основатель: Дмитрий Сизов
+- Эксперты: Владислав Галкин (AI-дизайн), Василий Артин (AI-консультант), Дмитрий Путин (AI-автоматизация), Егор Шабалин (AI-стратег)
+- Продукты: AI-Курс, Живой семинар (Bubble, Саратов), Практикум AI-Lab (2 дня), Автоматизация юрфирмы (от 200 000₽), Корпоративное обучение, Услуги команды
+- Сайт: ${SITE_URL}
+
+Команды бота (подсказывай пользователям):
+- /products — Продукты и услуги
+- /tariffs — Тарифы курса
+- /program — Программа обучения
+- /experts — Наши эксперты
+- /apply — Оставить заявку
+- /faq — Частые вопросы
+
+Правила:
+- Отвечай коротко и дружелюбно (2-4 предложения)
+- Используй эмодзи умеренно
+- Говори на русском языке
+- Если не знаешь ответ, предложи подходящую команду бота или посетить сайт
+- Не придумывай информацию, которой нет в контексте
+- Если пользователь хочет записаться, предложи команду /apply`;
+
+async function askManyashaAI(userText, chatHistory) {
+  if (!NAVI_API_KEY) return null;
+
+  // Keep last 10 messages for context
+  const trimmed = chatHistory.slice(-10);
+  trimmed.push({ role: "user", content: userText });
+
+  try {
+    const response = await fetch(`${NAVI_BASE_URL}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${NAVI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: AI_MODEL,
+        messages: [
+          { role: "system", content: MANYASHA_SYSTEM_PROMPT },
+          ...trimmed,
+        ],
+        max_tokens: 400,
+        temperature: 0.7,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error("[ManyashaAI] API error:", response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content ?? null;
+  } catch (e) {
+    console.error("[ManyashaAI] Fetch error:", e.message);
+    return null;
+  }
+}
+
 function mainKeyboard() {
   return new Keyboard()
     .text("🛍 Наши продукты")
@@ -414,6 +498,7 @@ function mainKeyboard() {
     .text("❓ Частые вопросы")
     .text("📝 Оставить заявку")
     .row()
+    .text("🪆 Спросить Маняшу")
     .text("🌐 Открыть сайт")
     .resized();
 }
@@ -856,6 +941,22 @@ bot.command("help", async (ctx) => {
 });
 
 // ─────────────────────────────────────────────────────────────
+// MANYASHA AI — Keyboard button handler
+// ─────────────────────────────────────────────────────────────
+
+bot.hears("🪆 Спросить Маняшу", async (ctx) => {
+  ctx.session.step = "manyasha_chat";
+  ctx.session.chatHistory = [];
+  await ctx.reply(
+    `🪆 <b>Маняша слушает!</b>\n\n` +
+      `Привет! Я Маняша — твой AI-помощник по курсу "Нейросети для юристов" 🎓\n\n` +
+      `Задай мне любой вопрос о курсе, программе, тарифах или экспертах.\n\n` +
+      `<i>Чтобы выйти из чата, нажми</i> /start`,
+    { parse_mode: "HTML" }
+  );
+});
+
+// ─────────────────────────────────────────────────────────────
 // WebApp button — open site
 // ─────────────────────────────────────────────────────────────
 
@@ -990,7 +1091,46 @@ bot.command("broadcast", async (ctx) => {
 bot.on("message:text", async (ctx) => {
   const text = ctx.message.text;
 
-  if (!ctx.session.step) return;
+  // ── Manyasha AI chat mode ──
+  if (ctx.session.step === "manyasha_chat") {
+    await ctx.replyWithChatAction("typing");
+
+    const reply = await askManyashaAI(text, ctx.session.chatHistory || []);
+
+    if (reply) {
+      // Save to session history
+      if (!ctx.session.chatHistory) ctx.session.chatHistory = [];
+      ctx.session.chatHistory.push({ role: "user", content: text });
+      ctx.session.chatHistory.push({ role: "assistant", content: reply });
+      // Trim to last 20 messages
+      if (ctx.session.chatHistory.length > 20) {
+        ctx.session.chatHistory = ctx.session.chatHistory.slice(-20);
+      }
+
+      await ctx.reply(`🪆 ${reply}`, { parse_mode: "HTML" });
+    } else {
+      await ctx.reply(
+        "🪆 Извини, не могу подключиться к серверу. Попробуй позже или используй команды бота! 🔌"
+      );
+    }
+    return;
+  }
+
+  // ── No active flow → try Manyasha AI as fallback ──
+  if (!ctx.session.step) {
+    // Only respond to non-empty text that isn't a button label
+    if (NAVI_API_KEY && text.length > 1) {
+      await ctx.replyWithChatAction("typing");
+      const reply = await askManyashaAI(text, []);
+      if (reply) {
+        await ctx.reply(`🪆 ${reply}\n\n<i>Совет: нажми «🪆 Спросить Маняшу» для полноценного диалога!</i>`, {
+          parse_mode: "HTML",
+        });
+        return;
+      }
+    }
+    return;
+  }
 
   // Lead magnet flow: name -> phone -> send guide
   if (ctx.session.step === "lead_name") {

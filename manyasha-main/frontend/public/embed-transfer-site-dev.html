@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Юридический Консалтинг «ПравоРитейл»</title>
+  <meta name="description" content="Личный сайт для проверки переносимости виджета Manyasha.">
+  <style>
+    :root {
+      --bg: #f6f9ff;
+      --text: #13243f;
+      --muted: #4c5f78;
+      --card: #ffffff;
+      --line: #d9e4f2;
+      --accent: #1b4f8e;
+      --accent-soft: #ddeafe;
+      --success: #0f6b42;
+      --font: 15px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(900px 500px at 110% -10%, #e5eefc 0%, transparent 60%),
+        radial-gradient(900px 500px at -15% 5%, #ffe8d1 0%, transparent 58%),
+        var(--bg);
+    }
+    .layout {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 26px 18px 120px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+      padding: 16px;
+      background: var(--card);
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      box-shadow: 0 12px 30px rgba(16, 45, 83, 0.07);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: .01em;
+    }
+    .brand-mark {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 7px rgba(27, 79, 142, 0.13);
+    }
+    .pill {
+      border: 1px solid #d7e5f5;
+      border-radius: 999px;
+      font-size: 12px;
+      padding: 6px 10px;
+      color: #325b8c;
+      background: #f5f8ff;
+      font-weight: 700;
+    }
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 20px;
+      background: linear-gradient(130deg, #fff, #f0f6ff);
+      margin-bottom: 18px;
+      box-shadow: 0 14px 36px rgba(16, 45, 83, 0.09);
+    }
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(28px, 5vw, 44px);
+      line-height: 1.06;
+      color: #17395e;
+    }
+    .hero p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.62;
+      max-width: 780px;
+      font-size: 16px;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 8px 18px rgba(21, 64, 111, 0.06);
+    }
+    .col-8 { grid-column: span 8; }
+    .col-4 { grid-column: span 4; }
+    .col-6 { grid-column: span 6; }
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 21px;
+      color: #17395e;
+    }
+    .card h3 {
+      margin: 0 0 6px;
+      font-size: 16px;
+      color: #23456a;
+    }
+    .muted {
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 14px;
+    }
+    .steps {
+      margin: 0;
+      padding-left: 18px;
+      color: #435a75;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+    .status {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 10px;
+      background: #f4f8ff;
+      border: 1px solid #dbe8fb;
+      font-size: 13px;
+      color: #345575;
+      white-space: pre-wrap;
+      line-height: 1.45;
+      min-height: 48px;
+    }
+    .status.ok {
+      border-color: #b9e7cf;
+      color: var(--success);
+      background: #eaf9f1;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .btn {
+      border: 1px solid #c6d8ef;
+      background: #fff;
+      color: #224166;
+      border-radius: 10px;
+      padding: 8px 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .14s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    code {
+      display: block;
+      margin-top: 8px;
+      background: #0f1422;
+      color: #d9e7ff;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 12px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    @media (max-width: 860px) {
+      .cards {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+      }
+      .col-8, .col-4, .col-6 { grid-column: span 1; }
+      header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <header>
+      <div class="brand"><span class="brand-mark"></span><span>ПравоРитейл</span></div>
+      <span class="pill">Тестовый перенос на другой сайт</span>
+    </header>
+
+    <section class="hero">
+      <h1>Новый сайт для проверки переносимости</h1>
+      <p>Это отдельный дев-стенд под перенос виджета. Здесь мы моделируем реальный сайт с обычной структурой контента: шапка, карточки услуг, блоки с FAQ и CTA. Виджет должен работать так же, как на основном демо: открытие, закрытие, drag, fullscreen/mobile width и голоса без зависаний.</p>
+    </section>
+
+    <section class="cards">
+      <article class="card col-8">
+        <h2>Как проверить перенос</h2>
+        <ul class="steps">
+          <li>Откройте страницу в браузере и нажмите на манекен/кнопку запуска маняши.</li>
+          <li>Проверьте expand/collapse, перетаскивание, и что widget не режет ширину в открытом состоянии.</li>
+          <li>Дайте пару вопросов, проверьте состояние "thinking" и голосовой fallback.</li>
+          <li>Проверьте, что health-статус виджета показывает конкретную причину ошибки, если она есть.</li>
+        </ul>
+        <div class="status" id="widget-status">SDK: инициализация…</div>
+      </article>
+      <aside class="card col-4">
+        <h3>Встраивание (копипаста)</h3>
+        <div class="status" id="snippet-box"></div>
+        <code id="snippet-code">&lt;script ...&gt;…</code>
+        <div class="toolbar">
+          <button id="copy-snippet" class="btn">Копировать snippet</button>
+          <button id="refresh-health" class="btn">Проверить health</button>
+        </div>
+      </aside>
+    </section>
+
+    <section class="cards">
+      <article class="card col-6">
+        <h3>Сегмент услуг</h3>
+        <p class="muted">Консультации, подготовка заявлений, судебная поддержка и персональные рекомендации по вопросам банкротства физических лиц и бизнеса.</p>
+      </article>
+      <article class="card col-6">
+        <h3>Тон и доверие</h3>
+        <p class="muted">Добрый экспертный тон, прозрачные обещания по срокам и спокойный UI без перегруза. Если API недоступен — плавный мягкий fallback.</p>
+      </article>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      if (location.protocol === 'file:') {
+        var fileFallback = 'http://127.0.0.1:5173/embed-transfer-site-dev.html';
+        var nextUrl = fileFallback + (location.search || '');
+        location.replace(nextUrl);
+        return;
+      }
+
+      var qs = new URLSearchParams(location.search);
+      var fallbackHost = (location.origin && location.origin !== 'null' && location.origin !== 'nullnull')
+        ? location.origin
+        : 'http://127.0.0.1:5173';
+      var explicitApi = (qs.get('api_origin') || qs.get('apiOrigin') || '').trim();
+      var frontendPort = (location.port || '').trim();
+      var explicitMode = !!explicitApi;
+      var apiCandidates = explicitMode
+        ? [ explicitApi ]
+        : [
+          'http://127.0.0.1:8000',
+          'http://127.0.0.1:5173',
+          'http://127.0.0.1:8001',
+          'http://127.0.0.1:8002'
+        ];
+      if (frontendPort === '5173' || frontendPort === '4173' || frontendPort === '3000') {
+        var mappedFromCurrentHost = (fallbackHost || 'http://127.0.0.1')
+          .replace(/:\d+$/, ':8000');
+        apiCandidates.unshift(mappedFromCurrentHost);
+      }
+      var cfg = {
+        id: (qs.get('id') || qs.get('pid') || 'default').trim(),
+        contract: (qs.get('embed_contract_version') || qs.get('embedContractVersion') || '1').trim(),
+        apiOrigin: '',
+        widgetOrigin: (qs.get('widget_origin') || qs.get('widgetOrigin') || fallbackHost).trim(),
+        siteKey: (qs.get('site_key') || qs.get('siteKey') || 'demo-default-site').trim(),
+        installToken: (qs.get('install_token') || qs.get('installToken') || '').trim(),
+        startOpen: /^(1|true|yes|on|open)$/i.test(String(qs.get('start_open') || qs.get('startOpen') || '').trim()),
+        instance: (qs.get('instance') || 'portable-lab').trim() || 'portable-lab'
+      };
+
+      function setStatus(msg, ok) {
+        var statusEl = document.getElementById('widget-status');
+        statusEl.textContent = msg;
+        statusEl.className = ok ? 'status ok' : 'status';
+      }
+
+      function isResponseOk(raw) {
+        if (!raw) return false;
+        if (typeof raw.status === 'number') return raw.status >= 200 && raw.status < 400;
+        if (raw.type === 'opaque') return true;
+        return true;
+      }
+
+      function probeApi(candidate) {
+        if (!candidate) return Promise.resolve(null);
+        var request = fetch(candidate + '/healthz', {
+          method: 'GET',
+          cache: 'no-store',
+          mode: 'no-cors'
+        });
+        var timeout = new Promise(function (resolve) {
+          setTimeout(function () {
+            resolve(null);
+          }, 900);
+        });
+        return Promise.race([request, timeout]).then(function (r) {
+          if (!r) return null;
+          if (isResponseOk(r)) return candidate;
+          return null;
+        }).catch(function () {
+          return null;
+        });
+      }
+
+      function pickApiOrigin(index, done) {
+        index = index || 0;
+        if (index >= apiCandidates.length) {
+          if (explicitMode) {
+            setStatus('WARN: explicit api_origin=' + explicitApi + ' не проверился по healthz в этом окружении. Пробую резервный backend: ' + (apiCandidates[0] || explicitApi), false);
+            done(explicitApi);
+            return;
+          }
+          done('http://127.0.0.1:8000');
+          return;
+        }
+
+        var candidate = (apiCandidates[index] || '').trim();
+        if (!candidate) {
+          pickApiOrigin(index + 1, done);
+          return;
+        }
+
+        probeApi(candidate).then(function (okCandidate) {
+          if (okCandidate) {
+            done(okCandidate);
+          } else {
+            if (explicitMode && apiCandidates.length > 1 && index === 0) {
+              setStatus('WARN: explicit api_origin=' + explicitApi + ' не доступен по healthz. Переход к автоподбору.', false);
+            }
+            pickApiOrigin(index + 1, done);
+          }
+        });
+      }
+
+      var snippetBox = document.getElementById('snippet-box');
+      var snippetCode = document.getElementById('snippet-code');
+
+      function updateSnippet() {
+        var snippet = ''
+          + '<script src="' + cfg.apiOrigin + '/embed.js?id=' + encodeURIComponent(cfg.id) + '&v=transfer-dev"\\\n'
+          + '  data-site-key="' + cfg.siteKey + '"\\\n'
+          + '  data-install-token="' + (cfg.installToken ? cfg.installToken : '') + '"\\\n'
+          + '  data-embed-contract-version="' + cfg.contract + '"\\\n'
+          + '  data-api-origin="' + cfg.apiOrigin + '"\\\n'
+          + '  data-widget-origin="' + cfg.widgetOrigin + '"\\\n'
+          + '  data-size="large" data-side="right" data-launcher="avatar" data-start-open="' + (cfg.startOpen ? 'true' : 'false') + '" defer><\\/script>';
+        snippetCode.textContent = snippet;
+        snippetBox.textContent = 'snippet собранен для ' + cfg.apiOrigin + ', pid=' + cfg.id + ', contract=' + cfg.contract;
+        if (cfg.siteKey) snippetBox.textContent += ', site_key=указан';
+        if (cfg.installToken) snippetBox.textContent += ', install_token=указан';
+      }
+
+      function injectWidget() {
+        updateSnippet();
+        setStatus('SDK: подключаем виджет с api_origin=' + cfg.apiOrigin + ', widget_origin=' + cfg.widgetOrigin, false);
+        var script = document.createElement('script');
+        script.src = cfg.apiOrigin + '/embed.js?id=' + encodeURIComponent(cfg.id);
+        script.defer = true;
+        script.setAttribute('data-size', 'large');
+        script.setAttribute('data-side', 'right');
+        script.setAttribute('data-launcher', 'avatar');
+        script.setAttribute('data-start-open', cfg.startOpen ? 'true' : 'false');
+        script.setAttribute('data-instance', cfg.instance);
+        script.setAttribute('data-offset-x', '16');
+        script.setAttribute('data-offset-y', '16');
+        script.setAttribute('data-api-origin', cfg.apiOrigin);
+        script.setAttribute('data-widget-origin', cfg.widgetOrigin);
+        script.setAttribute('data-embed-contract-version', cfg.contract);
+        if (cfg.siteKey) script.setAttribute('data-site-key', cfg.siteKey);
+        if (cfg.installToken) script.setAttribute('data-install-token', cfg.installToken);
+        script.onerror = function () {
+          setStatus('Ошибка загрузки ' + script.src + '. Проверь, что backend запущен на ' + cfg.apiOrigin + ' и открыт по http.', false);
+        };
+        document.body.appendChild(script);
+      }
+
+      window.addEventListener('manyasha:install-health', function (evt) {
+        if (!evt || !evt.detail) {
+          return;
+        }
+        var detail = evt.detail;
+        var text = 'install-health: code=' + detail.code + ' status=' + detail.status;
+        if (detail.message) text += '\nmessage=' + detail.message;
+        setStatus(text, detail.code === 'ok');
+      });
+
+      document.getElementById('copy-snippet').addEventListener('click', function () {
+        navigator.clipboard.writeText(snippetCode.textContent).then(function () {
+          setStatus('Snippet скопирован в буфер обмена', true);
+        }).catch(function () {
+          setStatus('Не удалось скопировать snippet', false);
+        });
+      });
+
+      document.getElementById('refresh-health').addEventListener('click', function () {
+        var api = window.ManyashaWidget && window.ManyashaWidget.get ? window.ManyashaWidget.get(cfg.instance) : null;
+        if (!api || typeof api.getInstallHealth !== 'function') {
+          setStatus('Widget API еще не готов — перезагрузите страницу', false);
+          return;
+        }
+        var result = api.getInstallHealth();
+        var text = 'health=' + JSON.stringify(result);
+        setStatus(text, result && result.code === 'ok');
+      });
+
+      pickApiOrigin(0, function (resolvedApi) {
+        cfg.apiOrigin = resolvedApi;
+        updateSnippet();
+        setStatus('SDK: подключаем виджет с api_origin=' + cfg.apiOrigin + ', widget_origin=' + cfg.widgetOrigin, false);
+        injectWidget();
+        setTimeout(function () {
+          var api = window.ManyashaWidget && window.ManyashaWidget.get ? window.ManyashaWidget.get(cfg.instance) : null;
+          if (!api) {
+            setStatus(
+              'SDK не зарегистрировал API. Проверьте, что backend запущен на ' + cfg.apiOrigin
+              + ' и страница открыта по http.',
+              false
+            );
+          }
+        }, 3500);
+      });
+    }());
+  </script>
+</body>
+</html>

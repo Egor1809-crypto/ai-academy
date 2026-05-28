@@ -1,0 +1,194 @@
+name: deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-yandex-cloud:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.5
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Install Yandex Cloud CLI
+        run: |
+          curl -fsSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -a
+          echo "$HOME/yandex-cloud/bin" >> "$GITHUB_PATH"
+
+      - name: Authenticate to Yandex Cloud
+        env:
+          YC_SERVICE_ACCOUNT_KEY: ${{ secrets.YC_SERVICE_ACCOUNT_KEY }}
+        run: |
+          printf '%s' "$YC_SERVICE_ACCOUNT_KEY" > key.json
+          yc config profile create ci || true
+          yc config set service-account-key key.json
+          yc config set cloud-id ${{ secrets.YC_CLOUD_ID }}
+          yc config set folder-id ${{ secrets.YC_FOLDER_ID }}
+
+      - name: Prepare Terraform variables
+        working-directory: terraform
+        run: |
+          cat > terraform.auto.tfvars <<EOF
+          yc_token          = "${{ secrets.YC_IAM_TOKEN }}"
+          cloud_id          = "${{ secrets.YC_CLOUD_ID }}"
+          folder_id         = "${{ secrets.YC_FOLDER_ID }}"
+          domain_name       = "${{ secrets.DOMAIN_NAME }}"
+          bucket_name       = "${{ secrets.YC_BUCKET_NAME }}"
+          ssh_public_key    = "${{ secrets.VM_SSH_PUBLIC_KEY }}"
+          postgres_password = "${{ secrets.POSTGRES_PASSWORD }}"
+          grafana_admin_password = "${{ secrets.GRAFANA_ADMIN_PASSWORD }}"
+          EOF
+
+      - name: Terraform apply
+        working-directory: terraform
+        run: |
+          terraform init
+          terraform apply -auto-approve
+
+      - name: Get registry auth token
+        id: registry
+        run: |
+          echo "token=$(yc iam create-token)" >> "$GITHUB_OUTPUT"
+
+      - name: Login to Yandex Container Registry
+        env:
+          YC_REGISTRY_ID: ${{ secrets.YC_REGISTRY_ID }}
+        run: |
+          echo "${{ steps.registry.outputs.token }}" | docker login \
+            --username oauth \
+            --password-stdin \
+            cr.yandex/${YC_REGISTRY_ID}
+
+      - name: Build and push API image
+        env:
+          YC_REGISTRY_ID: ${{ secrets.YC_REGISTRY_ID }}
+        run: |
+          docker build -f deploy/Dockerfile.api -t cr.yandex/${YC_REGISTRY_ID}/manaya-api:${GITHUB_SHA} .
+          docker push cr.yandex/${YC_REGISTRY_ID}/manaya-api:${GITHUB_SHA}
+
+      - name: Build and push worker image
+        env:
+          YC_REGISTRY_ID: ${{ secrets.YC_REGISTRY_ID }}
+        run: |
+          docker build -f deploy/Dockerfile.worker -t cr.yandex/${YC_REGISTRY_ID}/manaya-worker:${GITHUB_SHA} .
+          docker push cr.yandex/${YC_REGISTRY_ID}/manaya-worker:${GITHUB_SHA}
+
+      - name: Validate strict production env
+        env:
+          APP_ENV: production
+          DEV_AUTH_ENABLED: "false"
+          DEV_STORAGE_ENABLED: "false"
+          ALLOW_LEGACY_PLAINTEXT_PII: "false"
+          WIDGET_CONTEXT_REQUIRE_INSTALL: "true"
+          WIDGET_CAPTCHA_REQUIRED: "true"
+          DATABASE_URL: postgresql+psycopg://manaya:${{ secrets.POSTGRES_PASSWORD }}@postgres:5432/manaya
+          REDIS_URL: redis://redis:6379/0
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+          WIDGET_AUTH_SECRET: ${{ secrets.WIDGET_AUTH_SECRET }}
+          MANYASHA_EMBED_SUPPORTED_CONTRACT_VERSIONS: ${{ secrets.MANYASHA_EMBED_SUPPORTED_CONTRACT_VERSIONS }}
+          MANYASHA_LLM_PROVIDER: ${{ secrets.MANYASHA_LLM_PROVIDER || 'navy' }}
+          MANYASHA_CHAT_LLM_TIMEOUT_SECONDS: ${{ secrets.MANYASHA_CHAT_LLM_TIMEOUT_SECONDS || '12.0' }}
+          NAVY_API_KEY: ${{ secrets.NAVY_API_KEY }}
+          CORS_ALLOW_ORIGINS: ${{ secrets.CORS_ALLOW_ORIGINS }}
+          INTERNAL_METRICS_SERVICE_TOKEN: ${{ secrets.INTERNAL_METRICS_SERVICE_TOKEN }}
+          WIDGET_PARTNER_DOMAIN_ALLOWLIST: ${{ secrets.WIDGET_PARTNER_DOMAIN_ALLOWLIST }}
+          WIDGET_PARTNER_SITE_KEYS: ${{ secrets.WIDGET_PARTNER_SITE_KEYS }}
+          WIDGET_INSTALL_SIGNING_SECRET: ${{ secrets.WIDGET_INSTALL_SIGNING_SECRET }}
+          WIDGET_INSTALL_PROVISION_KEY: ${{ secrets.WIDGET_INSTALL_PROVISION_KEY }}
+          WIDGET_CAPTCHA_SECRET: ${{ secrets.WIDGET_CAPTCHA_SECRET }}
+          ALERT_WEBHOOK_URL: ${{ secrets.ALERT_WEBHOOK_URL }}
+        run: python scripts/validate_prod_env.py
+
+      - name: Upload deployment bundle to VM
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          source: docker-compose.prod.yml,nginx.conf,monitoring,deploy
+          target: /opt/manaya
+
+      - name: Deploy stack on VM
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          YC_REGISTRY_ID: ${{ secrets.YC_REGISTRY_ID }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          YC_KMS_KEY_ID: ${{ secrets.YC_KMS_KEY_ID }}
+          YC_STORAGE_BUCKET: ${{ secrets.YC_BUCKET_NAME }}
+          GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+          WIDGET_AUTH_SECRET: ${{ secrets.WIDGET_AUTH_SECRET }}
+          WIDGET_PARTNER_DOMAIN_ALLOWLIST: ${{ secrets.WIDGET_PARTNER_DOMAIN_ALLOWLIST }}
+          WIDGET_PARTNER_SITE_KEYS: ${{ secrets.WIDGET_PARTNER_SITE_KEYS }}
+          WIDGET_INSTALL_SIGNING_SECRET: ${{ secrets.WIDGET_INSTALL_SIGNING_SECRET }}
+          WIDGET_INSTALL_PROVISION_KEY: ${{ secrets.WIDGET_INSTALL_PROVISION_KEY }}
+          WIDGET_SITE_KEY: ${{ secrets.WIDGET_SITE_KEY }}
+          WIDGET_INSTALL_TOKEN: ${{ secrets.WIDGET_INSTALL_TOKEN }}
+          MANYASHA_EMBED_CONTRACT_VERSION: ${{ secrets.MANYASHA_EMBED_CONTRACT_VERSION }}
+          MANYASHA_EMBED_SUPPORTED_CONTRACT_VERSIONS: ${{ secrets.MANYASHA_EMBED_SUPPORTED_CONTRACT_VERSIONS }}
+          ALERT_WEBHOOK_URL: ${{ secrets.ALERT_WEBHOOK_URL }}
+          WIDGET_CAPTCHA_SECRET: ${{ secrets.WIDGET_CAPTCHA_SECRET }}
+          INTERNAL_METRICS_SERVICE_TOKEN: ${{ secrets.INTERNAL_METRICS_SERVICE_TOKEN }}
+          CORS_ALLOW_ORIGINS: ${{ secrets.CORS_ALLOW_ORIGINS }}
+          MANYASHA_LLM_PROVIDER: ${{ secrets.MANYASHA_LLM_PROVIDER || 'navy' }}
+          MANYASHA_CHAT_LLM_TIMEOUT_SECONDS: ${{ secrets.MANYASHA_CHAT_LLM_TIMEOUT_SECONDS || '12.0' }}
+          NAVY_API_KEY: ${{ secrets.NAVY_API_KEY }}
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          script: |
+            mkdir -p /opt/manaya
+            cd /opt/manaya
+            cat > .env <<EOF
+            IMAGE_API=cr.yandex/${YC_REGISTRY_ID}/manaya-api:${GITHUB_SHA}
+            IMAGE_WORKER=cr.yandex/${YC_REGISTRY_ID}/manaya-worker:${GITHUB_SHA}
+            POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+            YC_KMS_KEY_ID=${YC_KMS_KEY_ID}
+            YC_STORAGE_BUCKET=${YC_STORAGE_BUCKET}
+            GRAFANA_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+            JWT_SECRET=${JWT_SECRET}
+            ENCRYPTION_KEY=${ENCRYPTION_KEY}
+            WIDGET_AUTH_SECRET=${WIDGET_AUTH_SECRET}
+            WIDGET_CONTEXT_REQUIRE_INSTALL=true
+            DEV_AUTH_ENABLED=false
+            DEV_STORAGE_ENABLED=false
+            ALLOW_LEGACY_PLAINTEXT_PII=false
+            WIDGET_CAPTCHA_REQUIRED=true
+            WIDGET_PARTNER_DOMAIN_ALLOWLIST=${WIDGET_PARTNER_DOMAIN_ALLOWLIST}
+            WIDGET_PARTNER_SITE_KEYS=${WIDGET_PARTNER_SITE_KEYS}
+            WIDGET_INSTALL_SIGNING_SECRET=${WIDGET_INSTALL_SIGNING_SECRET}
+            WIDGET_INSTALL_PROVISION_KEY=${WIDGET_INSTALL_PROVISION_KEY}
+            WIDGET_CAPTCHA_SECRET=${WIDGET_CAPTCHA_SECRET}
+            INTERNAL_METRICS_SERVICE_TOKEN=${INTERNAL_METRICS_SERVICE_TOKEN}
+            CORS_ALLOW_ORIGINS=${CORS_ALLOW_ORIGINS}
+            MANYASHA_LLM_PROVIDER=${MANYASHA_LLM_PROVIDER}
+            MANYASHA_CHAT_LLM_TIMEOUT_SECONDS=${MANYASHA_CHAT_LLM_TIMEOUT_SECONDS}
+            NAVY_API_KEY=${NAVY_API_KEY}
+            WIDGET_SITE_KEY=${WIDGET_SITE_KEY}
+            WIDGET_INSTALL_TOKEN=${WIDGET_INSTALL_TOKEN}
+            MANYASHA_EMBED_CONTRACT_VERSION=${MANYASHA_EMBED_CONTRACT_VERSION}
+            MANYASHA_EMBED_SUPPORTED_CONTRACT_VERSIONS=${MANYASHA_EMBED_SUPPORTED_CONTRACT_VERSIONS}
+            ALERT_WEBHOOK_URL=${ALERT_WEBHOOK_URL}
+            EOF
+            docker login -u oauth -p "$(yc iam create-token)" cr.yandex/${YC_REGISTRY_ID}
+            docker compose --env-file .env -f docker-compose.prod.yml pull
+            docker compose --env-file .env -f docker-compose.prod.yml up -d --remove-orphans

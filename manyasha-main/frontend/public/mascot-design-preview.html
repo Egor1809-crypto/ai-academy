@@ -1,0 +1,3524 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Egor Банкротит | Банкротство физлиц: анализ и сопровождение</title>
+    <meta name="description" content="Юридический разбор вашей долговой ситуации и пошаговое сопровождение по процедуре банкротства физического лица. Работаем прозрачно, без гарантий и без давления.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Literata:opsz,wght@7..72,600&display=swap" rel="stylesheet">
+    <script>
+        (function () {
+            var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            var saveData = !!(connection && connection.saveData);
+            var store = window.__manyashaColdStartMedia = window.__manyashaColdStartMedia || [];
+            var base = './mascot/v/';
+            var queue = saveData
+                ? [
+                    ['manyasha-greeting.mp4', 0],
+                    ['manyasha-thinking.mp4', 180],
+                    ['manyasha-answering.mp4', 360]
+                ]
+                : [
+                    ['manyasha-greeting.mp4', 0],
+                    ['manyasha-thinking.mp4', 180],
+                    ['manyasha-answering.mp4', 360],
+                    ['manyasha-listening.mp4', 920]
+                ];
+            function warm(file) {
+                try {
+                    var video = document.createElement('video');
+                    video.preload = 'auto';
+                    video.muted = true;
+                    video.playsInline = true;
+                    video.setAttribute('playsinline', '');
+                    video.setAttribute('aria-hidden', 'true');
+                    video.style.cssText = 'position:fixed;width:1px;height:1px;left:-9999px;top:-9999px;opacity:0;pointer-events:none;';
+                    video.src = base + file;
+                    store.push(video);
+                    video.load();
+                } catch (_err) {}
+            }
+            queue.forEach(function (item) {
+                if (item[1] <= 0) warm(item[0]);
+                else setTimeout(function () { warm(item[0]); }, item[1]);
+            });
+        })();
+    </script>
+    <style>
+        :root {
+            --bg: #f3f7ff;
+            --bg-soft: #edf3ff;
+            --surface: #ffffff;
+            --text: #102548;
+            --muted: #5f7397;
+            --line: #d7e4ff;
+            --brand: #1b4fa3;
+            --brand-strong: #123a7b;
+            --accent: #2f6fdd;
+            --ok: #0d6f66;
+            --shadow: 0 16px 45px rgba(17, 48, 100, 0.14);
+            --radius: 20px;
+            --container: min(1160px, calc(100% - 40px));
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Manrope", "Inter", system-ui, -apple-system, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(1200px 500px at 100% -5%, rgba(46, 110, 221, 0.20), rgba(243, 247, 255, 0)),
+                radial-gradient(800px 420px at 0% 8%, rgba(27, 79, 163, 0.16), rgba(243, 247, 255, 0)),
+                var(--bg);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .container {
+            width: var(--container);
+            margin: 0 auto;
+        }
+
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(209, 224, 255, 0.92);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            background: rgba(243, 247, 255, 0.84);
+        }
+
+        .header-row {
+            min-height: 76px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+            color: var(--brand-strong);
+        }
+
+        .brand-mark {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            font-size: 0.84rem;
+            background: radial-gradient(130% 120% at 22% 18%, #6e97e8 0%, var(--brand) 48%, var(--brand-strong) 100%);
+            box-shadow: 0 12px 24px rgba(27, 79, 163, 0.26), 0 0 0 1px rgba(13, 58, 125, 0.22);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .brand-mark::before {
+            content: "";
+            position: absolute;
+            inset: 3px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.44);
+            pointer-events: none;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            flex: 1 1 auto;
+            min-width: 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            font-size: 0.94rem;
+            color: #3e5680;
+            font-weight: 600;
+        }
+
+        .nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav button:hover {
+            color: var(--brand);
+        }
+
+        .nav button {
+            border: 0;
+            border-radius: 999px;
+            background: transparent;
+            color: inherit;
+            cursor: pointer;
+            flex: 0 0 auto;
+            font: inherit;
+            font-weight: 800;
+            padding: 8px 12px;
+            transition: 0.18s ease;
+            white-space: nowrap;
+        }
+
+        .nav button:hover,
+        .nav button:focus-visible,
+        .nav button.is-active {
+            color: #fff;
+            background: linear-gradient(135deg, var(--brand), var(--accent));
+            box-shadow: 0 8px 18px rgba(29, 87, 175, 0.18);
+            outline: none;
+        }
+
+        .btn {
+            border: 0;
+            cursor: pointer;
+            border-radius: 999px;
+            font-family: inherit;
+            font-weight: 700;
+            transition: 0.22s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 22px;
+            white-space: nowrap;
+        }
+
+        .btn:hover,
+        .btn:focus-visible {
+            color: #fff;
+            background: linear-gradient(135deg, var(--brand), var(--accent));
+            border-color: transparent;
+            transform: translateY(-1px);
+            box-shadow: 0 16px 30px rgba(29, 87, 175, 0.4);
+            outline: none;
+        }
+
+        .btn-primary {
+            color: #fff;
+            background: linear-gradient(135deg, var(--brand), var(--accent));
+            box-shadow: 0 12px 26px rgba(29, 87, 175, 0.32);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 16px 30px rgba(29, 87, 175, 0.4);
+        }
+
+        .btn-secondary {
+            color: var(--brand-strong);
+            border: 1px solid #b8cdf8;
+            background: #fff;
+        }
+
+        .btn-secondary:hover {
+            color: #fff;
+            background: linear-gradient(135deg, var(--brand), var(--accent));
+            border-color: transparent;
+            box-shadow: 0 16px 30px rgba(29, 87, 175, 0.4);
+        }
+
+        .site-main {
+            padding-bottom: 210px;
+        }
+
+        .hero {
+            padding: 58px 0 34px;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.3fr 0.9fr;
+            gap: 28px;
+            align-items: stretch;
+        }
+
+        .hero-panel,
+        .hero-aside {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .hero-panel {
+            padding: 34px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #234f93;
+            background: #e8f0ff;
+            border: 1px solid #d4e3ff;
+            margin-bottom: 14px;
+        }
+
+        .hero h1 {
+            margin: 0;
+            font-family: "Literata", Georgia, serif;
+            font-size: clamp(1.95rem, 3vw, 3.2rem);
+            line-height: 1.18;
+            letter-spacing: 0.01em;
+            color: #0d2c5f;
+            max-width: 16ch;
+        }
+
+        .hero p {
+            margin: 18px 0 0;
+            max-width: 58ch;
+            color: var(--muted);
+            font-size: 1.03rem;
+        }
+
+        .hero-actions {
+            margin-top: 24px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .hero-note {
+            margin-top: 16px;
+            font-size: 0.86rem;
+            color: #60779e;
+        }
+
+        .hero-path {
+            margin-top: 22px;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .hero-path-item {
+            padding: 13px;
+            border-radius: 16px;
+            border: 1px solid #d9e6ff;
+            background: linear-gradient(180deg, #f8fbff 0%, #f1f6ff 100%);
+        }
+
+        .hero-path-item span {
+            display: inline-grid;
+            width: 30px;
+            height: 30px;
+            place-items: center;
+            border-radius: 10px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--brand), var(--accent));
+            font-weight: 800;
+            font-size: 0.82rem;
+            margin-bottom: 9px;
+            box-shadow: 0 8px 18px rgba(27, 79, 163, 0.20);
+        }
+
+        .hero-path-item strong {
+            display: block;
+            color: #113569;
+            font-size: 0.91rem;
+            line-height: 1.28;
+        }
+
+        .hero-path-item small {
+            display: block;
+            margin-top: 5px;
+            color: #60779e;
+            font-size: 0.76rem;
+            font-weight: 600;
+            line-height: 1.35;
+        }
+
+        .hero-kpis {
+            margin-top: 26px;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .kpi {
+            padding: 14px 14px 13px;
+            border-radius: 14px;
+            border: 1px solid #d9e6ff;
+            background: linear-gradient(180deg, #f8fbff 0%, #f1f6ff 100%);
+        }
+
+        .kpi-value {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #0f3a7b;
+            display: block;
+            line-height: 1.15;
+        }
+
+        .kpi-label {
+            margin-top: 4px;
+            font-size: 0.82rem;
+            color: #5f759c;
+            font-weight: 600;
+        }
+
+        .hero-aside {
+            padding: 24px 22px;
+            background: linear-gradient(165deg, #fff 0%, #eef4ff 100%);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .aside-title {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #113569;
+        }
+
+        .check-list {
+            margin: 2px 0 0;
+            padding: 0;
+            list-style: none;
+            display: grid;
+            gap: 9px;
+            color: #35527c;
+            font-size: 0.95rem;
+        }
+
+        .check-list li {
+            position: relative;
+            padding-left: 28px;
+        }
+
+        .check-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: inline-grid;
+            place-items: center;
+            font-size: 0.76rem;
+            font-weight: 800;
+            color: #fff;
+            background: linear-gradient(135deg, #245bc2, #2e70dd);
+            box-shadow: 0 4px 10px rgba(30, 86, 175, 0.24);
+        }
+
+        .aside-box {
+            margin-top: auto;
+            border-radius: 14px;
+            border: 1px solid #d7e3fb;
+            background: #fff;
+            padding: 13px 14px;
+            font-size: 0.86rem;
+            color: #5c7398;
+        }
+
+        .section {
+            padding: 56px 0;
+            scroll-margin-top: 96px;
+        }
+
+        .section-head {
+            margin-bottom: 28px;
+        }
+
+        .section-head h2 {
+            margin: 0;
+            font-size: clamp(1.5rem, 2.3vw, 2.2rem);
+            line-height: 1.2;
+            color: #102f62;
+        }
+
+        .section-head p {
+            margin: 11px 0 0;
+            color: var(--muted);
+            max-width: 74ch;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 8px 22px rgba(16, 47, 98, 0.08);
+        }
+
+        .card:hover {
+            border-color: #9fbbf0;
+            box-shadow: 0 12px 28px rgba(29, 87, 175, 0.14);
+        }
+
+        .card h3 {
+            margin: 0;
+            font-size: 1.06rem;
+            color: #153f7f;
+        }
+
+        .card p {
+            margin: 8px 0 0;
+            color: #60779d;
+            font-size: 0.93rem;
+        }
+
+        .card-label {
+            display: inline-flex;
+            margin-bottom: 10px;
+            padding: 4px 9px;
+            border-radius: 999px;
+            border: 1px solid #cbdcff;
+            color: #234f93;
+            background: #edf4ff;
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .step {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 16px;
+            position: relative;
+        }
+
+        .step-index {
+            width: 34px;
+            height: 34px;
+            border-radius: 11px;
+            display: inline-grid;
+            place-items: center;
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: #fff;
+            background: linear-gradient(135deg, var(--brand), var(--accent));
+            box-shadow: 0 9px 20px rgba(27, 79, 163, 0.26);
+            margin-bottom: 11px;
+        }
+
+        .step h3 {
+            margin: 0;
+            font-size: 1rem;
+            color: #133968;
+        }
+
+        .step p {
+            margin: 6px 0 0;
+            font-size: 0.89rem;
+            color: #5f759b;
+        }
+
+        .split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .debt-box {
+            border-radius: 16px;
+            background: #fff;
+            border: 1px solid var(--line);
+            padding: 18px;
+        }
+
+        .debt-box h3 {
+            margin: 0;
+            font-size: 1.06rem;
+            color: #143b74;
+        }
+
+        .debt-list {
+            margin: 10px 0 0;
+            padding-left: 18px;
+            color: #5b7297;
+            font-size: 0.92rem;
+            display: grid;
+            gap: 6px;
+        }
+
+        .trust-wrap {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 16px;
+        }
+
+        .trust-main,
+        .trust-side {
+            border-radius: 18px;
+            border: 1px solid var(--line);
+            background: #fff;
+            padding: 20px;
+        }
+
+        .trust-stats {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .trust-stat {
+            border-radius: 12px;
+            padding: 12px;
+            background: #f4f8ff;
+            border: 1px solid #dbe7fd;
+        }
+
+        .trust-stat strong {
+            display: block;
+            font-size: 1.05rem;
+            color: #114080;
+        }
+
+        .trust-stat span {
+            display: block;
+            margin-top: 4px;
+            font-size: 0.8rem;
+            color: #60769a;
+            font-weight: 600;
+            line-height: 1.35;
+        }
+
+        .trust-points {
+            margin: 0;
+            padding-left: 18px;
+            display: grid;
+            gap: 8px;
+            color: #556e94;
+            font-size: 0.91rem;
+        }
+
+        .manyasha-site {
+            display: grid;
+            grid-template-columns: 0.92fr 1.08fr;
+            gap: 16px;
+            align-items: stretch;
+        }
+
+        .manyasha-brief,
+        .manyasha-points {
+            border-radius: 18px;
+            border: 1px solid var(--line);
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 8px 22px rgba(16, 47, 98, 0.08);
+        }
+
+        .manyasha-brief h2 {
+            margin: 0;
+            font-size: clamp(1.5rem, 2.3vw, 2.2rem);
+            line-height: 1.2;
+            color: #102f62;
+        }
+
+        .manyasha-brief p {
+            margin: 11px 0 0;
+            color: var(--muted);
+        }
+
+        .manyasha-points {
+            display: grid;
+            gap: 10px;
+        }
+
+        .manyasha-point {
+            padding: 13px 14px;
+            border-radius: 14px;
+            border: 1px solid #dbe7fd;
+            background: #f4f8ff;
+        }
+
+        .manyasha-point strong {
+            display: block;
+            color: #114080;
+            font-size: 0.98rem;
+        }
+
+        .manyasha-point span {
+            display: block;
+            margin-top: 4px;
+            color: #60769a;
+            font-size: 0.86rem;
+            line-height: 1.42;
+        }
+
+        .fact-strip {
+            padding: 8px 0 30px;
+        }
+
+        .fact-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .fact-item {
+            background: rgba(255, 255, 255, 0.74);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 14px;
+            box-shadow: 0 8px 22px rgba(16, 47, 98, 0.08);
+        }
+
+        .fact-item strong {
+            display: block;
+            color: #0f3a7b;
+            font-size: 1.12rem;
+            line-height: 1.15;
+        }
+
+        .fact-item span {
+            display: block;
+            margin-top: 5px;
+            color: #60779d;
+            font-size: 0.86rem;
+            line-height: 1.4;
+            font-weight: 600;
+        }
+
+        .section-surface {
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.68);
+            box-shadow: var(--shadow);
+            padding: 20px;
+        }
+
+        .section-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .section-grid.two {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .info-card {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 14px;
+            box-shadow: 0 8px 22px rgba(16, 47, 98, 0.08);
+        }
+
+        .info-card:hover {
+            border-color: #9fbbf0;
+            box-shadow: 0 12px 28px rgba(29, 87, 175, 0.14);
+        }
+
+        .info-card h3 {
+            margin: 0;
+            color: #153f7f;
+            font-size: 1.02rem;
+            line-height: 1.25;
+        }
+
+        .info-card p {
+            margin: 7px 0 0;
+            color: #60779d;
+            font-size: 0.9rem;
+            line-height: 1.45;
+        }
+
+        .compact-list {
+            margin: 10px 0 0;
+            padding: 0;
+            list-style: none;
+            display: grid;
+            gap: 7px;
+            color: #5f759b;
+            font-size: 0.9rem;
+        }
+
+        .compact-list li {
+            position: relative;
+            padding-left: 18px;
+        }
+
+        .compact-list li::before {
+            content: "";
+            position: absolute;
+            left: 2px;
+            top: 0.65em;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--brand);
+            box-shadow: 0 0 0 4px rgba(27, 79, 163, 0.12);
+        }
+
+        .price-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .price-card {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 14px;
+            box-shadow: 0 8px 22px rgba(16, 47, 98, 0.08);
+        }
+
+        .price-card:hover {
+            border-color: #9fbbf0;
+            box-shadow: 0 12px 28px rgba(29, 87, 175, 0.14);
+        }
+
+        .price-range {
+            display: block;
+            color: #103a78;
+            font-weight: 800;
+            font-size: 1.03rem;
+            line-height: 1.25;
+        }
+
+        .price-card p {
+            margin: 8px 0 0;
+            color: #60779d;
+            font-size: 0.9rem;
+            line-height: 1.45;
+        }
+
+        .price-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 11px;
+        }
+
+        .price-pill {
+            border: 1px solid #cbdcff;
+            border-radius: 999px;
+            color: #234f93;
+            background: #edf4ff;
+            font-size: 0.74rem;
+            font-weight: 800;
+            padding: 4px 8px;
+        }
+
+        .price-note {
+            margin-top: 14px;
+            border: 1px solid #c7dafc;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(243, 247, 255, 0.96), rgba(255, 255, 255, 0.96));
+            padding: 14px;
+            color: #46648f;
+            font-size: 0.92rem;
+        }
+
+        .price-note strong {
+            color: #123a7b;
+        }
+
+        .cost-factors {
+            margin-top: 12px;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .factor-card {
+            border: 1px solid #dbe7fd;
+            border-radius: 14px;
+            background: #f4f8ff;
+            padding: 12px;
+        }
+
+        .factor-card strong {
+            display: block;
+            color: #114080;
+            font-size: 0.95rem;
+            line-height: 1.25;
+        }
+
+        .factor-card span {
+            display: block;
+            margin-top: 5px;
+            color: #60769a;
+            font-size: 0.82rem;
+            line-height: 1.38;
+        }
+
+        .tab-action,
+        .quiz-actions {
+            margin-top: 14px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .route-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .route-card {
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: #fff;
+            padding: 16px;
+            box-shadow: 0 8px 22px rgba(16, 47, 98, 0.08);
+        }
+
+        .route-card h3 {
+            margin: 0;
+            color: #123a7b;
+            font-size: 1.18rem;
+        }
+
+        .route-card p {
+            margin: 8px 0 0;
+            color: #60779d;
+            font-size: 0.92rem;
+        }
+
+        .timeline {
+            display: grid;
+            gap: 10px;
+        }
+
+        .timeline-item {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 12px;
+            align-items: start;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: #fff;
+            padding: 12px;
+        }
+
+        .timeline-item h3 {
+            margin: 0;
+            color: #153f7f;
+            font-size: 1rem;
+        }
+
+        .timeline-item p {
+            margin: 5px 0 0;
+            color: #60779d;
+            font-size: 0.9rem;
+            line-height: 1.43;
+        }
+
+        .quiz-shell {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 330px;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .quiz-panel,
+        .quiz-result {
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: #fff;
+            padding: 16px;
+            box-shadow: 0 8px 22px rgba(16, 47, 98, 0.08);
+        }
+
+        .quiz-groups {
+            display: grid;
+            gap: 12px;
+        }
+
+        .quiz-group h3 {
+            margin: 0 0 8px;
+            color: #153f7f;
+            font-size: 0.98rem;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .quiz-option {
+            border: 1px solid #b8cdf8;
+            border-radius: 999px;
+            background: #fff;
+            color: var(--brand-strong);
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 800;
+            font-size: 0.84rem;
+            padding: 8px 11px;
+            transition: 0.2s ease;
+        }
+
+        .quiz-option:hover,
+        .quiz-option:focus-visible,
+        .quiz-option[aria-pressed="true"] {
+            color: #fff;
+            background: linear-gradient(135deg, var(--brand), var(--accent));
+            border-color: transparent;
+            box-shadow: 0 10px 22px rgba(29, 87, 175, 0.24);
+            outline: none;
+        }
+
+        .quiz-result h3 {
+            margin: 0;
+            color: #123a7b;
+            font-size: 1.1rem;
+        }
+
+        .quiz-result p {
+            margin: 8px 0 0;
+            color: #60779d;
+            font-size: 0.92rem;
+        }
+
+        .quiz-summary {
+            margin: 12px 0 0;
+            padding: 0;
+            list-style: none;
+            display: grid;
+            gap: 7px;
+            color: #4d6890;
+            font-size: 0.88rem;
+        }
+
+        .quiz-summary li {
+            border: 1px solid #dbe7fd;
+            border-radius: 12px;
+            background: #f4f8ff;
+            padding: 8px 10px;
+        }
+
+        .site-tabs-section {
+            padding-top: 44px;
+            scroll-margin-top: 178px;
+        }
+
+        .site-tab-shell {
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.62);
+            box-shadow: var(--shadow);
+            padding: 16px;
+        }
+
+        .site-tab-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .site-tab-button {
+            border: 1px solid #b8cdf8;
+            border-radius: 999px;
+            background: #fff;
+            color: var(--brand-strong);
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 800;
+            font-size: 0.9rem;
+            padding: 9px 13px;
+            transition: 0.2s ease;
+        }
+
+        .site-tab-button:hover,
+        .site-tab-button:focus-visible,
+        .site-tab-button.is-active {
+            color: #fff;
+            background: linear-gradient(135deg, var(--brand), var(--accent));
+            border-color: transparent;
+            box-shadow: 0 10px 22px rgba(29, 87, 175, 0.24);
+            outline: none;
+        }
+
+        .tab-feed--quiz {
+            display: block;
+        }
+
+        .site-tab-panel {
+            display: none;
+        }
+
+        .site-tab-panel.is-active:not([hidden]) {
+            display: block;
+        }
+
+        .tab-widget {
+            display: grid;
+            gap: 14px;
+        }
+
+        .site-tab-panel .section-head {
+            margin-bottom: 18px;
+        }
+
+        .site-tab-panel .section-head p {
+            max-width: 66ch;
+        }
+
+        .feed-head {
+            margin-bottom: 14px;
+        }
+
+        .feed-head h2 {
+            margin: 0;
+            font-size: clamp(1.35rem, 2vw, 1.9rem);
+            line-height: 1.2;
+            color: #102f62;
+        }
+
+        .feed-head p {
+            margin: 8px 0 0;
+            color: var(--muted);
+            max-width: 64ch;
+        }
+
+        .feed-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 255px), 1fr));
+            gap: 10px;
+        }
+
+        .feed-card {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 12px;
+            box-shadow: 0 8px 22px rgba(16, 47, 98, 0.08);
+        }
+
+        .feed-card.featured {
+            grid-column: 1 / -1;
+            background:
+                linear-gradient(135deg, rgba(243, 247, 255, 0.92), rgba(255, 255, 255, 0.96));
+            border-color: #b8cdf8;
+        }
+
+        .feed-card:hover {
+            border-color: #9fbbf0;
+            box-shadow: 0 12px 28px rgba(29, 87, 175, 0.14);
+        }
+
+        .feed-card h3 {
+            margin: 0;
+            font-size: 1rem;
+            line-height: 1.24;
+            color: #153f7f;
+        }
+
+        .feed-card p {
+            margin: 6px 0 0;
+            color: #60779d;
+            font-size: 0.9rem;
+            line-height: 1.44;
+        }
+
+        .faq {
+            display: grid;
+            gap: 9px;
+        }
+
+        .faq details {
+            border: 1px solid var(--line);
+            background: #fff;
+            border-radius: 14px;
+            padding: 11px 12px;
+        }
+
+        .faq summary {
+            cursor: pointer;
+            font-weight: 700;
+            color: #123a73;
+            list-style: none;
+            border-radius: 10px;
+            transition: 0.18s ease;
+        }
+
+        .faq summary:hover,
+        .faq summary:focus-visible {
+            color: var(--brand);
+            outline: none;
+        }
+
+        .faq summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .faq p {
+            margin: 10px 0 0;
+            color: #5f759b;
+            font-size: 0.91rem;
+        }
+
+        .final-cta {
+            margin: 22px 0 36px;
+            border-radius: 22px;
+            border: 1px solid #c7dafc;
+            background: linear-gradient(150deg, #194c9a 0%, #2f6fdd 100%);
+            color: #eff5ff;
+            padding: 30px;
+            box-shadow: 0 26px 48px rgba(21, 63, 132, 0.28);
+        }
+
+        .final-cta h2 {
+            margin: 0;
+            font-size: clamp(1.55rem, 2.6vw, 2.28rem);
+            line-height: 1.2;
+            color: #fff;
+        }
+
+        .final-cta p {
+            margin: 12px 0 0;
+            max-width: 74ch;
+            color: #dce9ff;
+        }
+
+        .final-actions {
+            margin-top: 18px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .final-actions .btn-primary {
+            background: #fff;
+            color: #1a4da0;
+            box-shadow: 0 10px 24px rgba(7, 31, 73, 0.24);
+        }
+
+        .final-actions .btn-secondary {
+            border-color: rgba(239, 245, 255, 0.35);
+            color: #eff5ff;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .final-actions .btn-primary:hover,
+        .final-actions .btn-secondary:hover {
+            color: #fff;
+            background: linear-gradient(135deg, #123a7b, #2f6fdd);
+            border-color: transparent;
+            box-shadow: 0 14px 30px rgba(7, 31, 73, 0.34);
+        }
+
+        .disclaimer {
+            margin-top: 14px;
+            font-size: 0.82rem;
+            color: #d5e4ff;
+        }
+
+        .site-footer {
+            border-top: 1px solid #d7e4ff;
+            background: #f5f9ff;
+            padding: 20px 0 34px;
+            color: #63789b;
+            font-size: 0.86rem;
+        }
+
+        .footer-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 1100px) {
+            .hero-grid,
+            .trust-wrap,
+            .quiz-shell {
+                grid-template-columns: 1fr;
+            }
+
+            .cards-grid,
+            .price-grid,
+            .section-grid,
+            .cost-factors {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .steps {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 840px) {
+            .header-row {
+                flex-wrap: wrap;
+                gap: 10px;
+                min-height: 68px;
+                padding: 10px 0;
+            }
+
+            .nav {
+                order: 3;
+                display: flex;
+                flex: 1 1 100%;
+                justify-content: flex-start;
+                width: 100%;
+            }
+
+            .hero {
+                padding-top: 28px;
+            }
+
+            .hero-panel,
+            .hero-aside {
+                padding: 20px;
+            }
+
+            .hero-actions,
+            .final-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .hero-kpis,
+            .hero-path,
+            .feed-list,
+            .cards-grid,
+            .fact-grid,
+            .price-grid,
+            .section-grid,
+            .section-grid.two,
+            .cost-factors,
+            .route-grid,
+            .split,
+            .steps,
+            .trust-stats,
+            .manyasha-site {
+                grid-template-columns: 1fr;
+            }
+
+            .section {
+                padding: 44px 0;
+            }
+
+            .site-main {
+                padding-bottom: 260px;
+            }
+
+            .section-surface {
+                padding: 16px;
+            }
+        }
+
+        @media (max-width: 520px) {
+            :root {
+                --container: min(1160px, calc(100% - 24px));
+            }
+
+            .header-row {
+                flex-wrap: wrap;
+                gap: 10px;
+                align-items: center;
+            }
+
+            .header-row .brand {
+                min-width: 0;
+                flex: 1 1 100%;
+            }
+
+            .nav {
+                order: 2;
+            }
+
+            .header-row > .btn {
+                order: 3;
+                width: 100%;
+                padding: 10px 14px;
+                white-space: normal;
+            }
+
+            .hero-actions .btn,
+            .final-actions .btn {
+                width: 100%;
+                min-width: 0;
+                padding: 10px 12px;
+                text-align: center;
+                white-space: normal;
+            }
+
+            .site-tab-nav {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                padding-bottom: 4px;
+                margin-left: -2px;
+                margin-right: -2px;
+            }
+
+            .site-tab-button {
+                flex: 0 0 auto;
+                min-width: max-content;
+                padding: 10px 12px;
+                white-space: nowrap;
+            }
+
+            .site-tab-shell {
+                padding: 12px;
+            }
+
+            .quiz-options {
+                display: grid;
+                grid-template-columns: 1fr;
+            }
+
+            .quiz-option,
+            .tab-action .btn,
+            .quiz-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
+    <style id="manyasha-widget-restored-styles">
+        #manyasha-widget,
+        #manyasha-show-btn,
+        #manyasha-consult-modal {
+            font-family: var(--mx-font-family, "Inter", "Manrope", system-ui, -apple-system, sans-serif);
+        }
+
+        #manyasha-widget {
+            position: fixed;
+            right: calc(24px + env(safe-area-inset-right));
+            bottom: calc(24px + env(safe-area-inset-bottom));
+            z-index: 1000;
+            width: min(350px, calc(100vw - 20px));
+            max-width: 350px;
+            transition: transform 0.24s ease, opacity 0.24s ease;
+            --manyasha-stage-ratio: 20 / 11;
+            --manyasha-stage-fit: contain;
+            --manyasha-stage-position: center center;
+            --manyasha-stage-media-scale: 1;
+            --manyasha-stage-media-y: 0%;
+            --manyasha-stage-backdrop: none;
+        }
+
+        #manyasha-widget.manyasha-hidden {
+            opacity: 0;
+            transform: translateY(14px) scale(0.97);
+            pointer-events: none;
+        }
+
+        #manyasha-show-btn.manyasha-hidden {
+            opacity: 0;
+            transform: translateY(8px);
+            pointer-events: none;
+        }
+
+        #manyasha-widget.chat-expanded {
+            width: min(420px, calc(100vw - 18px));
+            max-width: 420px;
+        }
+
+        #manyasha-widget.chat-fullsize {
+            width: min(510px, calc(100vw - 14px));
+            max-width: 510px;
+        }
+
+        #manyasha-card {
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(24, 66, 126, 0.16);
+            background: linear-gradient(165deg, rgba(255, 252, 246, 0.97) 0%, rgba(245, 238, 226, 0.95) 100%);
+            box-shadow: 0 18px 38px rgba(18, 48, 94, 0.22);
+            color: #1d395d;
+            display: flex;
+            flex-direction: column;
+            max-height: min(86vh, 820px);
+        }
+
+        #manyasha-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 14px 10px;
+            border-bottom: 1px solid rgba(27, 78, 155, 0.14);
+            background: linear-gradient(160deg, rgba(255, 255, 255, 0.92), rgba(245, 239, 228, 0.88));
+            position: relative;
+            z-index: 2;
+        }
+
+        #manyasha-identity {
+            min-width: 0;
+        }
+
+        #manyasha-name {
+            margin: 0;
+            font-size: 0.96rem;
+            font-weight: 800;
+            color: #173f7a;
+            line-height: 1.1;
+        }
+
+        #manyasha-label {
+            margin-top: 2px;
+            font-size: 0.72rem;
+            color: rgba(23, 63, 122, 0.78);
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        #manyasha-mode-chip {
+            margin-top: 6px;
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 0.64rem;
+            font-weight: 700;
+            line-height: 1;
+            color: #1f6f5c;
+            border: 1px solid rgba(48, 140, 108, 0.25);
+            background: rgba(234, 252, 243, 0.96);
+        }
+
+        .manyasha-header-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: auto;
+        }
+
+        .manyasha-icon-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
+            border: 1px solid rgba(31, 85, 160, 0.16);
+            background: rgba(255, 255, 255, 0.85);
+            display: inline-grid;
+            place-items: center;
+            color: #365b92;
+            cursor: pointer;
+            transition: 0.18s ease;
+        }
+
+        .manyasha-icon-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .manyasha-icon-btn:hover {
+            color: #1f4c8f;
+            border-color: rgba(31, 85, 160, 0.28);
+            background: #fff;
+        }
+
+        #manyasha-menu-panel {
+            position: absolute;
+            right: 14px;
+            top: 48px;
+            display: grid;
+            gap: 5px;
+            border-radius: 12px;
+            padding: 7px;
+            border: 1px solid rgba(39, 88, 157, 0.2);
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow: 0 12px 22px rgba(18, 48, 94, 0.16);
+            min-width: 174px;
+        }
+
+        #manyasha-menu-panel[aria-hidden="true"] {
+            display: none;
+        }
+
+        .manyasha-menu-item {
+            border: 1px solid rgba(39, 88, 157, 0.14);
+            background: #fff;
+            color: #204d8c;
+            border-radius: 9px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 8px 9px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.16s ease;
+        }
+
+        .manyasha-menu-item:hover {
+            background: #f2f7ff;
+            border-color: rgba(39, 88, 157, 0.24);
+        }
+
+        #manyasha-stage-wrap {
+            padding: 9px 12px 0;
+        }
+
+        #manyasha-stage {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(39, 88, 157, 0.16);
+            background: #f3ece2;
+            width: 100%;
+            height: auto;
+            aspect-ratio: var(--manyasha-stage-ratio);
+            isolation: isolate;
+        }
+
+        #manyasha-stage::before {
+            content: "";
+            position: absolute;
+            inset: -8%;
+            z-index: 0;
+            pointer-events: none;
+            background: var(--manyasha-stage-backdrop);
+            opacity: 0;
+            filter: blur(16px) saturate(1.06);
+            transform: scale(1.08);
+        }
+
+        #manyasha-stage::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            background:
+                radial-gradient(128% 100% at 50% 56%, rgba(255, 255, 255, 0.26) 0%, rgba(248, 242, 231, 0.38) 56%, rgba(238, 227, 209, 0.46) 100%),
+                linear-gradient(180deg, rgba(255, 253, 248, 0.14) 0%, rgba(243, 234, 220, 0.3) 100%);
+        }
+
+        #manyasha-stage-fallback,
+        #manyasha-stage video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: var(--manyasha-stage-fit);
+            object-position: var(--manyasha-stage-position);
+            z-index: 2;
+            transform-origin: center center;
+            transform: scale(var(--manyasha-stage-media-scale));
+            will-change: transform;
+        }
+
+        #manyasha-stage video {
+            opacity: 0;
+            transition: opacity 0.28s ease;
+        }
+
+        #manyasha-stage:not(.has-video) #manyasha-stage-fallback,
+        #manyasha-stage[data-video-status="fallback"] #manyasha-stage-fallback {
+            animation: manyasha-fallback-breathe 1.7s ease-in-out infinite;
+        }
+
+        #manyasha-widget[data-visual-state="listening"] #manyasha-stage[data-video-status="fallback"] #manyasha-stage-fallback {
+            animation: manyasha-listening-fallback 1.05s ease-in-out infinite;
+        }
+
+        #manyasha-widget[data-visual-state="thinking"] #manyasha-stage[data-video-status="fallback"] #manyasha-stage-fallback {
+            animation: manyasha-thinking-fallback 0.9s ease-in-out infinite;
+        }
+
+        #manyasha-widget[data-visual-state="speaking"] #manyasha-stage[data-video-status="fallback"] #manyasha-stage-fallback {
+            animation: manyasha-speaking-fallback 0.62s ease-in-out infinite;
+        }
+
+        #manyasha-stage.playing {
+            animation: manyasha-stage-pulse 1.6s ease-in-out infinite;
+        }
+
+        #manyasha-stage.looping {
+            animation: manyasha-stage-idle 2.4s ease-in-out infinite;
+        }
+
+        @keyframes manyasha-stage-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(42, 97, 178, 0.12); }
+            50% { box-shadow: 0 0 0 7px rgba(42, 97, 178, 0); }
+        }
+
+        @keyframes manyasha-stage-idle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-1px); }
+        }
+
+        @keyframes manyasha-fallback-breathe {
+            0%, 100% { transform: translateY(0) scale(var(--manyasha-stage-media-scale)); }
+            50% { transform: translateY(-1.5px) scale(var(--manyasha-stage-media-scale)); }
+        }
+
+        @keyframes manyasha-listening-fallback {
+            0%, 100% { transform: translateY(0) scale(var(--manyasha-stage-media-scale)); }
+            50% { transform: translateY(-2.4px) scale(calc(var(--manyasha-stage-media-scale) * 1.01)); }
+        }
+
+        @keyframes manyasha-thinking-fallback {
+            0%, 100% { transform: translateY(0) scale(var(--manyasha-stage-media-scale)); filter: saturate(1); }
+            50% { transform: translateY(-3px) scale(calc(var(--manyasha-stage-media-scale) * 1.012)); filter: saturate(1.08); }
+        }
+
+        @keyframes manyasha-speaking-fallback {
+            0%, 100% { transform: translateY(0) scale(var(--manyasha-stage-media-scale)); }
+            50% { transform: translateY(-2px) scale(calc(var(--manyasha-stage-media-scale) * 1.018)); }
+        }
+
+        .manyasha-content {
+            padding: 10px 12px 12px;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            gap: 8px;
+        }
+
+        #manyasha-chat {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-height: 0;
+        }
+
+        #manyasha-ops-status,
+        #manyasha-bootstrap-status {
+            display: none;
+            font-size: 0.73rem;
+            line-height: 1.35;
+            border-radius: 11px;
+            padding: 8px 10px;
+            border: 1px solid rgba(28, 73, 140, 0.18);
+            background: rgba(246, 250, 255, 0.95);
+            color: #365982;
+        }
+
+        #manyasha-ops-status.visible,
+        #manyasha-bootstrap-status.visible {
+            display: block;
+        }
+
+        #manyasha-ops-status.state-offline {
+            border-color: rgba(163, 92, 36, 0.35);
+            background: rgba(255, 246, 236, 0.96);
+            color: #7b4a23;
+        }
+
+        #manyasha-ops-status.state-degraded {
+            border-color: rgba(27, 89, 170, 0.3);
+            background: rgba(241, 247, 255, 0.98);
+            color: #2f578b;
+        }
+
+        #manyasha-bootstrap-status.state-error {
+            border-color: rgba(170, 57, 57, 0.3);
+            background: rgba(255, 241, 241, 0.97);
+            color: #7f3131;
+        }
+
+        #manyasha-chat-messages {
+            min-height: 104px;
+            max-height: 190px;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-right: 3px;
+            scroll-behavior: smooth;
+        }
+
+        #manyasha-widget.chat-expanded #manyasha-chat-messages,
+        #manyasha-chat.expanded #manyasha-chat-messages {
+            max-height: 300px;
+        }
+
+        #manyasha-widget.chat-fullsize #manyasha-chat-messages,
+        #manyasha-chat.fullsize #manyasha-chat-messages {
+            max-height: min(50vh, 420px);
+        }
+
+        #manyasha-chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #manyasha-chat-messages::-webkit-scrollbar-track {
+            background: rgba(28, 73, 140, 0.08);
+            border-radius: 8px;
+        }
+
+        #manyasha-chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(28, 73, 140, 0.25);
+            border-radius: 8px;
+        }
+
+        .chat-msg {
+            max-width: 92%;
+            padding: 9px 11px;
+            border-radius: 12px;
+            font-size: 0.84rem;
+            line-height: 1.45;
+            position: relative;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .chat-msg.bot {
+            align-self: flex-start;
+            color: #1f395f;
+            background: linear-gradient(160deg, #fff, #f2f7ff);
+            border: 1px solid rgba(37, 88, 162, 0.18);
+        }
+
+        .chat-msg.user {
+            align-self: flex-end;
+            color: #fff;
+            background: linear-gradient(135deg, #1d57b3, #2f70dc);
+            border: 1px solid rgba(33, 86, 168, 0.34);
+            box-shadow: 0 8px 18px rgba(23, 70, 145, 0.24);
+        }
+
+        .manyasha-diagnostic-card {
+            align-self: flex-start;
+            width: min(100%, 360px);
+            max-width: 94%;
+            box-sizing: border-box;
+            padding: 10px 11px;
+            border-radius: 14px;
+            border: 1px solid rgba(37, 88, 162, 0.16);
+            background: linear-gradient(160deg, rgba(248, 251, 255, 0.98), rgba(241, 247, 255, 0.96));
+            color: #203b61;
+            font-size: 0.75rem;
+            line-height: 1.42;
+            box-shadow: 0 10px 24px rgba(32, 75, 135, 0.08);
+            overflow-wrap: anywhere;
+        }
+
+        .manyasha-diagnostic-title {
+            font-weight: 800;
+            font-size: 0.78rem;
+            margin-bottom: 6px;
+        }
+
+        .manyasha-diagnostic-progress {
+            display: grid;
+            gap: 5px;
+            margin: 2px 0 8px;
+            color: #476690;
+            font-size: 0.68rem;
+            font-weight: 750;
+        }
+
+        .manyasha-diagnostic-progress i {
+            display: block;
+            height: 5px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: rgba(73, 119, 181, 0.14);
+        }
+
+        .manyasha-diagnostic-progress b {
+            display: block;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #5e8fd8, #74b6a4);
+        }
+
+        .manyasha-diagnostic-section {
+            display: grid;
+            gap: 2px;
+            margin-top: 6px;
+        }
+
+        .manyasha-diagnostic-section strong {
+            font-size: 0.69rem;
+            color: #55739d;
+            text-transform: uppercase;
+            letter-spacing: 0.035em;
+        }
+
+        .manyasha-diagnostic-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 7px;
+        }
+
+        .manyasha-diagnostic-missing-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .manyasha-diagnostic-pill {
+            min-width: 0;
+            border-radius: 999px;
+            background: rgba(73, 119, 181, 0.1);
+            color: #365f93;
+            padding: 3px 7px;
+            font-size: 0.67rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .manyasha-diagnostic-action {
+            min-width: 0;
+            border: 1px solid rgba(39, 88, 157, 0.18);
+            background: rgba(255, 255, 255, 0.74);
+            color: #2d5b96;
+            border-radius: 999px;
+            font-size: 0.67rem;
+            font-weight: 760;
+            padding: 5px 8px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .manyasha-diagnostic-action:hover {
+            background: #f2f7ff;
+            border-color: rgba(39, 88, 157, 0.3);
+        }
+
+        .manyasha-report-action {
+            border: 1px solid rgba(63, 126, 105, 0.2);
+            background: linear-gradient(135deg, #f4fff9, #edf8ff);
+            color: #28614d;
+            border-radius: 999px;
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 6px 10px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .manyasha-report-action:hover {
+            background: #eefbf4;
+            border-color: rgba(63, 126, 105, 0.34);
+        }
+
+        .manyasha-diagnostic-note {
+            margin-top: 8px;
+            color: #667b99;
+            font-size: 0.68rem;
+        }
+
+        .manyasha-client-report-card {
+            align-self: flex-start;
+            width: min(100%, 380px);
+            max-width: 94%;
+            box-sizing: border-box;
+            padding: 12px 13px;
+            border-radius: 16px;
+            border: 1px solid rgba(53, 116, 96, 0.18);
+            background: linear-gradient(160deg, rgba(252, 255, 250, 0.98), rgba(239, 248, 244, 0.96));
+            color: #244735;
+            font-size: 0.75rem;
+            line-height: 1.44;
+            box-shadow: 0 12px 26px rgba(34, 95, 74, 0.08);
+            overflow-wrap: anywhere;
+        }
+
+        .manyasha-client-report-title {
+            font-weight: 850;
+            font-size: 0.82rem;
+            margin-bottom: 7px;
+        }
+
+        .manyasha-client-report-message {
+            margin: 0 0 8px;
+            color: #395f4d;
+        }
+
+        .manyasha-client-report-section {
+            display: grid;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .manyasha-client-report-section strong {
+            color: #47725f;
+            font-size: 0.69rem;
+            text-transform: uppercase;
+            letter-spacing: 0.035em;
+        }
+
+        .manyasha-client-report-section ul {
+            margin: 0;
+            padding-left: 16px;
+        }
+
+        .manyasha-client-report-section li {
+            margin-bottom: 3px;
+        }
+
+        .manyasha-client-report-disclaimer {
+            margin-top: 9px;
+            color: #637d72;
+            font-size: 0.68rem;
+        }
+
+        .manyasha-client-report-copy {
+            margin-top: 9px;
+            border: 1px solid rgba(63, 126, 105, 0.2);
+            background: rgba(255, 255, 255, 0.78);
+            color: #28614d;
+            border-radius: 999px;
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+
+        .manyasha-client-report-email {
+            margin-top: 8px;
+            display: grid;
+            gap: 7px;
+        }
+
+        .manyasha-client-report-email-toggle {
+            width: fit-content;
+            max-width: 100%;
+            border: 1px solid rgba(63, 126, 105, 0.2);
+            background: rgba(255, 255, 255, 0.66);
+            color: #28614d;
+            border-radius: 999px;
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+
+        .manyasha-client-report-email-form {
+            display: grid;
+            gap: 6px;
+            padding: 8px;
+            border: 1px solid rgba(63, 126, 105, 0.14);
+            border-radius: 13px;
+            background: rgba(255, 255, 255, 0.64);
+            box-sizing: border-box;
+            min-width: 0;
+        }
+
+        .manyasha-client-report-email-form[hidden] {
+            display: none;
+        }
+
+        .manyasha-client-report-email-input {
+            min-width: 0;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid rgba(63, 126, 105, 0.22);
+            border-radius: 11px;
+            padding: 7px 9px;
+            font-size: 0.72rem;
+            outline: none;
+            color: #244735;
+            background: rgba(255, 255, 255, 0.86);
+        }
+
+        .manyasha-client-report-email-consent {
+            margin: 0;
+            color: #637d72;
+            font-size: 0.65rem;
+            line-height: 1.35;
+        }
+
+        .manyasha-client-report-email-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .manyasha-client-report-email-send,
+        .manyasha-client-report-email-cancel {
+            border-radius: 999px;
+            border: 1px solid rgba(63, 126, 105, 0.2);
+            padding: 6px 10px;
+            font-size: 0.68rem;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .manyasha-client-report-email-send {
+            background: #f4fff9;
+            color: #28614d;
+        }
+
+        .manyasha-client-report-email-send:disabled {
+            cursor: wait;
+            opacity: 0.64;
+        }
+
+        .manyasha-client-report-email-cancel {
+            background: transparent;
+            color: #637d72;
+        }
+
+        .manyasha-client-report-email-status {
+            min-height: 1em;
+            color: #637d72;
+            font-size: 0.66rem;
+        }
+
+        .manyasha-client-report-email-status.success {
+            color: #2d7a54;
+        }
+
+        .manyasha-client-report-email-status.error {
+            color: #b84d4d;
+        }
+
+        .chat-msg.typing {
+            padding: 9px 12px;
+            min-width: 58px;
+        }
+
+        .typing-dots {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .typing-dots span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #5f7dab;
+            opacity: 0.35;
+            animation: manyasha-dot 1.2s infinite ease-in-out;
+        }
+
+        .typing-dots span:nth-child(2) { animation-delay: 0.16s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.32s; }
+
+        @keyframes manyasha-dot {
+            0%, 80%, 100% { opacity: 0.25; transform: translateY(0); }
+            40% { opacity: 1; transform: translateY(-2px); }
+        }
+
+        .chat-msg-copy {
+            align-self: flex-start;
+            margin-top: -4px;
+            margin-left: 2px;
+            border: 0;
+            border-radius: 7px;
+            font-size: 0.7rem;
+            line-height: 1;
+            padding: 5px 6px;
+            color: #5575a7;
+            background: rgba(224, 236, 255, 0.8);
+            cursor: pointer;
+        }
+
+        #manyasha-scroll-bottom {
+            align-self: flex-end;
+            width: 28px;
+            height: 28px;
+            border: 1px solid rgba(39, 88, 157, 0.2);
+            border-radius: 10px;
+            display: none;
+            place-items: center;
+            color: #2c5a98;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        #manyasha-scroll-bottom.visible {
+            display: inline-grid;
+        }
+
+        #manyasha-scroll-bottom svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        #manyasha-chat-form {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto auto auto;
+            gap: 6px;
+            align-items: end;
+        }
+
+        #manyasha-chat-input {
+            resize: none;
+            min-width: 0;
+            min-height: 38px;
+            max-height: 120px;
+            border-radius: 12px;
+            border: 1px solid rgba(37, 88, 162, 0.22);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 11px;
+            color: #1f3d65;
+            font-size: 0.83rem;
+            line-height: 1.35;
+            outline: none;
+        }
+
+        #manyasha-chat-input:focus {
+            border-color: rgba(41, 102, 194, 0.62);
+            box-shadow: 0 0 0 3px rgba(64, 124, 214, 0.18);
+        }
+
+        #manyasha-chat-send,
+        #manyasha-sound-toggle,
+        #manyasha-voice-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            border: 1px solid rgba(37, 88, 162, 0.2);
+            display: inline-grid;
+            place-items: center;
+            cursor: pointer;
+            transition: 0.16s ease;
+        }
+
+        #manyasha-chat-send {
+            color: #fff;
+            background: linear-gradient(135deg, #1c57b3, #2f70dc);
+            box-shadow: 0 8px 18px rgba(23, 70, 145, 0.22);
+            border-color: rgba(23, 70, 145, 0.35);
+        }
+
+        #manyasha-chat-send svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        #manyasha-chat-send:disabled {
+            opacity: 0.48;
+            cursor: not-allowed;
+        }
+
+        #manyasha-sound-toggle,
+        #manyasha-voice-btn {
+            color: #2f5f9f;
+            background: #f6faff;
+        }
+
+        #manyasha-sound-toggle.muted {
+            color: #7b879a;
+            background: rgba(244, 247, 251, 0.92);
+        }
+
+        #manyasha-sound-toggle svg,
+        #manyasha-voice-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        #manyasha-voice-btn.listening {
+            color: #fff;
+            border-color: rgba(31, 96, 181, 0.35);
+            background: linear-gradient(135deg, #2e73df, #1b57b0);
+            box-shadow: 0 8px 16px rgba(32, 83, 160, 0.23);
+        }
+
+        #manyasha-voice-status {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.68rem;
+            color: #476690;
+            background: rgba(239, 246, 255, 0.9);
+            border: 1px solid rgba(47, 95, 168, 0.18);
+            border-radius: 9px;
+            padding: 4px 8px;
+            line-height: 1.25;
+            max-width: min(100%, 230px);
+            width: fit-content;
+        }
+
+        #manyasha-voice-status.visible {
+            display: inline-flex;
+        }
+
+        #manyasha-voice-status-text {
+            display: block;
+            max-width: 190px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        #manyasha-voice-status .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #7d95bc;
+        }
+
+        #manyasha-voice-status.state-listening .dot { background: #6b9ad4; }
+        #manyasha-voice-status.state-thinking .dot { background: #a0723d; }
+        #manyasha-voice-status.state-speaking .dot { background: #2a5a8f; }
+        #manyasha-voice-status.state-error .dot { background: #b64f4f; }
+
+        #manyasha-voice-consent {
+            display: none !important;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 10px;
+            border: 1px solid rgba(39, 88, 157, 0.12);
+            background: rgba(255, 255, 255, 0.38);
+            padding: 5px 7px;
+            gap: 6px;
+        }
+
+        #manyasha-voice-consent.visible {
+            display: flex;
+        }
+
+        #manyasha-voice-consent .consent-copy {
+            min-width: 0;
+            font-size: 0.66rem;
+            color: rgba(81, 109, 148, 0.82);
+            line-height: 1.25;
+        }
+
+        #manyasha-voice-consent .consent-actions {
+            display: flex;
+            gap: 4px;
+            flex: 0 0 auto;
+            flex-wrap: nowrap;
+        }
+
+        #manyasha-voice-consent button {
+            border: 1px solid rgba(39, 88, 157, 0.14);
+            background: rgba(255, 255, 255, 0.56);
+            color: rgba(46, 95, 158, 0.82);
+            border-radius: 999px;
+            font-size: 0.66rem;
+            font-weight: 650;
+            padding: 4px 7px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        #manyasha-consult-cta {
+            width: 100%;
+            border: 1px solid rgba(118, 91, 62, 0.16);
+            background: rgba(255, 255, 255, 0.42);
+            color: rgba(86, 65, 43, 0.78);
+            border-radius: 10px;
+            font-size: 0.72rem;
+            font-weight: 650;
+            letter-spacing: 0;
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+
+        #manyasha-quick-panel {
+            display: none;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        #manyasha-quick-panel.visible {
+            display: flex;
+        }
+
+        .quick-reply-btn,
+        .suggested-q-btn,
+        .cx-feedback-btn {
+            border: 1px solid rgba(39, 88, 157, 0.18);
+            background: #fff;
+            color: #2d5b96;
+            border-radius: 999px;
+            font-size: 0.69rem;
+            font-weight: 700;
+            padding: 6px 9px;
+            cursor: pointer;
+        }
+
+        .quick-reply-btn:hover,
+        .suggested-q-btn:hover,
+        .cx-feedback-btn:hover {
+            background: #f2f7ff;
+            border-color: rgba(39, 88, 157, 0.3);
+        }
+
+        .consult-modal-root {
+            position: fixed;
+            inset: 0;
+            z-index: 1100;
+            display: none;
+        }
+
+        .consult-modal-root[aria-hidden="false"] {
+            display: block;
+        }
+
+        .consult-modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(11, 30, 58, 0.48);
+            backdrop-filter: blur(2px);
+        }
+
+        .consult-modal-dialog {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: min(420px, calc(100vw - 22px));
+            border-radius: 18px;
+            border: 1px solid rgba(32, 74, 136, 0.22);
+            background: #fff;
+            box-shadow: 0 26px 50px rgba(11, 30, 58, 0.28);
+            padding: 18px;
+            display: grid;
+            gap: 8px;
+        }
+
+        .consult-modal-close {
+            position: absolute;
+            right: 10px;
+            top: 8px;
+            border: 0;
+            background: transparent;
+            color: #4f6f9a;
+            font-size: 1.45rem;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .consult-modal-dialog .cp-title {
+            margin: 0 24px 4px 0;
+            font-size: 1rem;
+            font-weight: 800;
+            color: #1d467f;
+        }
+
+        .consult-modal-dialog input {
+            width: 100%;
+            border-radius: 11px;
+            border: 1px solid rgba(39, 88, 157, 0.2);
+            padding: 10px 11px;
+            font-size: 0.84rem;
+            outline: none;
+        }
+
+        .consult-modal-dialog input:focus {
+            border-color: rgba(41, 102, 194, 0.62);
+            box-shadow: 0 0 0 3px rgba(64, 124, 214, 0.14);
+        }
+
+        .consult-modal-dialog .cp-row {
+            margin-top: 2px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .consult-modal-dialog .cp-submit,
+        .consult-modal-dialog .cp-cancel {
+            border: 0;
+            border-radius: 10px;
+            padding: 10px 11px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .consult-modal-dialog .cp-submit {
+            flex: 1;
+            color: #fff;
+            background: linear-gradient(135deg, #1c57b3, #2f70dc);
+        }
+
+        .consult-modal-dialog .cp-cancel {
+            color: #2e5f9e;
+            background: #eef4ff;
+            border: 1px solid rgba(39, 88, 157, 0.2);
+        }
+
+        .consult-modal-dialog .cp-error {
+            display: none;
+            font-size: 0.76rem;
+            color: #a53737;
+        }
+
+        .consult-modal-dialog .cp-error.visible {
+            display: block;
+        }
+
+        @media (max-width: 680px) {
+            #manyasha-widget {
+                right: calc(8px + env(safe-area-inset-right));
+                bottom: calc(8px + env(safe-area-inset-bottom));
+                width: min(340px, calc(100vw - 10px));
+            }
+
+            #manyasha-widget.chat-expanded,
+            #manyasha-widget.chat-fullsize {
+                width: min(100vw - 10px, 420px);
+            }
+
+            #manyasha-chat-messages {
+                max-height: 155px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-row">
+            <a href="#top" class="brand" aria-label="Главная">
+                <span class="brand-mark">EG</span>
+                <span>Egor Банкротит</span>
+            </a>
+            <nav class="nav site-tabs__nav" aria-label="Вкладки лент Egor Банкротит" role="tablist">
+                <button class="is-active" type="button" role="tab" id="site-tab-button-risks" aria-controls="panel-risks" aria-selected="true" data-tab="risks">Риски</button>
+                <button type="button" role="tab" id="site-tab-button-cost" aria-controls="panel-cost" aria-selected="false" tabindex="-1" data-tab="cost">Стоимость</button>
+                <button type="button" role="tab" id="site-tab-button-quiz" aria-controls="panel-quiz" aria-selected="false" tabindex="-1" data-tab="quiz">Квиз</button>
+                <button type="button" role="tab" id="site-tab-button-manyasha" aria-controls="panel-manyasha" aria-selected="false" tabindex="-1" data-tab="manyasha">Маняша</button>
+                <button type="button" role="tab" id="site-tab-button-faq" aria-controls="panel-faq" aria-selected="false" tabindex="-1" data-tab="faq">FAQ</button>
+            </nav>
+            <a class="btn btn-primary" href="#final-cta">Начать диагностику</a>
+        </div>
+    </header>
+
+    <main class="site-main" id="top">
+        <section class="hero">
+            <div class="container hero-grid">
+                <article class="hero-panel">
+                    <span class="eyebrow">Банкротство физических лиц</span>
+                    <h1>Сначала карта рисков. Потом процедура.</h1>
+                    <p>
+                        Помогаем людям с долгами от 300 тысяч до 5 миллионов понять, что делать с кредитами, МФО,
+                        приставами, ипотекой, имуществом и официальным доходом. Начинаем не с обещаний, а с проверки рисков.
+                    </p>
+                    <div class="hero-actions">
+                        <a class="btn btn-primary" href="#final-cta">Разобрать риски по долгам и имуществу</a>
+                        <a class="btn btn-secondary" href="#client-path">Как проходит путь</a>
+                    </div>
+                    <p class="hero-note">
+                        После старта Маняша задаст несколько коротких вопросов и покажет, что важно проверить до консультации.
+                    </p>
+                    <p class="hero-note">
+                        Важно: предварительная оценка не является обещанием результата. Решения зависят от документов, имущества, дохода и позиции суда.
+                    </p>
+
+                    <div class="hero-path" aria-label="Короткий путь первичного разбора">
+                        <div class="hero-path-item">
+                            <span>1</span>
+                            <strong>Описываете ситуацию</strong>
+                            <small>сумма долга, кредиторы, приставы, квартира, доход</small>
+                        </div>
+                        <div class="hero-path-item">
+                            <span>2</span>
+                            <strong>Маняша уточняет риски</strong>
+                            <small>без давления, длинной анкеты и обещаний “спишем всё”</small>
+                        </div>
+                        <div class="hero-path-item">
+                            <span>3</span>
+                            <strong>Юрист проверяет маршрут</strong>
+                            <small>МФЦ, суд или другой безопасный следующий шаг</small>
+                        </div>
+                    </div>
+
+                    <div class="hero-kpis" aria-label="Ключевые ориентиры сервиса">
+                        <div class="kpi">
+                            <span class="kpi-value">300к–5 млн</span>
+                            <span class="kpi-label">долги, с которыми чаще нужен разбор</span>
+                        </div>
+                        <div class="kpi">
+                            <span class="kpi-value">МФЦ / суд</span>
+                            <span class="kpi-label">маршрут выбирается по условиям</span>
+                        </div>
+                        <div class="kpi">
+                            <span class="kpi-value">Без гарантий</span>
+                            <span class="kpi-label">только проверка и план действий</span>
+                        </div>
+                    </div>
+                </article>
+
+                <aside class="hero-aside" aria-label="Что вы получите на старте">
+                    <h2 class="aside-title">Карта дела до первого рискованного шага</h2>
+                    <ul class="check-list">
+                        <li>есть ли риск для квартиры, долей, автомобиля или ипотечного имущества;</li>
+                        <li>что происходит у приставов: аресты, списания, исполнительные производства;</li>
+                        <li>как официальный доход, удержания и прожиточный минимум влияют на маршрут;</li>
+                        <li>что реалистичнее проверить дальше: МФЦ, суд, переговоры или подготовку документов.</li>
+                    </ul>
+                    <div class="aside-box">
+                        Маняша помогает начать без стыда и давления. Финальный вывод делает юрист после проверки документов.
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <section class="fact-strip" aria-label="Быстрые факты о разборе банкротства">
+            <div class="container fact-grid">
+                <div class="fact-item">
+                    <strong>7 блоков риска</strong>
+                    <span>квартира, залог, доход, приставы, сделки, МФО и маршрут</span>
+                </div>
+                <div class="fact-item">
+                    <strong>МФЦ или суд</strong>
+                    <span>выбор зависит от условий, долгов и исполнительных производств</span>
+                </div>
+                <div class="fact-item">
+                    <strong>Расчёт после вводных</strong>
+                    <span>стоимость нельзя честно назвать без имущества и кредиторов</span>
+                </div>
+                <div class="fact-item">
+                    <strong>Без обещаний</strong>
+                    <span>сначала проверка документов, потом маршрут и план действий</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="section site-tabs-section site-tabs" id="site-tabs">
+            <div class="container">
+                <div class="site-tab-shell">
+                    <div class="site-tab-panels">
+                        <section class="site-tab-panel is-active" role="tabpanel" id="panel-risks" aria-labelledby="site-tab-button-risks" data-panel="risks">
+                            <div class="tab-widget tab-widget--risks">
+                                <div class="feed-head">
+                                    <span class="eyebrow">Лента рисков</span>
+                                    <h2>Риски: имущество, приставы, доход и долги</h2>
+                                    <p>Разбираем факторы, которые могут изменить маршрут процедуры, сроки или безопасность решения.</p>
+                                </div>
+                                <div class="tab-feed tab-feed--risks feed-list">
+                                <article class="feed-card">
+                                    <span class="card-label">Имущество</span>
+                                    <h3>Квартира и доли</h3>
+                                    <p>Проверяем единственное жильё, доли и имущество, чтобы заранее увидеть спорные места.</p>
+                                </article>
+                                <article class="feed-card">
+                                    <span class="card-label">Залог</span>
+                                    <h3>Ипотека и залог</h3>
+                                    <p>Залоговое имущество требует отдельной оценки договора, платежей и остатка долга.</p>
+                                </article>
+                                <article class="feed-card">
+                                    <span class="card-label">ФССП</span>
+                                    <h3>Приставы и списания</h3>
+                                    <p>Смотрим исполнительные производства, удержания и выплаты, которые нельзя списывать.</p>
+                                </article>
+                                <article class="feed-card">
+                                    <span class="card-label">Доход</span>
+                                    <h3>Официальный доход</h3>
+                                    <p>Работа сама по себе не запрещает процедуру, но влияет на расчёты и удержания.</p>
+                                </article>
+                                <article class="feed-card">
+                                    <span class="card-label">Сделки</span>
+                                    <h3>Сделки за последние годы</h3>
+                                    <p>Продажи, дарение и крупные переводы лучше проверить до выбора маршрута.</p>
+                                </article>
+                                <article class="feed-card">
+                                    <span class="card-label">Долги</span>
+                                    <h3>МФО, кредиты, карты</h3>
+                                    <p>Разделяем кредиторов, проценты, карты и требования, которые могут не списываться.</p>
+                                </article>
+                                <article class="feed-card">
+                                    <span class="card-label">Маршрут</span>
+                                    <h3>МФЦ или суд</h3>
+                                    <p>Неверный маршрут может потерять время и деньги, поэтому условия проверяются заранее.</p>
+                                </article>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="site-tab-panel" role="tabpanel" id="panel-cost" aria-labelledby="site-tab-button-cost" data-panel="cost" hidden>
+                            <div class="tab-widget tab-widget--cost">
+                                <div class="feed-head">
+                                    <span class="eyebrow">Лента стоимости</span>
+                                    <h2>Стоимость зависит от вводных, а не от рекламной цифры</h2>
+                                    <p>Диапазон долга помогает сориентироваться, но точный расчёт возможен только после диагностики имущества, кредиторов и маршрута.</p>
+                                </div>
+                                <div class="tab-feed tab-feed--cost price-grid">
+                                <article class="price-card">
+                                    <span class="price-range">До 300 000 ₽</span>
+                                    <p>Проверяем, подходит ли банкротство вообще и есть ли более простой путь.</p>
+                                    <div class="price-meta"><span class="price-pill">оценка целесообразности</span></div>
+                                </article>
+                                <article class="price-card">
+                                    <span class="price-range">300 000–600 000 ₽</span>
+                                    <p>Смотрим условия МФЦ, исполнительные производства, кредиторов и доход.</p>
+                                    <div class="price-meta"><span class="price-pill">МФЦ/суд</span><span class="price-pill">ФССП</span></div>
+                                </article>
+                                <article class="price-card">
+                                    <span class="price-range">600 000–1 000 000 ₽</span>
+                                    <p>Чаще нужен судебный маршрут: документы, управляющий и проверка имущества.</p>
+                                    <div class="price-meta"><span class="price-pill">суд</span><span class="price-pill">документы</span></div>
+                                </article>
+                                <article class="price-card">
+                                    <span class="price-range">1 000 000–1 500 000 ₽</span>
+                                    <p>Важны кредиторы, сделки, залоги, удержания и риск спорных требований.</p>
+                                    <div class="price-meta"><span class="price-pill">кредиторы</span><span class="price-pill">сделки</span></div>
+                                </article>
+                                <article class="price-card">
+                                    <span class="price-range">1 500 000–3 000 000 ₽</span>
+                                    <p>Стоимость зависит от сложности дела, имущества и объёма сопровождения.</p>
+                                    <div class="price-meta"><span class="price-pill">имущество</span><span class="price-pill">маршрут</span></div>
+                                </article>
+                                <article class="price-card">
+                                    <span class="price-range">От 3 000 000 ₽</span>
+                                    <p>Нужен отдельный разбор кредиторов, залогов, дохода и возможных споров.</p>
+                                    <div class="price-meta"><span class="price-pill">индивидуально</span></div>
+                                </article>
+                                </div>
+                                <div class="price-note">
+                                    <strong>Без фиксированных обещаний:</strong> стоимость зависит от имущества, кредиторов и маршрута. Точный расчёт — после диагностики; рассрочку можно обсуждать после оценки ситуации.
+                                </div>
+                                <div class="tab-action">
+                                    <a class="btn btn-primary" href="#site-tabs" data-open-tab="quiz">Рассчитать ориентир по моей ситуации</a>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="site-tab-panel" role="tabpanel" id="panel-quiz" aria-labelledby="site-tab-button-quiz" data-panel="quiz" hidden>
+                            <div class="tab-widget tab-widget--quiz">
+                                <div class="feed-head">
+                                    <span class="eyebrow">Лента квиза</span>
+                                    <h2>Квиз: быстрый ориентир по рискам и маршруту</h2>
+                                    <p>Это не расчёт цены и не юридическое заключение. Блок помогает понять, какие вводные нужно разобрать с Маняшей и юристом.</p>
+                                </div>
+                                <div class="tab-feed tab-feed--quiz">
+                                    <div class="quiz-shell">
+                                        <div class="quiz-panel">
+                                            <div class="quiz-groups">
+                                                <div class="quiz-group" data-quiz-group="debt">
+                                                    <h3>Сумма долга</h3>
+                                                    <div class="quiz-options">
+                                                        <button class="quiz-option" type="button" data-quiz-option="До 300 000 ₽" aria-pressed="false">до 300 000 ₽</button>
+                                                        <button class="quiz-option" type="button" data-quiz-option="300 000–1 000 000 ₽" aria-pressed="true">300 000–1 000 000 ₽</button>
+                                                        <button class="quiz-option" type="button" data-quiz-option="Больше 1 000 000 ₽" aria-pressed="false">больше 1 000 000 ₽</button>
+                                                    </div>
+                                                </div>
+                                                <div class="quiz-group" data-quiz-group="property">
+                                                    <h3>Есть имущество кроме обычных вещей?</h3>
+                                                    <div class="quiz-options">
+                                                        <button class="quiz-option" type="button" data-quiz-option="Есть имущество" aria-pressed="false">есть имущество</button>
+                                                        <button class="quiz-option" type="button" data-quiz-option="Только единственное жильё" aria-pressed="true">только единственное жильё</button>
+                                                        <button class="quiz-option" type="button" data-quiz-option="Не уверен(а)" aria-pressed="false">не уверен(а)</button>
+                                                    </div>
+                                                </div>
+                                                <div class="quiz-group" data-quiz-group="mortgage">
+                                                    <h3>Есть ипотека или залог?</h3>
+                                                    <div class="quiz-options">
+                                                        <button class="quiz-option" type="button" data-quiz-option="Есть ипотека/залог" aria-pressed="false">да</button>
+                                                        <button class="quiz-option" type="button" data-quiz-option="Залога нет" aria-pressed="true">нет</button>
+                                                    </div>
+                                                </div>
+                                                <div class="quiz-group" data-quiz-group="fssp">
+                                                    <h3>Приставы уже списывают деньги?</h3>
+                                                    <div class="quiz-options">
+                                                        <button class="quiz-option" type="button" data-quiz-option="Есть списания ФССП" aria-pressed="false">да</button>
+                                                        <button class="quiz-option" type="button" data-quiz-option="Списаний нет" aria-pressed="true">нет</button>
+                                                        <button class="quiz-option" type="button" data-quiz-option="Не знаю статус ФССП" aria-pressed="false">не знаю</button>
+                                                    </div>
+                                                </div>
+                                                <div class="quiz-group" data-quiz-group="income">
+                                                    <h3>Есть официальный доход?</h3>
+                                                    <div class="quiz-options">
+                                                        <button class="quiz-option" type="button" data-quiz-option="Есть официальный доход" aria-pressed="true">да</button>
+                                                        <button class="quiz-option" type="button" data-quiz-option="Официального дохода нет" aria-pressed="false">нет</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <aside class="quiz-result">
+                                            <h3>Предварительный фокус проверки</h3>
+                                            <p id="quiz-result-text">Похоже, первым делом стоит проверить сумму долга, доход, имущество и условия маршрута МФЦ/суд.</p>
+                                            <ul class="quiz-summary" id="quiz-summary" aria-label="Выбранные вводные">
+                                                <li>300 000–1 000 000 ₽</li>
+                                                <li>Только единственное жильё</li>
+                                                <li>Залога нет</li>
+                                                <li>Списаний нет</li>
+                                                <li>Есть официальный доход</li>
+                                            </ul>
+                                            <div class="quiz-actions">
+                                                <a class="btn btn-primary" href="#final-cta">Разобрать риски с Маняшей</a>
+                                            </div>
+                                        </aside>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="site-tab-panel" role="tabpanel" id="panel-manyasha" aria-labelledby="site-tab-button-manyasha" data-panel="manyasha" hidden>
+                            <div class="tab-widget tab-widget--manyasha">
+                                <div class="feed-head">
+                                    <span class="eyebrow">Лента Маняши</span>
+                                    <h2>Маняша: первый спокойный разбор без давления</h2>
+                                    <p>Маняша помогает собрать первичную картину и подготовиться к консультации без обещаний результата.</p>
+                                </div>
+                                <div class="tab-feed tab-feed--manyasha feed-list">
+                                <article class="feed-card">
+                                    <span class="card-label">Старт</span>
+                                    <h3>Задаёт первичные вопросы</h3>
+                                    <p>Уточняет долг, кредиторов, приставов, имущество, доход и срочность ситуации.</p>
+                                </article>
+                                <article class="feed-card">
+                                    <span class="card-label">Риски</span>
+                                    <h3>Помогает не забыть важное</h3>
+                                    <p>Напоминает про ипотеку, доли, сделки, списания и официальный доход.</p>
+                                </article>
+                                <article class="feed-card">
+                                    <span class="card-label">Подготовка</span>
+                                    <h3>Готовит к разговору</h3>
+                                    <p>Показывает, что уже известно и какие документы пригодятся юристу.</p>
+                                </article>
+                                <article class="feed-card">
+                                    <span class="card-label">Граница</span>
+                                    <h3>Не заменяет юриста</h3>
+                                    <p>Финальный вывод возможен только после проверки документов и обстоятельств.</p>
+                                </article>
+                                <article class="feed-card">
+                                    <span class="card-label">Тон</span>
+                                    <h3>Помогает начать без давления</h3>
+                                    <p>Можно спокойно описать ситуацию без длинной анкеты и навязчивого решения.</p>
+                                </article>
+                                <article class="feed-card">
+                                    <span class="card-label">Итог</span>
+                                    <h3>Формирует первичный итог</h3>
+                                    <p>Собирает факты в короткую картину: что известно, чего не хватает и где риск.</p>
+                                </article>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="site-tab-panel" role="tabpanel" id="panel-faq" aria-labelledby="site-tab-button-faq" data-panel="faq" hidden>
+                            <div class="tab-widget tab-widget--faq">
+                                <div class="feed-head">
+                                    <span class="eyebrow">Лента FAQ</span>
+                                    <h2>FAQ: короткие ответы на первые страхи</h2>
+                                    <p>Короткие ответы помогают сориентироваться, но не заменяют проверку документов.</p>
+                                </div>
+                                <div class="tab-feed tab-feed--faq faq feed-list">
+                                <details>
+                                    <summary>Можно ли сохранить единственное жильё?</summary>
+                                    <p>Часто единственное жильё защищено, но ипотека, доли, залог и сделки могут менять картину.</p>
+                                </details>
+                                <details>
+                                    <summary>Что если есть ипотека?</summary>
+                                    <p>Ипотека — залоговый риск: нужны договор, остаток долга, просрочки и история платежей.</p>
+                                </details>
+                                <details>
+                                    <summary>Что если приставы уже списывают?</summary>
+                                    <p>Нужно проверить исполнительные производства, основания удержаний и защищённые выплаты.</p>
+                                </details>
+                                <details>
+                                    <summary>Чем МФЦ отличается от суда?</summary>
+                                    <p>МФЦ проще, но подходит только при строгих условиях. Суд шире, но требует подготовки.</p>
+                                </details>
+                                <details>
+                                    <summary>Можно ли банкротиться с официальным доходом?</summary>
+                                    <p>Да, доход сам по себе не запрещает процедуру, но влияет на удержания и расчёты.</p>
+                                </details>
+                                <details>
+                                    <summary>Что будет с автомобилем?</summary>
+                                    <p>Автомобиль оценивается отдельно: важны стоимость, необходимость, залог и сделки перед процедурой.</p>
+                                </details>
+                                <details>
+                                    <summary>Можно ли верить обещаниям “спишем всё”?</summary>
+                                    <p>К таким обещаниям без документов лучше относиться осторожно: сначала нужна проверка рисков.</p>
+                                </details>
+                                <details>
+                                    <summary>Сколько длится процедура?</summary>
+                                    <p>МФЦ обычно быстрее при подходящих условиях. Судебный путь зависит от документов, суда и кредиторов.</p>
+                                </details>
+                                <details>
+                                    <summary>Что влияет на стоимость?</summary>
+                                    <p>Количество кредиторов, имущество, залоги, сделки, приставы, маршрут и объём сопровождения.</p>
+                                </details>
+                                <details>
+                                    <summary>Когда банкротство может не подойти?</summary>
+                                    <p>Если риски для имущества, сделок или дохода выше пользы, нужен другой план или подготовка.</p>
+                                </details>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="pricing">
+            <div class="container">
+                <div class="section-head">
+                    <span class="eyebrow">Стоимость и тарифы</span>
+                    <h2>Ориентир по стоимости начинается с диапазона долга, но считается по делу</h2>
+                    <p>Мы не ставим одну цену на все ситуации. На расчёт влияют имущество, количество кредиторов, приставы, залог, сделки и выбранный маршрут: МФЦ, суд или другой план.</p>
+                </div>
+                <div class="section-surface">
+                    <div class="price-grid">
+                        <article class="price-card">
+                            <span class="price-range">До 300 000 ₽</span>
+                            <p>Часто сначала проверяется целесообразность процедуры и альтернативы банкротству.</p>
+                            <div class="price-meta"><span class="price-pill">диагностика</span><span class="price-pill">альтернативы</span></div>
+                        </article>
+                        <article class="price-card">
+                            <span class="price-range">300 000–600 000 ₽</span>
+                            <p>Проверяем МФЦ, закрытые производства, кредиторов, удержания и доход.</p>
+                            <div class="price-meta"><span class="price-pill">МФЦ/суд</span><span class="price-pill">ФССП</span></div>
+                        </article>
+                        <article class="price-card">
+                            <span class="price-range">600 000–1 000 000 ₽</span>
+                            <p>Чаще нужен судебный маршрут: документы, управляющий, кредиторы и сроки.</p>
+                            <div class="price-meta"><span class="price-pill">суд</span><span class="price-pill">пакет документов</span></div>
+                        </article>
+                        <article class="price-card">
+                            <span class="price-range">1 000 000–1 500 000 ₽</span>
+                            <p>Смотрим требования, сделки, залог, имущество и риск спорных долгов.</p>
+                            <div class="price-meta"><span class="price-pill">сделки</span><span class="price-pill">кредиторы</span></div>
+                        </article>
+                        <article class="price-card">
+                            <span class="price-range">1 500 000–3 000 000 ₽</span>
+                            <p>Нужен подробный план сопровождения, особенно при имуществе и нескольких кредиторах.</p>
+                            <div class="price-meta"><span class="price-pill">имущество</span><span class="price-pill">сопровождение</span></div>
+                        </article>
+                        <article class="price-card">
+                            <span class="price-range">От 3 000 000 ₽</span>
+                            <p>Разбор проводится индивидуально: залоги, доход, активы, сделки и возможные споры.</p>
+                            <div class="price-meta"><span class="price-pill">индивидуальный расчёт</span></div>
+                        </article>
+                    </div>
+                    <div class="cost-factors" aria-label="Что влияет на стоимость">
+                        <div class="factor-card">
+                            <strong>Имущество</strong>
+                            <span>квартира, доли, автомобиль, залог и сделки за последние годы</span>
+                        </div>
+                        <div class="factor-card">
+                            <strong>Кредиторы</strong>
+                            <span>банки, МФО, карты, коллекторы и спорные требования</span>
+                        </div>
+                        <div class="factor-card">
+                            <strong>Маршрут</strong>
+                            <span>МФЦ, суд или подготовка другого безопасного сценария</span>
+                        </div>
+                        <div class="factor-card">
+                            <strong>Сопровождение</strong>
+                            <span>документы, запросы, заседания, связь и план после завершения</span>
+                        </div>
+                    </div>
+                    <div class="price-note">
+                        <strong>Точный расчёт после диагностики.</strong> Можно рассмотреть рассрочку после оценки ситуации, но без обещаний фиксированного результата.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="included">
+            <div class="container">
+                <div class="section-head">
+                    <span class="eyebrow">Что входит</span>
+                    <h2>Сопровождение — это не только заявление в суд</h2>
+                    <p>До подачи важно собрать факты, проверить риски, подготовить документы и понять, какой шаг не ухудшит положение.</p>
+                </div>
+                <div class="section-grid">
+                    <article class="info-card">
+                        <span class="card-label">Диагностика</span>
+                        <h3>Первичная карта дела</h3>
+                        <p>Сумма долга, кредиторы, ФССП, имущество, доход, просрочки и срочные риски.</p>
+                    </article>
+                    <article class="info-card">
+                        <span class="card-label">Документы</span>
+                        <h3>Пакет по долгам и имуществу</h3>
+                        <p>Выписки, договоры, постановления, сведения о доходе и подтверждения по активам.</p>
+                    </article>
+                    <article class="info-card">
+                        <span class="card-label">Маршрут</span>
+                        <h3>МФЦ, суд или другой план</h3>
+                        <p>Выбираем путь по условиям дела, а не по желанию подать быстрее.</p>
+                    </article>
+                    <article class="info-card">
+                        <span class="card-label">ФССП</span>
+                        <h3>Приставы и удержания</h3>
+                        <p>Смотрим исполнительные производства, списания и защищённые выплаты.</p>
+                    </article>
+                    <article class="info-card">
+                        <span class="card-label">Связь</span>
+                        <h3>Объяснение без давления</h3>
+                        <p>Что известно, чего не хватает, где риск и какой следующий шаг разумен.</p>
+                    </article>
+                    <article class="info-card">
+                        <span class="card-label">После</span>
+                        <h3>План после процедуры</h3>
+                        <p>Документы, ограничения, финансовый порядок и дальнейшие действия после завершения.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="property-risks">
+            <div class="container">
+                <div class="section-head">
+                    <span class="eyebrow">Имущество</span>
+                    <h2>Главные страхи обычно связаны с квартирой, ипотекой и приставами</h2>
+                    <p>Эти вопросы нельзя закрывать общими словами. Нужны вводные, документы и осторожная оценка до старта процедуры.</p>
+                </div>
+                <div class="section-grid">
+                    <article class="info-card">
+                        <h3>Единственное жильё</h3>
+                        <p>Проверяем статус жилья, доли, регистрацию, сделки и отсутствие залога.</p>
+                    </article>
+                    <article class="info-card">
+                        <h3>Ипотека и залог</h3>
+                        <p>Залог меняет сценарий: важны договор, остаток долга, платежи и просрочки.</p>
+                    </article>
+                    <article class="info-card">
+                        <h3>Автомобиль</h3>
+                        <p>Смотрим стоимость, необходимость, залог, сделки и риск реализации.</p>
+                    </article>
+                    <article class="info-card">
+                        <h3>Сделки за последние годы</h3>
+                        <p>Продажа, дарение и крупные переводы могут вызвать вопросы в процедуре.</p>
+                    </article>
+                    <article class="info-card">
+                        <h3>Официальный доход</h3>
+                        <p>Доход не запрещает банкротство, но влияет на удержания и расчёты.</p>
+                    </article>
+                    <article class="info-card">
+                        <h3>Приставы и списания</h3>
+                        <p>Важно понять основания удержаний, защищённые выплаты и текущие производства.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="routes">
+            <div class="container">
+                <div class="section-head">
+                    <span class="eyebrow">МФЦ или суд</span>
+                    <h2>Маршрут выбирается после вводных, а не по рекламному обещанию</h2>
+                    <p>Оба пути законные, но условия разные. Ошибка маршрута может стоить времени, денег и спокойствия.</p>
+                </div>
+                <div class="route-grid">
+                    <article class="route-card">
+                        <h3>МФЦ</h3>
+                        <p>Подходит только при строгих условиях и определённом состоянии исполнительных производств.</p>
+                        <ul class="compact-list">
+                            <li>важны сумма долга и закрытые производства;</li>
+                            <li>не подходит для многих ситуаций с имуществом и активными взысканиями;</li>
+                            <li>нужна проверка до подачи, чтобы не потерять время.</li>
+                        </ul>
+                    </article>
+                    <article class="route-card">
+                        <h3>Суд</h3>
+                        <p>Шире по возможностям, но требует документов, финансового управляющего и аккуратной подготовки.</p>
+                        <ul class="compact-list">
+                            <li>подходит для сложных долгов и нескольких кредиторов;</li>
+                            <li>нужна проверка имущества, дохода, залога и сделок;</li>
+                            <li>сроки зависят от суда, кредиторов и фактов дела.</li>
+                        </ul>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="client-path">
+            <div class="container">
+                <div class="section-head">
+                    <span class="eyebrow">Путь клиента</span>
+                    <h2>От тревоги к понятной карте действий</h2>
+                    <p>Путь построен так, чтобы сначала снять неопределённость: что с долгами, имуществом, доходом и приставами.</p>
+                </div>
+                <div class="timeline">
+                    <article class="timeline-item">
+                        <span class="step-index">1</span>
+                        <div><h3>Первичная диагностика</h3><p>Маняша помогает описать ситуацию: долг, кредиторы, ФССП, доход, имущество.</p></div>
+                    </article>
+                    <article class="timeline-item">
+                        <span class="step-index">2</span>
+                        <div><h3>Сбор вводных</h3><p>Уточняются документы, недостающие сведения, срочные списания и риски по жилью.</p></div>
+                    </article>
+                    <article class="timeline-item">
+                        <span class="step-index">3</span>
+                        <div><h3>Проверка имущества и дохода</h3><p>Смотрим квартиру, доли, ипотеку, автомобиль, сделки и официальный доход.</p></div>
+                    </article>
+                    <article class="timeline-item">
+                        <span class="step-index">4</span>
+                        <div><h3>Выбор маршрута</h3><p>Сравниваем МФЦ, суд или другой путь по условиям конкретного дела.</p></div>
+                    </article>
+                    <article class="timeline-item">
+                        <span class="step-index">5</span>
+                        <div><h3>Документы и сопровождение</h3><p>Готовится пакет, контролируются запросы, сроки и понятная коммуникация.</p></div>
+                    </article>
+                    <article class="timeline-item">
+                        <span class="step-index">6</span>
+                        <div><h3>План после завершения</h3><p>Фиксируем ограничения, документы, финансовую гигиену и дальнейшие шаги.</p></div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="manyasha-role">
+            <div class="container manyasha-site">
+                <article class="manyasha-brief">
+                    <span class="eyebrow">Маняша на старте</span>
+                    <h2>Первичный помощник, который готовит к консультации</h2>
+                    <p>Маняша задаёт короткие вопросы, помогает не забыть имущество, приставов, доход и ипотеку, а затем собирает первичный итог. Она не заменяет юриста и не обещает результат.</p>
+                </article>
+                <div class="manyasha-points">
+                    <div class="manyasha-point">
+                        <strong>Не давит и не пугает</strong>
+                        <span>можно начать с пары фраз: сумма долга, кто взыскивает, есть ли приставы.</span>
+                    </div>
+                    <div class="manyasha-point">
+                        <strong>Держит фокус на рисках</strong>
+                        <span>квартира, ипотека, сделки, официальный доход и защищённые выплаты.</span>
+                    </div>
+                    <div class="manyasha-point">
+                        <strong>Готовит к разговору с юристом</strong>
+                        <span>показывает, чего не хватает для честного вывода и расчёта стоимости.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="principles">
+            <div class="container trust-wrap">
+                <article class="trust-main">
+                    <div class="section-head" style="margin-bottom: 18px;">
+                        <span class="eyebrow">Принципы</span>
+                        <h2>Доверие строится на проверке, а не на обещании “спишем всё”</h2>
+                        <p>Если банкротство может не подойти, это лучше узнать до расходов и подачи документов.</p>
+                    </div>
+                    <div class="trust-stats">
+                        <div class="trust-stat">
+                            <strong>Сначала риски</strong>
+                            <span>имущество, доход, приставы, сделки и залог</span>
+                        </div>
+                        <div class="trust-stat">
+                            <strong>Ясный язык</strong>
+                            <span>без юридического тумана и давления решением</span>
+                        </div>
+                        <div class="trust-stat">
+                            <strong>После вводных</strong>
+                            <span>стоимость, маршрут и сроки считаются по фактам</span>
+                        </div>
+                    </div>
+                </article>
+                <aside class="trust-side">
+                    <h3 style="margin: 0 0 10px; color: #0b1727;">Когда нужно особенно аккуратно</h3>
+                    <ul class="trust-points">
+                        <li>есть ипотека, залог или автомобиль;</li>
+                        <li>были сделки с имуществом за последние годы;</li>
+                        <li>приставы уже списывают деньги с дохода;</li>
+                        <li>есть официальный доход, иждивенцы или спорные требования.</li>
+                    </ul>
+                </aside>
+            </div>
+        </section>
+
+        <section class="container" id="final-cta">
+            <div class="final-cta">
+                <h2>Начните с карты рисков, а не с обещания списать долг.</h2>
+                <p>
+                    Опишите Маняше сумму долга, приставов, доход, имущество, МФО, кредиты или ипотеку.
+                    Она задаст первичные вопросы и покажет, что важно проверить до консультации с юристом.
+                </p>
+                <div class="final-actions">
+                    <a class="btn btn-primary" href="#top">Разобрать риски по долгам и имуществу</a>
+                    <a class="btn btn-secondary" href="#site-tabs" data-open-tab="quiz">Пройти быстрый квиз</a>
+                </div>
+                <p class="disclaimer">
+                    Без обещаний результата до проверки документов и вводных.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-row">
+            <span>© 2026 Egor Банкротит. Предварительный разбор долгов и банкротства физических лиц.</span>
+            <span>Без обещаний результата: сначала факты, документы, риски и понятный следующий шаг.</span>
+        </div>
+    </footer>
+    <script>
+        (() => {
+            const tabButtons = Array.from(document.querySelectorAll("[role='tab'][data-tab]"));
+            const tabPanels = Array.from(document.querySelectorAll("[role='tabpanel'][data-panel]"));
+            const openLinks = Array.from(document.querySelectorAll("[data-open-tab]"));
+            const hashTabs = {
+                "#risks": "risks",
+                "#cost": "cost",
+                "#pricing": "cost",
+                "#quiz": "quiz",
+                "#manyasha": "manyasha",
+                "#manyasha-role": "manyasha",
+                "#faq": "faq",
+            };
+            const hasPanel = (tabName) => tabPanels.some((panel) => panel.dataset.panel === tabName);
+
+            const activateTab = (tabName, shouldScroll = false) => {
+                const nextTab = hasPanel(tabName) ? tabName : "risks";
+                tabButtons.forEach((button) => {
+                    const isActive = button.dataset.tab === nextTab;
+                    button.classList.toggle("is-active", isActive);
+                    button.setAttribute("aria-selected", String(isActive));
+                    button.tabIndex = isActive ? 0 : -1;
+                });
+                tabPanels.forEach((panel) => {
+                    const isActive = panel.dataset.panel === nextTab;
+                    panel.classList.toggle("is-active", isActive);
+                    panel.hidden = !isActive;
+                });
+                openLinks.forEach((link) => {
+                    if (link.closest(".nav")) {
+                        const isActive = link.dataset.openTab === nextTab;
+                        link.classList.toggle("is-active", isActive);
+                        if (isActive) {
+                            link.setAttribute("aria-current", "page");
+                        } else {
+                            link.removeAttribute("aria-current");
+                        }
+                    }
+                });
+                if (shouldScroll) {
+                    document.querySelector("#site-tabs")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+            };
+
+            tabButtons.forEach((button) => {
+                button.addEventListener("click", () => activateTab(button.dataset.tab, true));
+                button.addEventListener("keydown", (event) => {
+                    const currentIndex = tabButtons.indexOf(button);
+                    const lastIndex = tabButtons.length - 1;
+                    let nextIndex = currentIndex;
+
+                    if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+                        nextIndex = currentIndex === lastIndex ? 0 : currentIndex + 1;
+                    } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+                        nextIndex = currentIndex === 0 ? lastIndex : currentIndex - 1;
+                    } else if (event.key === "Home") {
+                        nextIndex = 0;
+                    } else if (event.key === "End") {
+                        nextIndex = lastIndex;
+                    } else {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    tabButtons[nextIndex].focus();
+                    activateTab(tabButtons[nextIndex].dataset.tab, true);
+                });
+            });
+
+            openLinks.forEach((link) => {
+                link.addEventListener("click", (event) => {
+                    if (!hasPanel(link.dataset.openTab)) return;
+                    event.preventDefault();
+                    activateTab(link.dataset.openTab, true);
+                });
+            });
+
+            activateTab(hashTabs[window.location.hash] || tabButtons.find((button) => button.classList.contains("is-active"))?.dataset.tab || "risks", false);
+
+            const quizGroups = Array.from(document.querySelectorAll("[data-quiz-group]"));
+            const quizSummary = document.querySelector("#quiz-summary");
+            const quizResult = document.querySelector("#quiz-result-text");
+
+            const updateQuiz = () => {
+                if (!quizSummary || !quizResult) return;
+                const selected = quizGroups
+                    .map((group) => group.querySelector('.quiz-option[aria-pressed="true"]')?.dataset.quizOption)
+                    .filter(Boolean);
+
+                quizSummary.innerHTML = selected.map((item) => `<li>${item}</li>`).join("");
+
+                const hasPropertyRisk = selected.some((item) => item.includes("имущество") || item.includes("ипотека") || item.includes("залог"));
+                const hasFsspRisk = selected.some((item) => item.includes("ФССП") || item.includes("Не знаю"));
+                const hasHighDebt = selected.some((item) => item.includes("Больше"));
+
+                if (hasHighDebt || hasPropertyRisk) {
+                    quizResult.textContent = "Первый фокус — имущество, залог, сделки и судебный маршрут. Стоимость и сроки можно считать только после документов.";
+                } else if (hasFsspRisk) {
+                    quizResult.textContent = "Первый фокус — приставы, удержания и условия МФЦ/суда. Нужно понять, какие производства открыты и что списывают.";
+                } else {
+                    quizResult.textContent = "Похоже, первым делом стоит проверить сумму долга, доход, имущество и условия маршрута МФЦ/суд.";
+                }
+            };
+
+            quizGroups.forEach((group) => {
+                const options = Array.from(group.querySelectorAll(".quiz-option"));
+                options.forEach((option) => {
+                    option.addEventListener("click", () => {
+                        options.forEach((item) => item.setAttribute("aria-pressed", String(item === option)));
+                        updateQuiz();
+                    });
+                });
+            });
+
+            updateQuiz();
+        })();
+    </script>
+    <div id="manyasha-widget">
+      <div id="manyasha-card">
+        <div id="manyasha-header">
+            <div id="manyasha-identity">
+                <div id="manyasha-name">Маняша</div>
+                <div id="manyasha-label">Премиум-юрист по банкротству</div>
+                <div id="manyasha-mode-chip">Готова помочь</div>
+            </div>
+            <div class="manyasha-header-actions">
+                <button id="manyasha-menu-btn" class="manyasha-icon-btn" type="button" title="Действия" aria-label="Действия">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>
+                </button>
+                <button id="manyasha-hide-btn" class="manyasha-icon-btn" type="button" title="Скрыть Маняшу" aria-label="Скрыть Маняшу">
+                    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </button>
+            </div>
+            <div id="manyasha-menu-panel" aria-hidden="true">
+                <button id="manyasha-expand-btn" class="manyasha-menu-item" type="button" title="Развернуть чат" aria-label="Развернуть">
+                    <svg id="manyasha-expand-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                    </svg>
+                    <span id="manyasha-expand-label">Развернуть чат</span>
+                </button>
+                <button id="manyasha-mute-btn" class="manyasha-menu-item" type="button" title="Выключить голос" aria-label="Выключить голос">
+                    <svg id="manyasha-mute-icon" width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" fill="currentColor"/></svg>
+                    <span id="manyasha-mute-label">Выключить голос</span>
+                </button>
+            </div>
+        </div>
+        <div id="manyasha-stage-wrap">
+            <div id="manyasha-stage">
+                <img id="manyasha-stage-fallback" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="" aria-hidden="true">
+                <video id="mv-a" playsinline muted preload="auto"></video>
+                <video id="mv-b" playsinline muted preload="auto"></video>
+            </div>
+        </div>
+        <div class="manyasha-content">
+        <!-- Чат -->
+        <div id="manyasha-chat">
+            <div id="manyasha-ops-status" aria-live="polite"></div>
+            <div id="manyasha-bootstrap-status" aria-live="polite"></div>
+            <div id="manyasha-chat-messages"></div>
+            <button type="button" id="manyasha-scroll-bottom" aria-label="Прокрутить к последним сообщениям" title="Вниз">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+            </button>
+            <form id="manyasha-chat-form" autocomplete="off">
+                <textarea id="manyasha-chat-input" rows="1" placeholder="Спросите Маняшу..." maxlength="500"></textarea>
+                <button id="manyasha-sound-toggle" type="button" title="Выключить голос" aria-label="Выключить голос" aria-pressed="true">
+                    <svg id="manyasha-sound-toggle-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" fill="currentColor"/></svg>
+                </button>
+                <button id="manyasha-voice-btn" type="button" title="Голосовой ввод" aria-label="Голосовой ввод">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3 3 0 0 0 3-3V7a3 3 0 1 0-6 0v5a3 3 0 0 0 3 3zm5-3a1 1 0 1 1 2 0 7 7 0 0 1-6 6.92V21h2a1 1 0 1 1 0 2H9a1 1 0 1 1 0-2h2v-2.08A7 7 0 0 1 5 12a1 1 0 1 1 2 0 5 5 0 0 0 10 0z"/></svg>
+                </button>
+                <button id="manyasha-chat-send" type="submit" title="Отправить">
+                    <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                </button>
+            </form>
+            <div id="manyasha-voice-status" aria-live="polite">
+                <span class="dot"></span>
+                <span id="manyasha-voice-status-text">Слушаю…</span>
+            </div>
+            <button id="manyasha-consult-cta" type="button">Консультация юриста</button>
+            <!-- Быстрые ответы + рекомендованные вопросы (обновляются после каждого ответа Маняши) -->
+            <div id="manyasha-quick-panel">
+                <div id="manyasha-quick-replies" class="quick-replies"></div>
+                <div id="manyasha-suggested"></div>
+            </div>
+        </div>
+        </div><!-- /.manyasha-content -->
+        </div>
+      </div>
+    </div>
+    <!-- Модальное окно: запись на консультацию -->
+    <div id="manyasha-consult-modal" class="consult-modal-root" aria-hidden="true" inert>
+        <div class="consult-modal-backdrop" id="manyasha-consult-backdrop"></div>
+        <div class="consult-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="consult-modal-title">
+            <button type="button" class="consult-modal-close" id="manyasha-consult-modal-close" aria-label="Закрыть">×</button>
+            <p class="cp-title" id="consult-modal-title">📋 Записаться на консультацию</p>
+            <input id="cp-phone" type="tel" placeholder="Телефон" autocomplete="tel" maxlength="30">
+            <input id="cp-email" type="email" placeholder="Почта" autocomplete="email" maxlength="120">
+            <input id="cp-name" type="text" placeholder="Имя" autocomplete="name" maxlength="100">
+            <div class="cp-row">
+                <button class="cp-submit" id="cp-submit-btn" type="button">Записаться</button>
+                <button class="cp-cancel" id="cp-cancel-btn" type="button">Отмена</button>
+            </div>
+            <span class="cp-error" id="cp-error-msg">Укажите телефон, почту и имя</span>
+        </div>
+    </div>
+    <!-- Мини-тизер Маняши (закрытый вид) -->
+    <div id="manyasha-show-btn" title="Открыть чат с Маняшей" style="display:none;position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));right:calc(24px + env(safe-area-inset-right));z-index:1001;cursor:pointer;">
+        <style>
+        #manyasha-show-btn {
+            font-family: var(--mx-font-family, 'Inter', sans-serif);
+        }
+        #manyasha-teaser {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            filter: drop-shadow(0 10px 24px rgba(20, 44, 78, 0.20));
+        }
+        #manyasha-teaser-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            border: 2px solid rgba(37, 95, 169, 0.46);
+            object-fit: cover;
+            background: #f8f2e8;
+            flex-shrink: 0;
+            box-shadow: 0 8px 16px rgba(21, 63, 122, 0.24);
+            transition: transform 0.25s;
+        }
+        #manyasha-show-btn:hover #manyasha-teaser-avatar {
+            transform: scale(1.04) translateY(-1px);
+        }
+        #manyasha-teaser-bubble {
+            background: linear-gradient(145deg, rgba(255,255,255,0.98), rgba(241, 232, 220, 0.94));
+            border: 1px solid rgba(24, 61, 112, 0.18);
+            border-radius: 14px;
+            padding: 8px 10px;
+            max-width: 188px;
+            position: relative;
+            box-shadow: 0 8px 18px rgba(20, 44, 78, 0.16);
+            transition: box-shadow 0.25s;
+        }
+        #manyasha-show-btn:hover #manyasha-teaser-bubble {
+            box-shadow: 0 12px 24px rgba(20, 44, 78, 0.2);
+        }
+        #manyasha-teaser-name {
+            font-size: 0.62rem;
+            font-weight: 700;
+            color: rgba(27, 72, 130, 0.86);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        #manyasha-teaser-text {
+            font-size: 0.72rem;
+            color: rgba(24, 41, 67, 0.94);
+            line-height: 1.35;
+            font-weight: 500;
+        }
+        #manyasha-teaser-cta {
+            margin-top: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            color: #245da8;
+            font-size: 0.64rem;
+            font-weight: 700;
+            padding: 0;
+            border-radius: 20px;
+            letter-spacing: 0.02em;
+            box-shadow: none;
+        }
+        #manyasha-teaser-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #2f7bdb;
+            box-shadow: 0 0 0 0 rgba(47,123,219,0.42);
+            animation: teaser-ping 2.3s ease-in-out infinite;
+            margin-right: 2px;
+            flex-shrink: 0;
+        }
+        @keyframes teaser-ping {
+            0%   { box-shadow: 0 0 0 0 rgba(47,123,219,0.42); }
+            70%  { box-shadow: 0 0 0 6px rgba(47,123,219,0); }
+            100% { box-shadow: 0 0 0 0 rgba(47,123,219,0); }
+        }
+        @keyframes teaser-soft-nudge {
+            0%, 100% { transform: translateY(0); }
+            45% { transform: translateY(-2px); }
+        }
+        #manyasha-teaser-avatar.teaser-attn {
+            animation: teaser-soft-nudge 0.5s ease;
+        }
+        #manyasha-teaser-msg {
+            display: inline;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            #manyasha-widget,
+            #manyasha-show-btn,
+            #manyasha-card,
+            #manyasha-teaser,
+            #manyasha-teaser-avatar,
+            #manyasha-stage,
+            #manyasha-consult-cta,
+            #manyasha-voice-status .dot {
+                animation: none !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        @media (max-width: 520px) {
+            #manyasha-show-btn {
+                right: calc(8px + env(safe-area-inset-right)) !important;
+                bottom: calc(8px + env(safe-area-inset-bottom)) !important;
+                max-width: calc(100vw - 10px);
+            }
+            #manyasha-teaser {
+                max-width: calc(100vw - 10px);
+            }
+            #manyasha-teaser-bubble {
+                max-width: min(160px, calc(100vw - 86px));
+                padding: 7px 8px;
+            }
+            #manyasha-teaser-text {
+                font-size: 0.68rem;
+            }
+        }
+
+        </style>
+        <div id="manyasha-teaser">
+            <div id="manyasha-teaser-bubble">
+                <div id="manyasha-teaser-name">Маняша • юрист</div>
+                <div id="manyasha-teaser-text">
+                    <span id="manyasha-teaser-msg">Разберу вашу ситуацию спокойно и по шагам.</span>
+                </div>
+                <div id="manyasha-teaser-cta">
+                    <span id="manyasha-teaser-dot"></span>
+                    Открыть чат
+                </div>
+            </div>
+            <img id="manyasha-teaser-avatar" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="" aria-hidden="true" />
+        </div>
+    </div>
+    <script src="./widget/widget-ui.js?v=20260420-debug-1"></script>
+    <script src="./widget/widget-api.js?v=20260420-debug-1"></script>
+    <script src="./widget/widget-state.js?v=20260507-greeting-1"></script>
+    <script src="./widget/widget-demo.js?v=20260422-demo-split-1"></script>
+    <script src="./widget/widget-a11y.js?v=20260420-debug-1"></script>
+    <script src="./widget/widget-text.js?v=20260422-text-split-1"></script>
+    <script src="./widget/widget-context.js?v=20260423-context-split-1"></script>
+    <script src="./widget/widget-chat-transport.js?v=20260423-chat-transport-split-1"></script>
+    <script src="./widget/widget-handoff.js?v=20260507-handoff-a11y-1"></script>
+    <script src="./widget/widget-media.js?v=20260507-state-allowlist-4"></script>
+    <script src="./widget/widget-diagnostics.js?v=20260427-diagnostics-1"></script>
+    <script src="./widget/widget-core.js?v=20260507-sequence-3"></script>
+    <script src="./widget/widget-consult.js?v=20260420-debug-1"></script>
+</body>
+</html>

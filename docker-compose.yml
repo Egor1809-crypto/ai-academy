@@ -22,7 +22,7 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://ailegal:ailegal_secret@db:5432/ailegal?schema=public
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-AiLegal2024!}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in .env}
     ports:
       - "127.0.0.1:3005:3000"
 

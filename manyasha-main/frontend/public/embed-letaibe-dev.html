@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Media Lab — локальный media dev stand</title>
+  <meta name="description" content="Локальный media/news dev стенд для проверки portable embed виджета Маняши.">
+  <style>
+    :root {
+      --bg: #f3efe5;
+      --surface: #fffaf0;
+      --surface-strong: #ffffff;
+      --ink: #14120f;
+      --muted: #70685d;
+      --line: rgba(20, 18, 15, 0.13);
+      --orange: #f04b23;
+      --orange-soft: rgba(240, 75, 35, 0.12);
+      --blue: #245bff;
+      --lime: #b8ff67;
+      --night: #11151e;
+      --sand: #e8decd;
+      --shadow: 0 22px 70px rgba(38, 29, 18, 0.13);
+      --radius-xl: 30px;
+      --radius-lg: 22px;
+      --sans: "Manrope", "Inter", "Segoe UI", Arial, sans-serif;
+      --serif: Georgia, "Times New Roman", serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      min-width: 0;
+      background: var(--bg);
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-width: 0;
+      color: var(--ink);
+      font-family: var(--sans);
+      background:
+        radial-gradient(900px 520px at 12% -6%, rgba(36, 91, 255, 0.13), transparent 58%),
+        radial-gradient(820px 520px at 102% 8%, rgba(240, 75, 35, 0.18), transparent 60%),
+        linear-gradient(180deg, #fff8ec 0%, #f4efe5 42%, #ece3d3 100%);
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+
+    .page {
+      width: min(1220px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 18px 0 96px;
+    }
+
+    .dev-ribbon {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      color: rgba(20, 18, 15, 0.67);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin: 0 0 12px;
+    }
+
+    .dev-ribbon span {
+      min-width: 0;
+    }
+
+    .masthead {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.82), rgba(255,250,240,0.94)),
+        repeating-linear-gradient(90deg, rgba(20,18,15,0.035) 0 1px, transparent 1px 94px);
+      box-shadow: var(--shadow);
+    }
+
+    .masthead::after {
+      content: "";
+      position: absolute;
+      width: 340px;
+      height: 340px;
+      right: -100px;
+      top: -160px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(240,75,35,.22), transparent 64%);
+      pointer-events: none;
+    }
+
+    .brand-row {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+      align-items: end;
+      gap: 24px;
+      padding: 28px 28px 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand-lockup {
+      min-width: 0;
+    }
+
+    .brand-kicker {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .brand-dot {
+      width: 13px;
+      height: 13px;
+      border-radius: 999px;
+      background: var(--orange);
+      box-shadow: 0 0 0 9px var(--orange-soft);
+    }
+
+    .brand-title {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(54px, 10vw, 120px);
+      line-height: 0.82;
+      letter-spacing: -0.085em;
+      font-weight: 900;
+    }
+
+    .brand-summary {
+      display: grid;
+      gap: 10px;
+      justify-items: end;
+      text-align: right;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 760;
+      line-height: 1.5;
+    }
+
+    .brand-summary strong {
+      color: var(--ink);
+    }
+
+    .nav {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 14px 18px 18px;
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .nav a,
+    .nav span,
+    .nav button {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 10px 13px;
+      background: rgba(255,255,255,.72);
+      box-shadow: 0 6px 14px rgba(20,18,15,.04);
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .nav .active {
+      background: var(--night);
+      border-color: var(--night);
+      color: #fff;
+    }
+
+    .nav button {
+      appearance: none;
+      text-transform: inherit;
+      letter-spacing: inherit;
+      font-weight: inherit;
+    }
+
+    .ticker {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      margin: 18px 0;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,.56);
+      padding: 10px 14px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+      overflow: hidden;
+    }
+
+    .ticker-label {
+      color: var(--orange);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .ticker-line {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .topic-board {
+      display: grid;
+      gap: 18px;
+      margin: 18px 0;
+      padding: 22px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.78), rgba(255,244,226,.88)),
+        radial-gradient(420px 220px at 92% 10%, rgba(36,91,255,.12), transparent 64%);
+    }
+
+    .topic-board-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: end;
+    }
+
+    .topic-board h2 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(30px, 4.4vw, 48px);
+      line-height: .98;
+      letter-spacing: -0.055em;
+    }
+
+    .topic-board p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 650;
+      line-height: 1.6;
+    }
+
+    .topic-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(220px, .42fr);
+      gap: 14px;
+      align-items: stretch;
+      min-width: 0;
+    }
+
+    .topic-panel[hidden] {
+      display: none;
+    }
+
+    .topic-feature,
+    .topic-side-card {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255,255,255,.58);
+      padding: 18px;
+      min-width: 0;
+    }
+
+    .topic-feature {
+      display: grid;
+      gap: 14px;
+    }
+
+    .topic-feature h3 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1;
+      letter-spacing: -0.052em;
+    }
+
+    .topic-side-card {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+      background: #11151e;
+      color: #fff;
+    }
+
+    .topic-side-card h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .topic-side-card p {
+      color: rgba(255,255,255,.72);
+      font-size: 13px;
+    }
+
+    .topic-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .topic-list li {
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      padding: 12px;
+      background: rgba(255,255,255,.64);
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 820;
+      line-height: 1.35;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.65fr) minmax(300px, .78fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .main-stack,
+    .sidebar {
+      display: grid;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: rgba(255,250,240,.84);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.02fr) minmax(300px, .88fr);
+      min-height: 440px;
+    }
+
+    .hero-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 26px;
+      padding: 32px;
+    }
+
+    .tag {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      gap: 7px;
+      border: 1px solid rgba(240,75,35,.27);
+      border-radius: 999px;
+      padding: 8px 11px;
+      background: rgba(240,75,35,.08);
+      color: #b33a18;
+      font-size: 11px;
+      font-weight: 950;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .tag.dark {
+      border-color: rgba(255,255,255,.15);
+      background: rgba(255,255,255,.08);
+      color: #fff;
+    }
+
+    .hero h2 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(38px, 5.8vw, 68px);
+      line-height: 0.94;
+      letter-spacing: -0.062em;
+      max-width: 720px;
+    }
+
+    .hero p,
+    .article-card p,
+    .panel p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 620;
+      line-height: 1.65;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .meta span {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 10px;
+      background: rgba(255,255,255,.62);
+    }
+
+    .hero-visual {
+      position: relative;
+      min-height: 360px;
+      background:
+        radial-gradient(circle at 35% 35%, rgba(255,255,255,.44), transparent 0 16%, transparent 17%),
+        linear-gradient(135deg, #ff3f1f 0%, #f3831f 58%, #151924 100%);
+      isolation: isolate;
+      overflow: hidden;
+    }
+
+    .hero-visual::before {
+      content: "";
+      position: absolute;
+      inset: 48px;
+      border: 1px dashed rgba(255,255,255,.56);
+      border-radius: 45% 55% 48% 52%;
+      transform: rotate(-18deg);
+    }
+
+    .hero-visual::after {
+      content: "";
+      position: absolute;
+      width: 330px;
+      height: 330px;
+      border-radius: 999px;
+      left: 50%;
+      top: 54%;
+      transform: translate(-50%, -50%);
+      border: 1px solid rgba(255,255,255,.45);
+      background: radial-gradient(circle, rgba(255,255,255,.14), transparent 62%);
+    }
+
+    .node {
+      position: absolute;
+      z-index: 2;
+      display: grid;
+      place-items: center;
+      width: 64px;
+      height: 64px;
+      border-radius: 21px;
+      background: rgba(255,255,255,.9);
+      color: #161922;
+      font-size: 13px;
+      font-weight: 950;
+      box-shadow: 0 18px 44px rgba(15,18,28,.22);
+    }
+
+    .node.ai { top: 56px; left: 62px; }
+    .node.data { top: 190px; right: 66px; }
+    .node.ops { bottom: 70px; left: 112px; }
+
+    .signal-card {
+      position: absolute;
+      z-index: 3;
+      right: 24px;
+      bottom: 22px;
+      width: min(230px, calc(100% - 48px));
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 22px;
+      padding: 16px;
+      background: rgba(17,21,30,.82);
+      color: #fff;
+      backdrop-filter: blur(12px);
+    }
+
+    .signal-card h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    .signal-card p {
+      margin: 0;
+      color: rgba(255,255,255,.72);
+      font-size: 12px;
+      line-height: 1.55;
+      font-weight: 700;
+    }
+
+    .live-feed {
+      display: grid;
+      grid-template-columns: auto minmax(0,1fr);
+      gap: 14px;
+      align-items: start;
+      padding: 20px;
+    }
+
+    .live-dot {
+      width: 11px;
+      height: 11px;
+      margin-top: 8px;
+      border-radius: 999px;
+      background: var(--orange);
+      box-shadow: 0 0 0 8px var(--orange-soft);
+    }
+
+    .feed-list {
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      min-width: 0;
+    }
+
+    .feed-list li {
+      display: grid;
+      grid-template-columns: 72px minmax(0,1fr);
+      gap: 12px;
+      align-items: baseline;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+      font-weight: 780;
+      line-height: 1.45;
+    }
+
+    .feed-list li:last-child { border-bottom: 0; padding-bottom: 0; }
+    .feed-list time { color: var(--orange); font-size: 12px; font-weight: 950; }
+
+    .article-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .article-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 22px;
+      padding: 20px;
+      min-height: 225px;
+    }
+
+    .article-card h3 {
+      margin: 12px 0 0;
+      font-family: var(--serif);
+      font-size: 29px;
+      line-height: 1.02;
+      letter-spacing: -0.045em;
+    }
+
+    .panel {
+      padding: 20px;
+    }
+
+    .panel h2 {
+      margin: 0 0 14px;
+      font-family: var(--serif);
+      font-size: 31px;
+      line-height: .96;
+      letter-spacing: -0.045em;
+    }
+
+    .list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .list li {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,.58);
+      padding: 13px;
+      font-size: 14px;
+      font-weight: 850;
+      line-height: 1.35;
+    }
+
+    .list small {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .metric-panel {
+      background: var(--night);
+      color: #fff;
+    }
+
+    .metric-panel h2 { color: #fff; }
+    .metric-panel p { color: rgba(255,255,255,.68); }
+
+    .meters {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .meter {
+      display: grid;
+      gap: 7px;
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .bar {
+      height: 9px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.14);
+      overflow: hidden;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--lime), var(--orange));
+    }
+
+    .embed-telemetry {
+      display: none;
+    }
+
+    .footer {
+      margin-top: 18px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: rgba(255,250,240,.7);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .footer strong { color: var(--ink); }
+
+    @media (max-width: 980px) {
+      .brand-row,
+      .layout,
+      .hero,
+      .topic-panel {
+        grid-template-columns: 1fr;
+      }
+      .brand-summary {
+        justify-items: start;
+        text-align: left;
+        max-width: 620px;
+      }
+      .hero-visual { min-height: 300px; }
+      .sidebar { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .metric-panel { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        width: min(100vw - 18px, 1220px);
+        padding: 12px 0 88px;
+      }
+      .dev-ribbon {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+        font-size: 10px;
+      }
+      .masthead,
+      .card,
+      .footer { border-radius: 20px; }
+      .brand-row { padding: 20px 18px; }
+      .brand-title { font-size: clamp(48px, 18vw, 72px); }
+      .nav { padding: 11px; gap: 6px; }
+      .nav a,
+      .nav span,
+      .nav button { padding: 9px 10px; font-size: 11px; }
+      .ticker {
+        grid-template-columns: 1fr;
+        border-radius: 20px;
+      }
+      .hero-copy,
+      .panel,
+      .article-card,
+      .topic-board,
+      .footer { padding: 18px; }
+      .hero h2 {
+        max-width: calc(100% - 92px);
+        font-size: clamp(31px, 10.5vw, 41px);
+      }
+      .hero-visual { min-height: 255px; }
+      .node { width: 52px; height: 52px; border-radius: 17px; }
+      .node.ai { left: 34px; top: 42px; }
+      .node.data { right: 38px; top: 138px; }
+      .node.ops { left: 78px; bottom: 42px; }
+      .signal-card { right: 14px; bottom: 14px; width: calc(100% - 28px); }
+      .live-feed { grid-template-columns: 1fr; padding: 18px; }
+      .live-dot { display: none; }
+      .feed-list li { grid-template-columns: 58px minmax(0,1fr); }
+      .article-grid,
+      .sidebar { grid-template-columns: 1fr; }
+      .topic-board-head { align-items: start; flex-direction: column; }
+      .topic-list { grid-template-columns: 1fr; }
+      .article-card h3 { font-size: 25px; }
+      .panel h2 { font-size: 28px; }
+    }
+
+    @media (max-width: 410px) {
+      .page { width: min(100vw - 14px, 1220px); }
+      .brand-title { letter-spacing: -0.075em; }
+      .hero-copy p,
+      .article-card p,
+      .panel p,
+      .topic-board p { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="dev-ribbon">
+      <span>Локальный media/news dev stand</span>
+      <span>Не копия реального сайта: оригинальный стенд для проверки portable embed</span>
+    </div>
+
+    <header class="masthead">
+      <div class="brand-row">
+        <div class="brand-lockup">
+          <div class="brand-kicker"><span class="brand-dot" aria-hidden="true"></span>AI, business, culture</div>
+          <h1 class="brand-title">AI Media Lab</h1>
+        </div>
+        <div class="brand-summary">
+          <strong>Ежедневная редакция о продуктах, данных и технологических рынках.</strong>
+          <span>На этой локальной странице Маняша подключена как внешний portable widget, а не как часть основного сайта.</span>
+        </div>
+      </div>
+      <nav class="nav" aria-label="Основная навигация" role="tablist">
+        <button class="active" type="button" role="tab" aria-selected="true" data-tab-target="front">Главное</button>
+        <button type="button" role="tab" aria-selected="false" data-tab-target="markets">Рынки</button>
+        <button type="button" role="tab" aria-selected="false" data-tab-target="startups">Стартапы</button>
+        <button type="button" role="tab" aria-selected="false" data-tab-target="policy">Регулирование</button>
+        <button type="button" role="tab" aria-selected="false" data-tab-target="research">Исследования</button>
+        <button type="button" role="tab" aria-selected="false" data-tab-target="events">События</button>
+      </nav>
+    </header>
+
+    <div class="ticker" aria-label="Live редакционная лента">
+      <span class="ticker-label">Live desk</span>
+      <span class="ticker-line">AI-платформы переходят от чат-интерфейсов к рабочим сценариям: ассистенты, встраиваемые виджеты, контроль качества и безопасные fallback.</span>
+      <span>30.04.2026</span>
+    </div>
+
+    <section class="card topic-board" aria-label="Редакционные вкладки">
+      <div class="topic-board-head">
+        <div>
+          <span class="tag">Редакционные вкладки</span>
+          <h2>Открывайте рубрики как на обычном media-сайте</h2>
+        </div>
+        <p>Контент здесь демонстрационный: важна не конкретная новость, а то, что внешний сайт живёт своей жизнью, а Маняша переносится чисто и не вмешивается в layout.</p>
+      </div>
+
+      <div class="topic-panel" data-tab-panel="front">
+        <div class="topic-feature">
+          <span class="tag">Главное</span>
+          <h3>AI-сервисы становятся частью клиентского пути, а не отдельной игрушкой</h3>
+          <p>Редакция смотрит на новые интерфейсы через практику: где ассистент реально помогает, где нужен оператор и как продукт не должен давить на пользователя.</p>
+          <ul class="topic-list">
+            <li>Главный тренд: встроенные помощники вместо отдельного FAQ.</li>
+            <li>Фокус недели: доверие, приватность и контролируемые сценарии.</li>
+            <li>Что смотреть: качество маршрута после первого ответа.</li>
+          </ul>
+        </div>
+        <aside class="topic-side-card">
+          <h3>Редакторский сигнал</h3>
+          <p>Рынок взрослеет: пользователь ждёт не “магии AI”, а спокойного следующего шага.</p>
+        </aside>
+      </div>
+
+      <div class="topic-panel" data-tab-panel="markets" hidden>
+        <div class="topic-feature">
+          <span class="tag">Рынки</span>
+          <h3>Инвесторы оценивают AI-продукты по операционной пользе</h3>
+          <p>Вместо громких обещаний в цене оказываются метрики поддержки, снижение ошибок, скорость обработки заявок и прозрачность решений.</p>
+          <ul class="topic-list">
+            <li>Сервисы с human-in-the-loop получают больше доверия.</li>
+            <li>Команды считают стоимость ошибки, а не только скорость ответа.</li>
+            <li>Виджеты становятся каналом продаж и сопровождения.</li>
+          </ul>
+        </div>
+        <aside class="topic-side-card">
+          <h3>Market note</h3>
+          <p>Компании выбирают AI там, где есть измеримая польза и понятная ответственность.</p>
+        </aside>
+      </div>
+
+      <div class="topic-panel" data-tab-panel="startups" hidden>
+        <div class="topic-feature">
+          <span class="tag">Стартапы</span>
+          <h3>Маленькие команды выигрывают скоростью внедрения embedded AI</h3>
+          <p>Локальные стенды, чистый iframe и понятный contract позволяют показывать продукт на разных сайтах без переписывания ядра.</p>
+          <ul class="topic-list">
+            <li>Быстрый demo stand помогает продать идею до большого deploy.</li>
+            <li>Изоляция стилей снижает риск визуальных дефектов.</li>
+            <li>Один виджет можно проверять на разных host layouts.</li>
+          </ul>
+        </div>
+        <aside class="topic-side-card">
+          <h3>Startup lens</h3>
+          <p>Побеждает не самый шумный интерфейс, а тот, который легко встроить и проверить.</p>
+        </aside>
+      </div>
+
+      <div class="topic-panel" data-tab-panel="policy" hidden>
+        <div class="topic-feature">
+          <span class="tag">Регулирование</span>
+          <h3>Прозрачность AI-интерфейсов становится частью продукта</h3>
+          <p>Согласие, понятные ограничения, отсутствие гарантий и бережное обращение с персональными данными уже выглядят как базовая гигиена.</p>
+          <ul class="topic-list">
+            <li>Не обещать результат там, где нужна проверка экспертом.</li>
+            <li>Не собирать лишние данные без понятной причины.</li>
+            <li>Отделять предварительный итог от юридического заключения.</li>
+          </ul>
+        </div>
+        <aside class="topic-side-card">
+          <h3>Policy watch</h3>
+          <p>Надёжный AI-продукт объясняет, что он знает, чего не знает и когда нужен человек.</p>
+        </aside>
+      </div>
+
+      <div class="topic-panel" data-tab-panel="research" hidden>
+        <div class="topic-feature">
+          <span class="tag">Исследования</span>
+          <h3>Качество AI-виджета проверяется переносимостью</h3>
+          <p>Если ассистент стабильно работает на чужом layout, не ломает scroll, не наследует стили и сохраняет clean shell, его проще выводить в demo и staging.</p>
+          <ul class="topic-list">
+            <li>Clean iframe защищает виджет от CSS сайта.</li>
+            <li>Launcher и drag должны вести себя независимо от host page.</li>
+            <li>Install-health показывает готовность без технического шума для пользователя.</li>
+          </ul>
+        </div>
+        <aside class="topic-side-card">
+          <h3>Lab note</h3>
+          <p>Технические проверки остаются под капотом, а сайт выглядит как полноценное медиа.</p>
+        </aside>
+      </div>
+
+      <div class="topic-panel" data-tab-panel="events" hidden>
+        <div class="topic-feature">
+          <span class="tag">События</span>
+          <h3>Редакция собирает карту AI-событий на месяц</h3>
+          <p>Конференции, продуктовые demo days и форумы данных показывают, как быстро меняется рынок клиентских AI-интерфейсов.</p>
+          <ul class="topic-list">
+            <li>AI Product Day: сценарии внедрения ассистентов.</li>
+            <li>Data Quality Forum: доверие к данным и контроль ошибок.</li>
+            <li>Creative AI Week: новые форматы media и support.</li>
+          </ul>
+        </div>
+        <aside class="topic-side-card">
+          <h3>Event desk</h3>
+          <p>Главный вопрос сезона: где AI помогает процессу, а где только добавляет шума.</p>
+        </aside>
+      </div>
+    </section>
+
+    <div class="layout">
+      <main class="main-stack">
+        <article class="card hero">
+          <div class="hero-copy">
+            <span class="tag">Главный материал</span>
+            <div>
+              <h2>ИИ-агенты становятся интерфейсом между клиентом и сложной услугой</h2>
+              <p>Редакционный разбор о том, как компании встраивают помощников в продукт: без обещаний магии, с понятными сценариями, контролем рисков и честным пользовательским маршрутом.</p>
+            </div>
+            <div class="meta">
+              <span>12:40</span>
+              <span>AI / business</span>
+              <span>7 минут</span>
+            </div>
+          </div>
+          <div class="hero-visual" aria-hidden="true">
+            <span class="node ai">AI</span>
+            <span class="node data">DATA</span>
+            <span class="node ops">OPS</span>
+            <div class="signal-card">
+              <span class="tag dark">Editorial signal</span>
+              <h3>Service widgets</h3>
+              <p>Рост спроса на ассистентов, которые не заменяют эксперта, а готовят пользователя к следующему шагу.</p>
+            </div>
+          </div>
+        </article>
+
+        <section class="card live-feed" aria-label="Новости в реальном времени">
+          <span class="live-dot" aria-hidden="true"></span>
+          <ul class="feed-list">
+            <li><time>14:10</time><span>Крупные сервисы поддержки тестируют встроенных AI-ассистентов с операторским контролем качества.</span></li>
+            <li><time>13:35</time><span>Новые правила прозрачности AI-контента обсуждают маркировку, согласие пользователя и хранение данных.</span></li>
+            <li><time>12:20</time><span>В продуктовых командах растёт роль диагностических сценариев вместо одноразовых FAQ-ответов.</span></li>
+          </ul>
+        </section>
+
+        <section class="article-grid" aria-label="Материалы редакции">
+          <article class="card article-card" id="markets">
+            <div>
+              <span class="tag">Рынки</span>
+              <h3>Почему AI-продукты начинают конкурировать качеством маршрута, а не размером модели</h3>
+            </div>
+            <p>Главная ценность всё чаще появляется после первого ответа: память кейса, следующий шаг и аккуратная передача контекста эксперту.</p>
+            <div class="meta"><span>Аналитика</span><span>5 минут</span></div>
+          </article>
+
+          <article class="card article-card" id="startups">
+            <div>
+              <span class="tag">Стартапы</span>
+              <h3>Как маленькие команды делают доверие частью интерфейса</h3>
+            </div>
+            <p>Юридические, финансовые и медицинские продукты требуют спокойного UX: меньше давления, больше ясности и проверяемых действий.</p>
+            <div class="meta"><span>Product</span><span>6 минут</span></div>
+          </article>
+
+          <article class="card article-card" id="policy">
+            <div>
+              <span class="tag">Регулирование</span>
+              <h3>Согласие, приватность и аудит: что меняется для AI-виджетов</h3>
+            </div>
+            <p>Пользователь должен понимать, какие данные отправляет, что остаётся локально и почему итог не является финальным заключением.</p>
+            <div class="meta"><span>Policy</span><span>4 минуты</span></div>
+          </article>
+
+          <article class="card article-card" id="research">
+            <div>
+              <span class="tag">Исследования</span>
+              <h3>Почему embedded AI должен жить отдельно от host-site CSS</h3>
+            </div>
+            <p>Изоляция через iframe снижает риск конфликтов стилей, сохраняет переносимость и делает интеграцию предсказуемой.</p>
+            <div class="meta"><span>Engineering</span><span>8 минут</span></div>
+          </article>
+        </section>
+      </main>
+
+      <aside class="sidebar">
+        <section class="card panel" id="events">
+          <h2>Скоро</h2>
+          <ul class="list">
+            <li>AI Product Day <small>27 мая / Москва</small></li>
+            <li>Data Quality Forum <small>12 июня / online</small></li>
+            <li>Creative AI Week <small>18 июня / hybrid</small></li>
+          </ul>
+        </section>
+
+        <section class="card panel">
+          <h2>Свежие темы</h2>
+          <ul class="list">
+            <li>Встроенные AI-помощники приходят в customer success <small>Бизнес</small></li>
+            <li>Команды измеряют hallucination risk через сценарии отказа <small>Качество</small></li>
+            <li>Интерфейсы становятся спокойнее: меньше CTA, больше контекста <small>UX</small></li>
+          </ul>
+        </section>
+
+        <section class="card panel metric-panel">
+          <h2>Pulse</h2>
+          <p>Редакционный индекс недели: где AI уже помогает, а где всё ещё нужен человек в контуре.</p>
+          <div class="meters" aria-label="Индексы редакции">
+            <div class="meter">Automation readiness <div class="bar"><span style="width:72%"></span></div></div>
+            <div class="meter">Trust gap <div class="bar"><span style="width:48%"></span></div></div>
+            <div class="meter">Human review need <div class="bar"><span style="width:64%"></span></div></div>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <footer class="footer" id="contacts">
+      <strong>AI Media Lab / local dev stand.</strong><br>
+      Контент, название и визуальная система демонстрационные и оригинальные. Страница создана только для проверки portable embed Маняши на внешнем media/news layout.
+    </footer>
+
+    <div class="embed-telemetry" aria-hidden="true">
+      <span id="widget-status"></span>
+      <code id="snippet-code"></code>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      if (location.protocol === 'file:') {
+        location.replace('http://127.0.0.1:5174/embed-letaibe-dev.html' + (location.search || ''));
+        return;
+      }
+
+      var qs = new URLSearchParams(location.search);
+      var fallbackHost = (location.origin && location.origin !== 'null') ? location.origin : 'http://127.0.0.1:5174';
+      var cfg = {
+        id: (qs.get('id') || qs.get('pid') || 'default').trim(),
+        contract: (qs.get('embed_contract_version') || qs.get('embedContractVersion') || '1').trim(),
+        apiOrigin: (qs.get('api_origin') || qs.get('apiOrigin') || 'http://127.0.0.1:8000').trim(),
+        widgetOrigin: (qs.get('widget_origin') || qs.get('widgetOrigin') || fallbackHost).trim(),
+        siteKey: (qs.get('site_key') || qs.get('siteKey') || 'demo-default-site').trim(),
+        installToken: (qs.get('install_token') || qs.get('installToken') || '').trim(),
+        instance: (qs.get('instance') || ('letaibe-dev-' + Date.now())).trim(),
+        startOpen: /^(1|true|yes|on|open)$/i.test(String(qs.get('start_open') || qs.get('startOpen') || '').trim()),
+        preview: !/^(0|false|no|off)$/i.test(String(qs.get('widget_preview') || qs.get('preview') || '1').trim())
+      };
+
+      var statusEl = document.getElementById('widget-status');
+      var snippetEl = document.getElementById('snippet-code');
+      var tabButtons = Array.prototype.slice.call(document.querySelectorAll('[data-tab-target]'));
+      var tabPanels = Array.prototype.slice.call(document.querySelectorAll('[data-tab-panel]'));
+
+      function setStatus(message, ok) {
+        if (!statusEl) return;
+        statusEl.textContent = message;
+        statusEl.className = ok ? 'status ok' : 'status';
+      }
+
+      function buildSnippet() {
+        return '<script src="' + cfg.apiOrigin + '/embed.js?id=' + encodeURIComponent(cfg.id) + '&v=letaibe-dev"\n'
+          + '  data-site-key="' + cfg.siteKey + '"\n'
+          + '  data-install-token="' + (cfg.installToken || '<INSTALL_TOKEN>') + '"\n'
+          + '  data-embed-contract-version="' + cfg.contract + '"\n'
+          + '  data-api-origin="' + cfg.apiOrigin + '"\n'
+          + '  data-widget-origin="' + cfg.widgetOrigin + '"\n'
+          + '  data-instance="' + cfg.instance + '"\n'
+          + '  data-size="large" data-side="right" data-launcher="avatar" data-start-open="' + (cfg.startOpen ? 'true' : 'false') + '" defer><\/script>';
+      }
+
+      function updateSnippet() {
+        if (!snippetEl) return;
+        snippetEl.textContent = buildSnippet();
+      }
+
+      function injectWidget() {
+        if (document.querySelector('script[data-letaibe-widget-preview="1"]')) {
+          setStatus('Preview уже подключён. Проверьте кнопку запуска Маняши и install-health.', true);
+          return;
+        }
+        setStatus('Подключаем preview widget с api_origin=' + cfg.apiOrigin + '…', false);
+        var script = document.createElement('script');
+        script.src = cfg.apiOrigin + '/embed.js?id=' + encodeURIComponent(cfg.id) + '&v=letaibe-dev';
+        script.defer = true;
+        script.setAttribute('data-letaibe-widget-preview', '1');
+        script.setAttribute('data-size', 'large');
+        script.setAttribute('data-side', 'right');
+        script.setAttribute('data-launcher', 'avatar');
+        script.setAttribute('data-start-open', cfg.startOpen ? 'true' : 'false');
+        script.setAttribute('data-instance', cfg.instance);
+        script.setAttribute('data-api-origin', cfg.apiOrigin);
+        script.setAttribute('data-widget-origin', cfg.widgetOrigin);
+        script.setAttribute('data-embed-contract-version', cfg.contract);
+        if (cfg.siteKey) script.setAttribute('data-site-key', cfg.siteKey);
+        if (cfg.installToken) script.setAttribute('data-install-token', cfg.installToken);
+        script.onerror = function () {
+          setStatus('Не удалось загрузить embed.js. Проверьте backend: ' + cfg.apiOrigin, false);
+        };
+        document.body.appendChild(script);
+      }
+
+      window.addEventListener('manyasha:install-health', function (event) {
+        var detail = event && event.detail ? event.detail : {};
+        var text = 'install-health: code=' + (detail.code || 'unknown') + ' status=' + (detail.status || 'unknown');
+        if (detail.message) text += '\nmessage=' + detail.message;
+        setStatus(text, detail.status === 'ok');
+      });
+
+      function activateTopic(tabName) {
+        tabButtons.forEach(function (button) {
+          var isActive = button.getAttribute('data-tab-target') === tabName;
+          button.classList.toggle('active', isActive);
+          button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+        tabPanels.forEach(function (panel) {
+          panel.hidden = panel.getAttribute('data-tab-panel') !== tabName;
+        });
+      }
+
+      tabButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+          activateTopic(button.getAttribute('data-tab-target') || 'front');
+        });
+      });
+
+      var copyButton = document.getElementById('copy-snippet');
+      if (copyButton && snippetEl) {
+        copyButton.addEventListener('click', function () {
+          navigator.clipboard.writeText(snippetEl.textContent).then(function () {
+            setStatus('Snippet скопирован. Следующий шаг — вставить его в body сайта или включить preview.', true);
+          }).catch(function () {
+            setStatus('Не удалось скопировать snippet. Можно взять код вручную.', false);
+          });
+        });
+      }
+
+      var connectButton = document.getElementById('connect-widget');
+      if (connectButton) {
+        connectButton.addEventListener('click', function () {
+          injectWidget();
+        });
+      }
+
+      var refreshButton = document.getElementById('refresh-health');
+      if (refreshButton) {
+        refreshButton.addEventListener('click', function () {
+          var api = window.ManyashaWidget && window.ManyashaWidget.get ? window.ManyashaWidget.get(cfg.instance) : null;
+          if (!api || typeof api.getInstallHealth !== 'function') {
+            setStatus('Widget API пока не готов. Проверьте backend или отключите preview через `widget_preview=0`.', false);
+            return;
+          }
+          var result = api.getInstallHealth();
+          setStatus('health=' + JSON.stringify(result), result && result.status === 'ok');
+        });
+      }
+
+      updateSnippet();
+      if (cfg.preview) {
+        injectWidget();
+      }
+    }());
+  </script>
+</body>
+</html>

@@ -1,0 +1,318 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  security-gates:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@127.0.0.1:5432/postgres
+      APP_ENV: test
+      DEV_AUTH_ENABLED: true
+      DEV_AUTH_SECRET: ci-dev-auth-secret
+      DEV_STORAGE_ENABLED: true
+      JWT_SECRET: ci-jwt-secret
+      ENCRYPTION_KEY: ci-encryption-key
+      PARTNER_HEADER_AUTH_ENABLED: false
+      MANAYA_USE_CREATE_ALL: 1
+      WIDGET_CAPTCHA_REQUIRED: false
+      INTERNAL_METRICS_SERVICE_TOKEN: ci-metrics-token
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install security tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-api.txt
+          pip install bandit pip-audit
+
+      - name: SAST (Bandit)
+        run: bandit -q -r app.py partner_dashboard.py rpg_engine.py scripts
+
+      - name: Dependency scan (Python)
+        run: pip-audit -r requirements-api.txt
+
+      - name: Install frontend dependencies
+        run: npm --prefix frontend ci
+
+      - name: Dependency scan (Node.js)
+        run: npm --prefix frontend audit --audit-level=high
+
+      - name: Secret scan (Gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: DAST baseline
+        run: |
+          python -m uvicorn app:app --host 127.0.0.1 --port 8000 >/tmp/manaya-api.log 2>&1 &
+          api_pid=$!
+          trap "kill $api_pid" EXIT
+          healthy=0
+          for i in {1..90}; do
+            if curl -fsS http://127.0.0.1:8000/healthz >/dev/null; then
+              healthy=1
+              break
+            fi
+            sleep 2
+          done
+          if [ "$healthy" -ne 1 ]; then
+            cat /tmp/manaya-api.log
+            exit 1
+          fi
+          python scripts/dast_baseline.py
+
+  backend-and-frontend-tests:
+    needs: security-gates
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      TEST_DATABASE_URL: postgresql+psycopg://postgres:postgres@127.0.0.1:5432/postgres
+      PYTHONPATH: .
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Python test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-api.txt
+          pip install psycopg pytest httpx pydantic
+
+      - name: Run backend security proof suite on real Postgres
+        run: |
+          pytest -q \
+            tests/backend/test_partner_auth_security.py \
+            tests/backend/test_partner_mascot_runtime.py \
+            tests/backend/test_rpg_security.py \
+            tests/test_widget_install_health.py
+
+      - name: Run pytest integration tests
+        run: pytest
+
+      - name: Install frontend dependencies
+        run: npm --prefix frontend ci
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save @playwright/test
+          npx playwright install --with-deps chromium webkit
+
+      - name: Run Playwright tests against real backend
+        env:
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:4173
+          PLAYWRIGHT_API_URL: http://127.0.0.1:8000
+          PLAYWRIGHT_DATABASE_URL: postgresql+psycopg://postgres:postgres@127.0.0.1:5432/postgres
+          PERF_BUDGET_FMC_MS: 4000
+        run: npx playwright test --project=chromium
+
+      - name: Run Playwright security negative suite (critical endpoints)
+        env:
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:4173
+          PLAYWRIGHT_API_URL: http://127.0.0.1:8000
+          PLAYWRIGHT_DATABASE_URL: postgresql+psycopg://postgres:postgres@127.0.0.1:5432/postgres
+        run: npx playwright test tests/e2e/widget-security.spec.ts --project=chromium
+
+      - name: Run Playwright embed smoke matrix (WebKit + iOS)
+        env:
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:4173
+          PLAYWRIGHT_API_URL: http://127.0.0.1:8000
+          PLAYWRIGHT_DATABASE_URL: postgresql+psycopg://postgres:postgres@127.0.0.1:5432/postgres
+        run: npx playwright test tests/e2e/widget-embed-smoke.spec.ts --project=webkit --project=webkit-mobile
+
+      - name: Run Playwright state/voice matrix (WebKit + iOS)
+        env:
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:4173
+          PLAYWRIGHT_API_URL: http://127.0.0.1:8000
+          PLAYWRIGHT_DATABASE_URL: postgresql+psycopg://postgres:postgres@127.0.0.1:5432/postgres
+        run: |
+          npx playwright test \
+            tests/e2e/widget-state-machine.spec.ts \
+            tests/e2e/widget-voice-edge.spec.ts \
+            --project=webkit \
+            --project=webkit-mobile
+
+      - name: Collect Playwright perf summary
+        if: always()
+        run: python scripts/collect_playwright_perf.py
+
+      - name: Comment perf summary in PR
+        if: always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
+        continue-on-error: true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- manaya-playwright-perf-summary -->';
+            const summaryPath = 'test-results/perf-summary.md';
+
+            let summary = '### Playwright Perf Budget\n\nNo perf summary found in `test-results/perf-summary.md`.';
+            if (fs.existsSync(summaryPath)) {
+              summary = fs.readFileSync(summaryPath, 'utf8').trim() || summary;
+            }
+
+            const body = [
+              marker,
+              summary,
+              '',
+              `Artifacts: \`playwright-artifacts\` (run #${context.runNumber}).`,
+            ].join('\n');
+
+            const issueNumber = context.issue.number;
+            const { data: comments } = await github.rest.issues.listComments({
+              ...context.repo,
+              issue_number: issueNumber,
+              per_page: 100,
+            });
+
+            const existing = comments.find((comment) =>
+              typeof comment.body === 'string' && comment.body.includes(marker),
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                ...context.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                ...context.repo,
+                issue_number: issueNumber,
+                body,
+              });
+            }
+
+      - name: Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            test-results
+            playwright-report
+          if-no-files-found: ignore
+
+  detect-smoke-paths:
+    runs-on: ubuntu-latest
+    outputs:
+      smoke: ${{ steps.filter.outputs.smoke }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            smoke:
+              - 'app.py'
+              - 'partner_dashboard.py'
+              - 'rpg_engine.py'
+              - 'mascot_talk_service.py'
+              - 'alembic/**'
+              - 'deploy/Dockerfile.api'
+              - 'deploy/docker-entrypoint-api.sh'
+              - 'docker-compose.dev.yml'
+              - 'docker-compose.prod.yml'
+              - 'scripts/smoke_widget_flow.py'
+              - 'frontend/public/mascot-design-preview.html'
+              - 'frontend/public/widget.html'
+              - 'requirements-api.txt'
+              - 'tests/backend/**'
+              - '.github/workflows/ci.yml'
+
+  widget-flow-smoke:
+    needs: detect-smoke-paths
+    if: needs.detect-smoke-paths.outputs.smoke == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build and start API stack
+        run: docker compose -f docker-compose.dev.yml up -d --build db redis api
+
+      - name: Wait for API health
+        run: |
+          for i in {1..90}; do
+            if curl -fsS http://localhost:8000/healthz >/dev/null; then
+              echo "API is healthy"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "API did not become healthy in time" >&2
+          docker compose -f docker-compose.dev.yml logs api
+          exit 1
+
+      - name: Run widget flow smoke
+        env:
+          WIDGET_SMOKE_API_BASE: http://localhost:8000
+          WIDGET_SMOKE_PID: default
+        run: python scripts/smoke_widget_flow.py
+
+      - name: Dump logs on failure
+        if: failure()
+        run: docker compose -f docker-compose.dev.yml logs api db redis
+
+      - name: Tear down stack
+        if: always()
+        run: docker compose -f docker-compose.dev.yml down -v

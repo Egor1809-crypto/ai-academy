@@ -1,0 +1,43 @@
+# Python virtual envs / caches
+.venv*
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Node
+node_modules/
+frontend/node_modules/
+
+# Local env / secrets
+.env
+.env.*
+!.env.example
+!.env.demo.example
+!.env.prod.example
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Test artifacts
+test-results/
+playwright-report/
+
+# OS / editor junk
+.DS_Store
+
+# Temporary media/screenshots
+widget-transfer-*.png
+*.webm
+*.tmp.png
+
+# Large local artifacts
+*.obj
+
+# Local scratch dirs
+~/
+/~/
+TorBot/
+.omx/
+.dev-storage/

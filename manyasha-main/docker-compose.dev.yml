@@ -1,0 +1,107 @@
+services:
+  frontend:
+    image: node:22-alpine
+    working_dir: /app/frontend
+    environment:
+      - VITE_DEV_API_PROXY=http://api:8000
+      - SKIP_VITE_OPEN=1
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app/frontend
+    command: sh -lc "npm install && npm run dev -- --host 0.0.0.0"
+    depends_on:
+      api:
+        condition: service_started
+    networks:
+      - manaya-network
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: manaya_dev
+      POSTGRES_PASSWORD: dev_password_123
+      POSTGRES_DB: manaya
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U manaya_dev -d manaya"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - manaya-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - manaya-network
+
+    api:
+      build:
+        context: .
+        dockerfile: deploy/Dockerfile.api
+    environment:
+      - DATABASE_URL=postgresql://manaya_dev:dev_password_123@db:5432/manaya
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=dev_jwt_secret_change_in_prod_12345
+      - ENCRYPTION_KEY=32_byte_encryption_key_here!!!
+      - DEV_AUTH_ENABLED=true
+      - DEV_AUTH_SECRET=manaya-dev-auth-secret
+      - DEV_STORAGE_ENABLED=true
+      - APP_ENV=development
+      - DEBUG=true
+      - MANYASHA_EMBED_SUPPORTED_CONTRACT_VERSIONS=${MANYASHA_EMBED_SUPPORTED_CONTRACT_VERSIONS:-1}
+      - WIDGET_CONTEXT_REQUIRE_INSTALL=${WIDGET_CONTEXT_REQUIRE_INSTALL:-false}
+      - WIDGET_PARTNER_DOMAIN_ALLOWLIST=${WIDGET_PARTNER_DOMAIN_ALLOWLIST:-}
+      - WIDGET_PARTNER_SITE_KEYS=${WIDGET_PARTNER_SITE_KEYS:-}
+      - WIDGET_INSTALL_SIGNING_SECRET=${WIDGET_INSTALL_SIGNING_SECRET:-}
+      - WIDGET_INSTALL_TOKEN_TTL_SECONDS=${WIDGET_INSTALL_TOKEN_TTL_SECONDS:-900}
+      - MANAYA_MASCOT_TALK_PROVIDER=${MANAYA_MASCOT_TALK_PROVIDER:-openai-compatible}
+      - MANAYA_LLM_BASE_URL=${MANAYA_LLM_BASE_URL:-http://host.docker.internal:11434/v1}
+      - MANAYA_LLM_MODEL=${MANAYA_LLM_MODEL:-qwen2.5:3b}
+      - MANAYA_LLM_API_KEY=${MANAYA_LLM_API_KEY:-}
+      - MANAYA_LLM_TIMEOUT_SECONDS=${MANAYA_LLM_TIMEOUT_SECONDS:-30}
+      # Ключ Google AI Studio / Vertex — для чата Маняши, если Ollama недоступна
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.0-flash}
+      - OLLAMA_URL=${OLLAMA_URL:-http://host.docker.internal:11434}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen2.5:3b}
+      - MANYASHA_CHAT_CACHE_VERSION=${MANYASHA_CHAT_CACHE_VERSION:-v3}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY:-}
+      - ELEVENLABS_VOICE_ID=${ELEVENLABS_VOICE_ID:-}
+      - ELEVENLABS_MODEL_ID=${ELEVENLABS_MODEL_ID:-eleven_multilingual_v2}
+      - MANYASHA_TTS_PROVIDER=${MANYASHA_TTS_PROVIDER:-auto}
+      - MANYASHA_SPEAKER_WAV=${MANYASHA_SPEAKER_WAV:-/app/assets/voice/marusya_reference.mp3}
+      - MANYASHA_XTTS_MODEL=${MANYASHA_XTTS_MODEL:-tts_models/multilingual/multi-dataset/xtts_v2}
+      - MANAYA_USE_CREATE_ALL=${MANAYA_USE_CREATE_ALL:-1}
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - manaya-network
+
+networks:
+  manaya-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

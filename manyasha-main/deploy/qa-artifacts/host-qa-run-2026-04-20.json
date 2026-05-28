@@ -1,0 +1,91 @@
+{
+  "date": "2026-04-20T10:58:06.706Z",
+  "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/147.0.7727.15 Safari/537.36",
+  "results": [
+    {
+      "id": "host1_external",
+      "url": "http://127.0.0.1:5173/embed-external-dev.html",
+      "instance": "bankruptcy-ext",
+      "pass": true,
+      "notes": [],
+      "apiReady": true,
+      "openState": true,
+      "iframeVisible": true,
+      "installHealth": {
+        "status": "ok",
+        "code": "widget_ready",
+        "message": "Embed-виджет успешно загружен.",
+        "updatedAt": "2026-04-20T10:57:54.484Z"
+      },
+      "screenshot": "/Users/egor/RROJECT MANAYA/deploy/qa-artifacts/host1_external.png"
+    },
+    {
+      "id": "host2_csp_allow",
+      "url": "http://127.0.0.1:5173/embed-csp-dev.html",
+      "instance": "ext-csp-allow",
+      "pass": true,
+      "notes": [],
+      "apiReady": true,
+      "openState": true,
+      "iframeVisible": true,
+      "installHealth": {
+        "status": "ok",
+        "code": "widget_ready",
+        "message": "Embed-виджет успешно загружен.",
+        "updatedAt": "2026-04-20T10:57:55.854Z"
+      },
+      "screenshot": "/Users/egor/RROJECT MANAYA/deploy/qa-artifacts/host2_csp_allow.png"
+    },
+    {
+      "id": "host3_csp_blocked",
+      "url": "http://127.0.0.1:5173/embed-csp-blocked-dev.html",
+      "instance": "ext-csp-blocked",
+      "pass": true,
+      "notes": [],
+      "apiReady": true,
+      "openState": true,
+      "iframeVisible": true,
+      "installHealth": {
+        "status": "error",
+        "code": "widget_iframe_timeout",
+        "message": "Виджет не загрузился. Проверьте CSP (script-src/frame-src), widget_origin и доступность API.",
+        "updatedAt": "2026-04-20T10:58:05.322Z"
+      },
+      "screenshot": "/Users/egor/RROJECT MANAYA/deploy/qa-artifacts/host3_csp_blocked.png"
+    },
+    {
+      "id": "host4_warm",
+      "url": "http://127.0.0.1:5173/embed-host-qa.html?theme=warm",
+      "instance": "host-qa",
+      "pass": true,
+      "notes": [],
+      "apiReady": true,
+      "openState": true,
+      "iframeVisible": true,
+      "installHealth": {
+        "status": "ok",
+        "code": "widget_ready",
+        "message": "Embed-виджет успешно загружен.",
+        "updatedAt": "2026-04-20T10:58:05.749Z"
+      },
+      "screenshot": "/Users/egor/RROJECT MANAYA/deploy/qa-artifacts/host4_warm.png"
+    },
+    {
+      "id": "host5_dark",
+      "url": "http://127.0.0.1:5173/embed-host-qa.html?theme=dark",
+      "instance": "host-qa",
+      "pass": true,
+      "notes": [],
+      "apiReady": true,
+      "openState": true,
+      "iframeVisible": true,
+      "installHealth": {
+        "status": "ok",
+        "code": "widget_ready",
+        "message": "Embed-виджет успешно загружен.",
+        "updatedAt": "2026-04-20T10:58:06.255Z"
+      },
+      "screenshot": "/Users/egor/RROJECT MANAYA/deploy/qa-artifacts/host5_dark.png"
+    }
+  ]
+}

@@ -6,7 +6,7 @@ import TrustBadges from "@/components/TrustBadges";
 import CTA from "@/components/CTA";
 import MissionSection from "./MissionSection";
 import FomoSection from "./FomoSection";
-import PageMascot from "@/components/PageMascot";
+
 
 export const metadata = {
   title: "О курсе | AI Legal — Нейросети для юристов",
@@ -137,12 +137,7 @@ export default function AboutPage() {
         <MissionSection />
         <FomoSection />
         <CTA />
-        <PageMascot
-          variant="idle"
-          position="bottom-left"
-          size="sm"
-          speech="AI меняет юриспруденцию. Будь в авангарде!"
-        />
+
       </main>
       <Footer />
     </>

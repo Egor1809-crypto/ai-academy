@@ -1,0 +1,14 @@
+# Локальный запуск API (как в deploy/Dockerfile.api)
+fastapi
+uvicorn[standard]
+sqlalchemy
+psycopg2-binary
+cryptography
+boto3
+prometheus-client
+edge-tts
+aiohttp
+aiofiles
+alembic
+redis
+sentry-sdk[fastapi]

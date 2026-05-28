@@ -2,45 +2,10 @@
 
 import Image from "next/image";
 import ScrollReveal from "./ScrollReveal";
+import { EXPERTS } from "@/data/content";
 
-const frontman = {
-  name: "Дмитрий Сизов",
-  role: "Основатель AI Legal · Управляющий партнёр",
-  desc: "Руководитель команды арбитражных управляющих. Интегрировал AI-системы в работу 50+ юридических компаний. Автор методологии «AI-First Legal Practice».",
-  initials: "ДС",
-  photo: "/experts/sizov.jpg",
-};
-
-const experts = [
-  {
-    name: "Владислав Галкин",
-    role: "Директор по AI-дизайну",
-    desc: "Создаёт визуальные стратегии для юридического маркетинга с помощью Midjourney и Runway. Обучил 300+ юристов Legal Design.",
-    initials: "ВГ",
-    photo: "/experts/galkin.jpg",
-  },
-  {
-    name: "Василий Артин",
-    role: "Ведущий промпт-инженер",
-    desc: "Архитектор AI-промптов для судебной практики. Разработал 200+ специализированных промптов для анализа договоров и подготовки исков.",
-    initials: "ВА",
-    photo: "/experts/artin.jpg",
-  },
-  {
-    name: "Дмитрий Путин",
-    role: "Эксперт по AI-автоматизации",
-    desc: "Специалист по внедрению нейросетей в корпоративные юридические процессы. Сократил время обработки документов в 5 раз для крупных юрфирм.",
-    initials: "ДП",
-    photo: "/experts/putin.jpg",
-  },
-  {
-    name: "Егор Шабалин",
-    role: "AI-стратег · Технический директор",
-    desc: "Выстраивает AI-инфраструктуру для юридических команд. Эксперт по интеграции ChatGPT, Claude и кастомных LLM-решений.",
-    initials: "ЕШ",
-    photo: "/experts/shabalin.jpg",
-  },
-];
+const frontman = EXPERTS.find((e) => e.isFounder)!;
+const experts = EXPERTS.filter((e) => !e.isFounder);
 
 function CornerSVGs({ className }: { className?: string }) {
   return (

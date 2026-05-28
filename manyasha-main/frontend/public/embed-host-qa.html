@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manyasha Host QA</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: #18304f;
+      background: #f4f7fb;
+    }
+    body.theme-warm {
+      background:
+        radial-gradient(900px 520px at -8% -16%, #ffe9c9 0%, transparent 62%),
+        radial-gradient(900px 520px at 110% 10%, #ffe2db 0%, transparent 60%),
+        #fff8ef;
+      color: #4d2f1f;
+    }
+    body.theme-dark {
+      background:
+        radial-gradient(900px 560px at -5% -8%, #21324b 0%, transparent 58%),
+        radial-gradient(800px 420px at 105% 3%, #1d3a58 0%, transparent 52%),
+        #0f1723;
+      color: #e6efff;
+    }
+    body.theme-contrast {
+      background:
+        linear-gradient(90deg, #ffffff 0 50%, #111827 50% 100%);
+      color: #13233a;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 18px 120px;
+    }
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .title {
+      font-size: 28px;
+      font-weight: 800;
+    }
+    .chip {
+      border: 1px solid rgba(95, 129, 166, 0.35);
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.7);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    body.theme-dark .chip {
+      background: rgba(16, 29, 46, 0.75);
+      border-color: rgba(173, 201, 232, 0.26);
+      color: #cfe2ff;
+    }
+    .hero {
+      margin-top: 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(113, 148, 186, 0.24);
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.8);
+    }
+    body.theme-dark .hero {
+      background: rgba(14, 26, 42, 0.72);
+      border-color: rgba(138, 177, 212, 0.24);
+    }
+    .grid {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .card {
+      border-radius: 14px;
+      border: 1px solid rgba(113, 148, 186, 0.22);
+      background: rgba(255, 255, 255, 0.86);
+      padding: 14px;
+    }
+    body.theme-dark .card {
+      background: rgba(14, 26, 42, 0.8);
+      border-color: rgba(138, 177, 212, 0.22);
+      color: #d8e8ff;
+    }
+    h2 {
+      margin: 0 0 8px;
+      font-size: 17px;
+    }
+    ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+      line-height: 1.55;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    button {
+      border: 1px solid rgba(113, 148, 186, 0.35);
+      border-radius: 10px;
+      background: #fff;
+      color: #1b3d67;
+      padding: 8px 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    body.theme-dark button {
+      background: #16273e;
+      color: #d8e8ff;
+      border-color: rgba(164, 191, 219, 0.3);
+    }
+    #status {
+      margin-top: 8px;
+      white-space: pre-wrap;
+      font-size: 13px;
+      line-height: 1.55;
+      opacity: 0.92;
+    }
+    code {
+      display: block;
+      margin-top: 8px;
+      padding: 10px;
+      border-radius: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      background: #10253f;
+      color: #d7e8ff;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <div class="title">Host QA стенд для Маняши</div>
+      <div class="chip" id="theme-chip">theme: neutral</div>
+    </header>
+
+    <section class="hero">
+      <strong>Использование:</strong> меняйте тему через query `?theme=warm|dark|contrast|neutral` и проверяйте видимость/контраст/поведение виджета.
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Управление виджетом</h2>
+        <div class="controls">
+          <button id="open-btn" type="button">Открыть</button>
+          <button id="close-btn" type="button">Закрыть</button>
+          <button id="toggle-btn" type="button">Toggle</button>
+        </div>
+        <div id="status">SDK: ожидание...</div>
+      </article>
+
+      <article class="card">
+        <h2>Проверки</h2>
+        <ul>
+          <li>open / close / drag (свернутый и открытый)</li>
+          <li>контраст текста и кнопок на выбранной теме</li>
+          <li>состояния idle/listening/thinking/speaking/error</li>
+          <li>голосовой fallback без зависаний</li>
+        </ul>
+        <code id="snippet"></code>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(location.search);
+      var theme = (params.get('theme') || 'neutral').trim().toLowerCase();
+      var allowed = ['neutral', 'warm', 'dark', 'contrast'];
+      if (allowed.indexOf(theme) === -1) theme = 'neutral';
+      if (theme !== 'neutral') document.body.classList.add('theme-' + theme);
+      document.getElementById('theme-chip').textContent = 'theme: ' + theme;
+
+      var snippet = [
+        '<script',
+        '  src="http://127.0.0.1:8000/embed.js?id=default"',
+        '  data-instance="host-qa-' + theme + '"',
+        '  data-size="large"',
+        '  data-side="right"',
+        '  data-api-origin="http://127.0.0.1:8000"',
+        '  data-widget-origin="http://127.0.0.1:5173"',
+        '  defer',
+        '></script>'
+      ].join('\n');
+      document.getElementById('snippet').textContent = snippet;
+    })();
+  </script>
+
+  <script
+    src="http://127.0.0.1:8000/embed.js?id=default&v=host-qa"
+    data-instance="host-qa"
+    data-size="large"
+    data-side="right"
+    data-start-open="false"
+    data-launcher="avatar"
+    data-api-origin="http://127.0.0.1:8000"
+    data-widget-origin="http://127.0.0.1:5173"
+    data-offset-x="16"
+    data-offset-y="16"
+    defer
+  ></script>
+
+  <script>
+    (function () {
+      var statusEl = document.getElementById('status');
+      var openBtn = document.getElementById('open-btn');
+      var closeBtn = document.getElementById('close-btn');
+      var toggleBtn = document.getElementById('toggle-btn');
+
+      function api() {
+        if (!window.ManyashaWidget || typeof window.ManyashaWidget.get !== 'function') return null;
+        return window.ManyashaWidget.get('host-qa');
+      }
+
+      function refresh() {
+        var sdk = api();
+        if (!sdk) {
+          statusEl.textContent = 'SDK: не найден (ожидание инициализации)';
+          return;
+        }
+        var h = (typeof sdk.getInstallHealth === 'function') ? (sdk.getInstallHealth() || {}) : {};
+        statusEl.textContent =
+          'SDK: ready\n' +
+          'state: ' + (sdk.isOpen() ? 'OPEN' : 'CLOSED') + '\n' +
+          'install-health: ' + String(h.status || 'unknown') + '/' + String(h.code || 'unknown');
+      }
+
+      openBtn.addEventListener('click', function () { var sdk = api(); if (sdk) sdk.open(); refresh(); });
+      closeBtn.addEventListener('click', function () { var sdk = api(); if (sdk) sdk.close(); refresh(); });
+      toggleBtn.addEventListener('click', function () { var sdk = api(); if (sdk) sdk.toggle(); refresh(); });
+
+      setInterval(refresh, 800);
+      refresh();
+    })();
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,270 @@
+version: '3.9'
+
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    depends_on:
+      - api
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deploy/certs:/etc/nginx/certs:ro
+    networks:
+      - public
+      - private
+    restart: unless-stopped
+
+  api:
+    image: ${IMAGE_API:-ghcr.io/example/manaya-api:latest}
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.api
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://manaya:${POSTGRES_PASSWORD}@postgres:5432/manaya}
+      REDIS_URL: redis://redis:6379/0
+      YC_KMS_KEY_ID: ${YC_KMS_KEY_ID:-local-dev-kms}
+      YC_STORAGE_BUCKET: ${YC_STORAGE_BUCKET:-manaya-assets}
+      EVENT_BUS_BROKER_URL: ${EVENT_BUS_BROKER_URL:-redis://redis:6379/1}
+      # Чат Маняши (виджет): Ollama на хосте
+      OLLAMA_URL: ${OLLAMA_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:3b}
+      MANYASHA_CHAT_CACHE_VERSION: ${MANYASHA_CHAT_CACHE_VERSION:-v3}
+      ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:-}
+      ELEVENLABS_VOICE_ID: ${ELEVENLABS_VOICE_ID:-}
+      ELEVENLABS_MODEL_ID: ${ELEVENLABS_MODEL_ID:-eleven_multilingual_v2}
+      MANYASHA_TTS_PROVIDER: ${MANYASHA_TTS_PROVIDER:-auto}
+      MANYASHA_SPEAKER_WAV: ${MANYASHA_SPEAKER_WAV:-/app/assets/voice/marusya_reference.mp3}
+      MANYASHA_XTTS_MODEL: ${MANYASHA_XTTS_MODEL:-tts_models/multilingual/multi-dataset/xtts_v2}
+      MANYASHA_LLM_PROVIDER: ${MANYASHA_LLM_PROVIDER:-navy}
+      NAVY_API_BASE_URL: ${NAVY_API_BASE_URL:-https://api.navy/v1}
+      NAVY_MODEL: ${NAVY_MODEL:-gpt-5}
+      NAVY_API_KEY: ${NAVY_API_KEY:-}
+      MANYASHA_DEMO_FAST_MODE: ${MANYASHA_DEMO_FAST_MODE:-false}
+      MANYASHA_CHAT_LLM_TIMEOUT_SECONDS: ${MANYASHA_CHAT_LLM_TIMEOUT_SECONDS:-12.0}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.0-flash}
+      # Маскот партнёрского дашборда: тот же qwen через OpenAI-compatible API
+      MANAYA_MASCOT_TALK_PROVIDER: ${MANAYA_MASCOT_TALK_PROVIDER:-openai-compatible}
+      MANAYA_LLM_BASE_URL: ${MANAYA_LLM_BASE_URL:-http://host.docker.internal:11434/v1}
+      MANAYA_LLM_MODEL: ${MANAYA_LLM_MODEL:-qwen2.5:3b}
+      MANAYA_LLM_API_KEY: ${MANAYA_LLM_API_KEY:-}
+      MANAYA_LLM_TIMEOUT_SECONDS: ${MANAYA_LLM_TIMEOUT_SECONDS:-30}
+      # Схема только через Alembic (см. deploy/docker-entrypoint-api.sh).
+      MANAYA_USE_CREATE_ALL: ${MANAYA_USE_CREATE_ALL:-0}
+      APP_ENV: ${APP_ENV:-production}
+      JWT_SECRET: ${JWT_SECRET:-}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-}
+      WIDGET_AUTH_SECRET: ${WIDGET_AUTH_SECRET:-}
+      DEV_AUTH_ENABLED: ${DEV_AUTH_ENABLED:-false}
+      DEV_STORAGE_ENABLED: ${DEV_STORAGE_ENABLED:-false}
+      ALLOW_LEGACY_PLAINTEXT_PII: ${ALLOW_LEGACY_PLAINTEXT_PII:-false}
+      WIDGET_CAPTCHA_REQUIRED: ${WIDGET_CAPTCHA_REQUIRED:-true}
+      WIDGET_CAPTCHA_SECRET: ${WIDGET_CAPTCHA_SECRET:-}
+      INTERNAL_METRICS_SERVICE_TOKEN: ${INTERNAL_METRICS_SERVICE_TOKEN:-}
+      INTERNAL_METRICS_IP_ALLOWLIST: ${INTERNAL_METRICS_IP_ALLOWLIST:-}
+      CORS_ALLOW_ORIGINS: ${CORS_ALLOW_ORIGINS:-}
+      CORS_ALLOW_NULL_ORIGIN: ${CORS_ALLOW_NULL_ORIGIN:-false}
+      WIDGET_CONTEXT_REQUIRE_INSTALL: ${WIDGET_CONTEXT_REQUIRE_INSTALL:-true}
+      WIDGET_PARTNER_DOMAIN_ALLOWLIST: ${WIDGET_PARTNER_DOMAIN_ALLOWLIST:-}
+      WIDGET_PARTNER_SITE_KEYS: ${WIDGET_PARTNER_SITE_KEYS:-}
+      WIDGET_INSTALL_SIGNING_SECRET: ${WIDGET_INSTALL_SIGNING_SECRET:-}
+      WIDGET_INSTALL_PROVISION_KEY: ${WIDGET_INSTALL_PROVISION_KEY:-}
+      WIDGET_INSTALL_TOKEN_TTL_SECONDS: ${WIDGET_INSTALL_TOKEN_TTL_SECONDS:-900}
+      MANYASHA_EMBED_CONTRACT_VERSION: ${MANYASHA_EMBED_CONTRACT_VERSION:-1}
+      MANYASHA_EMBED_SUPPORTED_CONTRACT_VERSIONS: ${MANYASHA_EMBED_SUPPORTED_CONTRACT_VERSIONS:-1}
+      WIDGET_SITE_KEY: ${WIDGET_SITE_KEY:-}
+      WIDGET_INSTALL_TOKEN: ${WIDGET_INSTALL_TOKEN:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    expose:
+      - '8000'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - private
+    restart: unless-stopped
+
+  worker:
+    image: ${IMAGE_WORKER:-ghcr.io/example/manaya-worker:latest}
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.worker
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://manaya:${POSTGRES_PASSWORD}@postgres:5432/manaya}
+      REDIS_URL: redis://redis:6379/0
+      EVENT_BUS_BROKER_URL: ${EVENT_BUS_BROKER_URL:-redis://redis:6379/1}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - private
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: manaya
+      POSTGRES_USER: manaya
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+      POSTGRES_INITDB_ARGS: '--data-checksums'
+    command: >-
+      postgres
+      -c ssl=on
+      -c password_encryption=scram-sha-256
+      -c shared_preload_libraries=pg_stat_statements
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    expose:
+      - '5432'
+    networks:
+      - private
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U manaya -d manaya']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: >-
+      redis-server
+      --appendonly yes
+      --save 60 1000
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    expose:
+      - '6379'
+    networks:
+      - private
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  fbx-converter:
+    image: ${IMAGE_CONVERTER:-ghcr.io/example/manaya-converter:latest}
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.converter
+    network_mode: none
+    read_only: true
+    tmpfs:
+      - /tmp:size=512m,noexec,nosuid
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    restart: unless-stopped
+
+  pdf-sandbox:
+    image: ${IMAGE_PDF_SANDBOX:-ghcr.io/example/manaya-pdf-sandbox:latest}
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.pdf-sandbox
+    runtime: ${SANDBOX_RUNTIME:-runsc}
+    network_mode: none
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m,noexec,nosuid
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-lifecycle
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus-data:/prometheus
+    depends_on:
+      - alertmanager
+    expose:
+      - '9090'
+    networks:
+      - private
+    restart: unless-stopped
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+      - --config.expand-env
+    environment:
+      ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL:-http://127.0.0.1:65535/alert-placeholder}
+    volumes:
+      - ./monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    expose:
+      - '9093'
+    networks:
+      - private
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-change-me}
+      GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL:-https://grafana.manaya.example.ru}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/manaya-dashboard.json:/var/lib/grafana/dashboards/manaya-dashboard.json:ro
+    expose:
+      - '3000'
+    depends_on:
+      - prometheus
+    networks:
+      - private
+    restart: unless-stopped
+
+  node-exporter:
+    image: prom/node-exporter:v1.8.1
+    command:
+      - --path.rootfs=/host
+    pid: host
+    volumes:
+      - /:/host:ro,rslave
+    expose:
+      - '9100'
+    networks:
+      - private
+    restart: unless-stopped
+
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:1.2.0
+    command:
+      - -nginx.scrape-uri=http://nginx:8080/nginx_status
+    depends_on:
+      - nginx
+    expose:
+      - '9113'
+    networks:
+      - private
+    restart: unless-stopped
+
+networks:
+  public:
+  private:
+    internal: true
+
+volumes:
+  postgres-data:
+  redis-data:
+  prometheus-data:
+  grafana-data:

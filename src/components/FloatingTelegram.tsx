@@ -1,9 +1,9 @@
-"use client";
+import { SITE } from "@/data/content";
 
 export default function FloatingTelegram() {
   return (
     <a
-      href="https://t.me/ailegal_academy_bot"
+      href={SITE.telegramBot}
       target="_blank"
       rel="noopener noreferrer"
       className="fixed bottom-6 right-6 z-50 group"

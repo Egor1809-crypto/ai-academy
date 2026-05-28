@@ -1,6 +1,9 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import ScrollReveal from "./ScrollReveal";
+
+const SectionParticles = dynamic(() => import("./SectionParticles"), { ssr: false });
 
 const cases = [
   { n: "01", title: "Дизайн страниц и презентаций", desc: "Создание убедительных визуальных материалов для судов и клиентов без дизайнера." },
@@ -19,6 +22,7 @@ const tools = ["CHATGPT", "CLAUDE", "MIDJOURNEY", "GEMINI", "PERPLEXITY", "RUNWA
 export default function UseCases() {
   return (
     <section className="py-28 bg-tech-grid relative overflow-hidden">
+      <SectionParticles id="usecases-particles" preset="orbit" />
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">

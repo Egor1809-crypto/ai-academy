@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ФинАдвокат — Банкротство физических лиц</title>
+  <meta name="description" content="Юридическая помощь по банкротству и снятию долгов. Чат-ассистент Маняша на сайте партнеров.">
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --ink: #192f4f;
+      --ink-soft: #54647b;
+      --paper: #f5f8fc;
+      --card: #ffffff;
+      --accent: #1a4f8e;
+      --accent-2: #b56e2e;
+      --line: #dbe7f6;
+      --ok: #137a4f;
+      --warning: #a56c24;
+    }
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 700px at -10% -20%, #dcecff 0%, transparent 55%),
+        radial-gradient(900px 520px at 110% -5%, #ffe7ce 0%, transparent 60%),
+        var(--paper);
+    }
+    a { color: inherit; }
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 26px 20px 100px;
+    }
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 0 14px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 18px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+    .dot {
+      width: 14px; height: 14px; border-radius: 999px; background: var(--accent);
+      box-shadow: 0 0 0 7px rgba(26,79,142,0.1);
+    }
+    .top .badge {
+      font-size: 12px;
+      font-weight: 700;
+      color: #335980;
+      border: 1px solid #d5e3fb;
+      background: #fff;
+      border-radius: 999px;
+      padding: 7px 11px;
+    }
+    .hero {
+      background: linear-gradient(145deg, #fff, #f1f6ff);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 16px 40px rgba(24, 55, 103, 0.09);
+      margin-bottom: 18px;
+    }
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(30px, 5vw, 48px);
+      line-height: 1.08;
+      color: #18365f;
+    }
+    .hero p {
+      max-width: 790px;
+      margin: 12px 0 18px;
+      color: var(--ink-soft);
+      line-height: 1.58;
+      font-size: 16px;
+    }
+    .hero .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip {
+      border-radius: 999px;
+      border: 1px solid #dce6f5;
+      padding: 7px 11px;
+      background: #fff;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 8px 20px rgba(26, 64, 118, 0.06);
+    }
+    .hero-wide { grid-column: span 8; }
+    .aside { grid-column: span 4; }
+    .half { grid-column: span 6; }
+    .card h2 { margin: 0 0 8px; font-size: 20px; color: #173d68; }
+    .card h3 { margin: 12px 0 6px; font-size: 16px; }
+    .muted { color: var(--ink-soft); font-size: 14px; line-height: 1.55; }
+    .steps {
+      margin: 8px 0 0;
+      padding-left: 18px;
+      color: var(--ink-soft);
+      line-height: 1.6;
+    }
+    .form {
+      display: grid;
+      gap: 10px;
+    }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid #d5e1f3;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+      background: #fff;
+      color: #253b5b;
+      outline: none;
+    }
+    .btn {
+      padding: 10px 13px;
+      border-radius: 10px;
+      border: 1px solid #bfd1eb;
+      background: #fff;
+      cursor: pointer;
+      font-weight: 700;
+      color: #173d68;
+      transition: transform .12s ease, box-shadow .12s ease;
+      box-shadow: 0 4px 12px rgba(24, 62, 111, 0.08);
+      white-space: nowrap;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn.primary { background: var(--accent); border-color: #2f6da7; color: #fff; }
+    .btn.secondary { background: #f7f8fb; }
+    .meta {
+      margin-top: 12px;
+      border-left: 3px solid #bfd1eb;
+      padding-left: 12px;
+      color: #325173;
+      font-size: 13px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #f5f8ff;
+      padding: 10px 10px 10px 14px;
+      border-radius: 10px;
+    }
+    .builder {
+      border: 1px solid #dce5f3;
+      border-radius: 12px;
+      background: #f8fbff;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .builder h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      color: #173d68;
+    }
+    .builder-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .builder-field {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+    }
+    .builder-field label {
+      font-size: 12px;
+      color: #3a587c;
+      font-weight: 700;
+    }
+    .builder-field input {
+      margin: 0;
+      width: 100%;
+      font-size: 13px;
+      padding: 8px 10px;
+      min-width: 0;
+    }
+    .builder-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .status {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #496a8f;
+      font-weight: 600;
+      white-space: pre-wrap;
+      line-height: 1.45;
+    }
+    .good {
+      color: var(--ok);
+      font-weight: 700;
+    }
+    .warn {
+      color: var(--warning);
+      font-weight: 700;
+    }
+    .cta {
+      display: inline-block;
+      margin-top: 14px;
+      border: 1px solid #c9e1ff;
+      background: linear-gradient(120deg, #eaf4ff, #d9ebff);
+      color: #1c5590;
+      border-radius: 12px;
+      padding: 12px 14px;
+      text-decoration: none;
+      font-weight: 700;
+    }
+    .faq { color: var(--ink-soft); }
+    .faq p { margin: 8px 0; line-height: 1.45; }
+    .stat {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .pill {
+      background: #f2f6ff;
+      border: 1px solid #d9e4f5;
+      border-radius: 12px;
+      padding: 10px 12px;
+      min-width: 180px;
+      color: #2a4f7b;
+      font-weight: 700;
+    }
+    .pill small { display: block; color: #58739a; font-size: 12px; font-weight: 600; margin-top: 4px; }
+    @media (max-width: 1020px) {
+      .hero-wide, .aside, .half { grid-column: span 12; }
+      .row { flex-direction: column; }
+      .row .btn { width: 100%; }
+      .top { flex-direction: column; align-items: flex-start; }
+      .builder-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="logo"><span class="dot"></span><span>ФинАдвокат — Банкротство</span></div>
+      <span class="badge">DEV-стенд для интеграции виджета</span>
+    </header>
+
+    <section class="hero">
+      <h1>Помощь при проблемах с долгами и банкротстве</h1>
+      <p>
+        Настоящий лендинг-подобный стенд для проверки переносимости Маняши на внешний сайт:
+        адаптивный интерфейс, реальные блоки контента, CTA, форма, FAQ и доверительный блок.
+      </p>
+      <div class="chips">
+        <span class="chip">Снижение долговой нагрузки</span>
+        <span class="chip">Итог по вашему делу за 15 мин</span>
+        <span class="chip">Перенос на партнерские сайты</span>
+        <span class="chip">Поддержка мобильного Safari</span>
+      </div>
+      <div class="stat">
+        <div class="pill">15 000+<small>дел в работе</small></div>
+        <div class="pill">до 90 дней<small>экономии времени на первичную квалификацию</small></div>
+        <div class="pill">24/7<small>поддержка на сайте</small></div>
+      </div>
+    </section>
+
+    <section class="builder">
+      <h2>Быстрый перенос на любой dev</h2>
+      <p class="muted">
+        Настройте параметры, нажмите <strong>Применить</strong> — страница сама соберет корректный
+        embed script и покажет точный snippet для копирования.
+      </p>
+      <div class="builder-field" style="margin: 0 0 10px 0;">
+        <label for="cfg-transfer-url">Готовая URL страницы для переноса</label>
+        <input id="cfg-transfer-url" readonly value="">
+      </div>
+      <div class="builder-grid">
+        <div class="builder-field">
+          <label for="cfg-pid">PID партнёра</label>
+          <input id="cfg-pid" placeholder="default">
+        </div>
+        <div class="builder-field">
+          <label for="cfg-instance">Instance</label>
+          <input id="cfg-instance" placeholder="ext-dev">
+        </div>
+        <div class="builder-field">
+          <label for="cfg-api-origin">api_origin</label>
+          <input id="cfg-api-origin" placeholder="http://127.0.0.1:8000">
+        </div>
+        <div class="builder-field">
+          <label for="cfg-widget-origin">widget_origin</label>
+          <input id="cfg-widget-origin" placeholder="http://127.0.0.1:5173">
+        </div>
+        <div class="builder-field">
+          <label for="cfg-site-key">site_key</label>
+          <input id="cfg-site-key" placeholder="demo-default-site">
+        </div>
+        <div class="builder-field">
+          <label for="cfg-install-token">install_token (если требуется)</label>
+          <input id="cfg-install-token" placeholder="eyJ...">
+        </div>
+        <div class="builder-field">
+          <label for="cfg-contract">embed_contract_version</label>
+          <input id="cfg-contract" placeholder="1">
+        </div>
+        <div class="builder-field">
+          <label for="cfg-side">side</label>
+          <input id="cfg-side" placeholder="right">
+        </div>
+      </div>
+      <div class="builder-field" style="margin-top: 8px;">
+        <label for="cfg-size">size</label>
+        <input id="cfg-size" placeholder="large">
+      </div>
+      <div class="builder-actions">
+        <button id="btn-copy-transfer-url" class="btn secondary" type="button">Копировать URL перенос</button>
+        <button id="btn-apply" class="btn primary" type="button">Применить</button>
+        <button id="btn-copy-snippet" class="btn secondary" type="button">Копировать snippet</button>
+        <button id="btn-reset-defaults" class="btn" type="button">Сбросить дефолты</button>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card hero-wide">
+        <h2>Как проходит банкротство: по шагам</h2>
+        <ol class="steps">
+          <li>Запросим вводные: доходы, тип кредита, есть ли судимость/ипотека.</li>
+          <li>Сформируем предварительный пакет документов и проверим риски.</li>
+          <li>Согласуем стратегию: реструктуризация, переговоры с банками или процедура.</li>
+          <li>Подготовим план платежей/реестр требований и подадим в суд.</li>
+        </ol>
+
+        <h3>Кому важно знать</h3>
+        <p class="muted">
+          Маняша умеет объяснить базовые последствия процедуры для ИП и физлиц, подсказать, какие
+          документы собирать и какие вопросы нужно закрыть с юристом.
+        </p>
+
+        <div class="meta" id="transfer-snippet">
+          <strong>Быстрый интеграционный сниппет:</strong>
+          (будет сформирован после применения параметров)
+        </div>
+      </article>
+
+      <aside class="card aside">
+        <h2>Управление виджетом</h2>
+        <p class="muted">Проверьте ручное управление и статус runtime-подключения на этом деве.</p>
+        <div class="row">
+          <button id="btn-open" class="btn primary" type="button">Открыть чат</button>
+          <button id="btn-close" class="btn secondary" type="button">Закрыть</button>
+          <button id="btn-toggle" class="btn" type="button">Toggle</button>
+        </div>
+        <p class="status" id="widget-status">SDK: инициализация…</p>
+
+        <h3>Что мы тестируем</h3>
+        <ul>
+          <li>embed-инициализация (iframe / launcher)</li>
+          <li>open/close/drag на разных ширинах</li>
+          <li>install-health и детальный код ошибки</li>
+          <li>видимость в светлой/тёмной теме</li>
+        </ul>
+      </aside>
+
+      <article class="card half">
+        <h2>Мини-форма «Оценить ситуацию»</h2>
+        <form class="form">
+          <input placeholder="Ваше имя" id="lead-name" maxlength="80">
+          <input placeholder="Телефон" id="lead-phone" maxlength="40">
+          <select id="lead-debt" aria-label="Тип долга">
+            <option>Кредитная карта</option>
+            <option>Ипотека</option>
+            <option>Микрозайм</option>
+            <option>Другой долг</option>
+          </select>
+          <textarea rows="4" id="lead-comment" placeholder="Коротко опишите задачу"></textarea>
+          <div class="row">
+            <button class="btn primary" type="button" id="send-lead">Отправить заявку</button>
+            <button class="btn secondary" type="button" id="reset-lead">Очистить</button>
+          </div>
+        </form>
+      </article>
+
+      <article class="card half faq">
+        <h2>FAQ</h2>
+        <p><strong>Сколько длится подготовка?</strong> Первичную квалификацию обычно делаем за 1 визит / 1 чат-сессию.</p>
+        <p><strong>Можно ли подать без потери жилья?</strong> По отдельным кейсам возможны варианты защиты.</p>
+        <p><strong>Нужны ли выплаты по кредитам?</strong> Да, многое зависит от структуры долгов и стадий задолженности.</p>
+        <a class="cta" href="#" id="faq-cta">Получить первичный разбор в чате</a>
+      </article>
+    </section>
+  </div>
+
+  <script>
+      (function () {
+        var qs = new URLSearchParams(location.search);
+        var hasHttpContext = /^https?:$/.test((location.protocol || '').toLowerCase());
+        var currentOrigin = hasHttpContext ? ((location.origin || '').trim()) : '';
+        function normalizeBackendFromFrontendOrigin(origin) {
+          if (!origin) return '';
+          try {
+            var parsed = new URL(origin);
+            var mappedPort = parsed.port;
+            if (mappedPort === '5173' || mappedPort === '4173' || mappedPort === '3000') {
+              parsed.port = '8000';
+            }
+            return parsed.origin;
+          } catch (_e) {
+            return origin;
+          }
+        }
+        function normalizeFrontendFromBackendOrigin(origin, frontendHint) {
+          if (!origin) return '';
+          try {
+            var parsed = new URL(origin);
+            var mappedPort = parsed.port;
+            if (mappedPort === '8000') {
+              try {
+                var frontendParsed = new URL(frontendHint || '');
+                parsed.port = frontendParsed.port || '8000';
+              } catch (_e2) {
+                parsed.port = '8000';
+              }
+            }
+            return parsed.origin;
+          } catch (_e) {
+            return origin;
+          }
+        }
+        var guessApiOrigin = currentOrigin
+          ? normalizeBackendFromFrontendOrigin(currentOrigin)
+          : 'http://127.0.0.1:8000';
+        var guessWidgetOrigin = currentOrigin
+          ? normalizeFrontendFromBackendOrigin(guessApiOrigin, currentOrigin)
+          : 'http://127.0.0.1:4173';
+        var cfg = {
+          apiOrigin: (qs.get('api_origin') || qs.get('apiOrigin') || guessApiOrigin).trim(),
+          widgetOrigin: (qs.get('widget_origin') || qs.get('widgetOrigin') || guessWidgetOrigin).trim(),
+          pid: (qs.get('id') || qs.get('pid') || 'default').trim() || 'default',
+          siteKey: (qs.get('site_key') || qs.get('siteKey') || 'demo-default-site').trim(),
+          installToken: (qs.get('install_token') || qs.get('installToken') || '').trim(),
+          contract: (qs.get('embed_contract_version') || qs.get('embedContractVersion') || '1').trim(),
+          instance: (qs.get('instance') || 'ext-dev').trim() || 'ext-dev',
+          side: (qs.get('side') || 'right').trim() || 'right',
+          size: (qs.get('size') || 'large').trim() || 'large'
+        };
+        var snippet = [
+          '<script src=\"' + cfg.apiOrigin + '/embed.js?id=' + encodeURIComponent(cfg.pid) + '&v=bankruptcy-dev\"',
+          '  data-instance=\"' + cfg.instance + '\"',
+          '  data-size=\"' + cfg.size + '\"',
+          '  data-side=\"' + cfg.side + '\"',
+          '  data-start-open=\"false\"',
+          '  data-launcher=\"avatar\"',
+          '  data-site-key=\"' + cfg.siteKey + '\"',
+          cfg.installToken ? ('  data-install-token=\"' + cfg.installToken + '\"') : '',
+          '  data-embed-contract-version=\"' + cfg.contract + '\"',
+          '  data-api-origin=\"' + cfg.apiOrigin + '\"',
+          '  data-widget-origin=\"' + cfg.widgetOrigin + '\"',
+          '  data-offset-x=\"16\" data-offset-y=\"16\" defer',
+          '><\\/script>'
+        ].filter(Boolean).join('\n');
+        var snippetEl = document.getElementById('transfer-snippet');
+        if (snippetEl) snippetEl.textContent = snippet;
+
+        function fillBuilderForm() {
+          var fields = {
+            pid: 'cfg-pid',
+            instance: 'cfg-instance',
+            apiOrigin: 'cfg-api-origin',
+            widgetOrigin: 'cfg-widget-origin',
+            siteKey: 'cfg-site-key',
+            installToken: 'cfg-install-token',
+            contract: 'cfg-contract',
+            side: 'cfg-side',
+            size: 'cfg-size'
+          };
+          Object.keys(fields).forEach(function (key) {
+            var el = document.getElementById(fields[key]);
+            if (!el) return;
+            el.value = cfg[key] || '';
+          });
+        }
+        function buildTransferUrl() {
+          var pageUrl = location.pathname ? location.pathname : '/embed-external-dev.html';
+          var base = new URL(pageUrl, location.href);
+          base.searchParams.set('id', cfg.pid);
+          base.searchParams.set('api_origin', cfg.apiOrigin);
+          base.searchParams.set('widget_origin', cfg.widgetOrigin);
+          base.searchParams.set('site_key', cfg.siteKey);
+          base.searchParams.set('instance', cfg.instance);
+          base.searchParams.set('embed_contract_version', cfg.contract);
+          base.searchParams.set('side', cfg.side);
+          base.searchParams.set('size', cfg.size);
+          if (cfg.installToken) base.searchParams.set('install_token', cfg.installToken);
+          return base.toString();
+        }
+        function setTransferUrl() {
+          var transferEl = document.getElementById('cfg-transfer-url');
+          if (transferEl) transferEl.value = buildTransferUrl();
+        }
+
+        function applyBuilderState() {
+          var payload = {
+            pid: (document.getElementById('cfg-pid').value || 'default').trim(),
+            instance: (document.getElementById('cfg-instance').value || 'ext-dev').trim(),
+            api_origin: (document.getElementById('cfg-api-origin').value || guessApiOrigin).trim(),
+            widget_origin: (document.getElementById('cfg-widget-origin').value || guessWidgetOrigin).trim(),
+            site_key: (document.getElementById('cfg-site-key').value || 'demo-default-site').trim(),
+            install_token: (document.getElementById('cfg-install-token').value || '').trim(),
+            embed_contract_version: (document.getElementById('cfg-contract').value || '1').trim(),
+            side: (document.getElementById('cfg-side').value || 'right').trim(),
+            size: (document.getElementById('cfg-size').value || 'large').trim()
+          };
+          var next = new URL(location.href);
+          Object.keys(payload).forEach(function (name) {
+            var value = payload[name];
+            if (!value) {
+              next.searchParams.delete(name);
+              return;
+            }
+            next.searchParams.set(name, value);
+          });
+          location.href = next.toString();
+        }
+
+        function buildSnippetText() {
+          return [
+            '<script src=\"' + cfg.apiOrigin + '/embed.js?id=' + encodeURIComponent(cfg.pid) + '&v=bankruptcy-dev\"',
+            '  data-instance=\"' + cfg.instance + '\"',
+            '  data-size=\"' + cfg.size + '\"',
+            '  data-side=\"' + cfg.side + '\"',
+            '  data-start-open=\"false\"',
+            '  data-launcher=\"avatar\"',
+            '  data-site-key=\"' + cfg.siteKey + '\"',
+            cfg.installToken ? ('  data-install-token=\"' + cfg.installToken + '\"') : '',
+            '  data-embed-contract-version=\"' + cfg.contract + '\"',
+            '  data-api-origin=\"' + cfg.apiOrigin + '\"',
+            '  data-widget-origin=\"' + cfg.widgetOrigin + '\"',
+            '  data-offset-x=\"16\" data-offset-y=\"16\" defer',
+            '><\\/script>'
+          ].filter(Boolean).join('\n');
+        }
+
+        function bindBuilderButtons() {
+          var copyTransfer = document.getElementById('btn-copy-transfer-url');
+          var applyBtn = document.getElementById('btn-apply');
+          var copyBtn = document.getElementById('btn-copy-snippet');
+          var resetBtn = document.getElementById('btn-reset-defaults');
+          if (copyTransfer) {
+            copyTransfer.addEventListener('click', function () {
+              var text = buildTransferUrl();
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function () {
+                  copyTransfer.textContent = 'URL скопирован ✓';
+                  setTimeout(function () { copyTransfer.textContent = 'Копировать URL перенос'; }, 1200);
+                }).catch(function () {
+                  prompt('Скопируйте URL вручную:', text);
+                });
+              } else {
+                prompt('Скопируйте URL вручную:', text);
+              }
+            });
+          }
+          if (applyBtn) applyBtn.addEventListener('click', applyBuilderState);
+          if (resetBtn) {
+            resetBtn.addEventListener('click', function () {
+              var next = new URL(location.pathname, location.href);
+              next.search = '';
+              location.href = next.toString();
+            });
+          }
+          if (copyBtn) {
+            copyBtn.addEventListener('click', function () {
+              var text = buildSnippetText();
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function () {
+                  copyBtn.textContent = 'Скопировано ✓';
+                  setTimeout(function () { copyBtn.textContent = 'Копировать snippet'; }, 1200);
+                }).catch(function () {
+                  copyBtn.textContent = 'Нет доступа к clipboard';
+                  setTimeout(function () { copyBtn.textContent = 'Копировать snippet'; }, 1500);
+                });
+              } else {
+                copyBtn.textContent = 'Вставьте вручную';
+                prompt('Скопируйте snippet:', text);
+                setTimeout(function () { copyBtn.textContent = 'Копировать snippet'; }, 1500);
+              }
+            });
+          }
+        }
+
+        var widgetScript = document.createElement('script');
+        widgetScript.src = cfg.apiOrigin + '/embed.js?id=' + encodeURIComponent(cfg.pid) + '&v=bankruptcy-dev';
+        widgetScript.defer = true;
+        widgetScript.setAttribute('data-instance', cfg.instance);
+        widgetScript.setAttribute('data-size', cfg.size);
+        widgetScript.setAttribute('data-side', cfg.side);
+        widgetScript.setAttribute('data-start-open', 'false');
+        widgetScript.setAttribute('data-launcher', 'avatar');
+        widgetScript.setAttribute('data-site-key', cfg.siteKey);
+        if (cfg.installToken) widgetScript.setAttribute('data-install-token', cfg.installToken);
+        widgetScript.setAttribute('data-embed-contract-version', cfg.contract);
+        widgetScript.setAttribute('data-api-origin', cfg.apiOrigin);
+        widgetScript.setAttribute('data-widget-origin', cfg.widgetOrigin);
+        widgetScript.setAttribute('data-offset-x', '16');
+        widgetScript.setAttribute('data-offset-y', '16');
+        document.body.appendChild(widgetScript);
+        window.__MANAYA_DEV_BOOTSTRAP = cfg;
+        fillBuilderForm();
+        setTransferUrl();
+        bindBuilderButtons();
+      })();
+    </script>
+
+  <script>
+    (function () {
+      function getInstanceId() {
+        var cfg = window.__MANAYA_DEV_BOOTSTRAP || {};
+        return (cfg.instance || 'ext-dev');
+      }
+
+      function statusText() {
+        var instance = getInstanceId();
+        var health = {};
+        var api = window.ManyashaWidget && typeof window.ManyashaWidget.get === 'function'
+          ? window.ManyashaWidget.get(instance)
+          : null;
+        if (!api) return 'SDK: не найден (ожидаем загрузки embed.js)';
+        var widgetOpen = typeof api.isOpen === 'function' ? api.isOpen() : null;
+        var h = typeof api.getInstallHealth === 'function' ? (api.getInstallHealth() || {}) : {};
+        var state = [];
+        state.push('SDK: API готов.');
+        state.push('Состояние: ' + (widgetOpen ? 'OPEN' : 'CLOSED'));
+        state.push('install-health: ' + String(h.status || 'unknown') + ' (' + String(h.code || 'unknown') + ')');
+        if (h.message) state.push(String(h.message));
+
+        return state.join('\n');
+      }
+
+      function refreshStatus() {
+        var st = document.getElementById('widget-status');
+        st.textContent = statusText();
+      }
+
+      function getApi() {
+        var instance = getInstanceId();
+        if (!window.ManyashaWidget || typeof window.ManyashaWidget.get !== 'function') return null;
+        return window.ManyashaWidget.get(instance);
+      }
+
+      document.getElementById('btn-open').addEventListener('click', function () {
+        var api = getApi();
+        if (api && typeof api.open === 'function') api.open();
+        refreshStatus();
+      });
+      document.getElementById('btn-close').addEventListener('click', function () {
+        var api = getApi();
+        if (api && typeof api.close === 'function') api.close();
+        refreshStatus();
+      });
+      document.getElementById('btn-toggle').addEventListener('click', function () {
+        var api = getApi();
+        if (api && typeof api.toggle === 'function') api.toggle();
+        refreshStatus();
+      });
+      document.getElementById('faq-cta').addEventListener('click', function (e) {
+        e.preventDefault();
+        var api = getApi();
+        if (api && typeof api.open === 'function') api.open();
+      });
+      document.getElementById('send-lead').addEventListener('click', function () {
+        var name = document.getElementById('lead-name').value.trim() || 'клиент';
+        var phone = document.getElementById('lead-phone').value.trim() || 'не указан';
+        var debt = document.getElementById('lead-debt').value || 'не указан';
+        var msg = document.getElementById('lead-comment').value.trim() || 'без комментария';
+        alert('Форма отправлена для проверки: ' + name + ', ' + phone + '.\nДолг: ' + debt + '.\nКомментарий: ' + msg);
+      });
+      document.getElementById('reset-lead').addEventListener('click', function () {
+        ['lead-name','lead-phone','lead-comment'].forEach(function(id){
+          var el = document.getElementById(id);
+          if (el) el.value = '';
+        });
+      });
+      setInterval(refreshStatus, 900);
+      setTimeout(refreshStatus, 700);
+    })();
+  </script>
+
+</body>
+</html>

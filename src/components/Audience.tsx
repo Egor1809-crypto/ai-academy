@@ -1,6 +1,9 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import ScrollReveal from "./ScrollReveal";
+
+const SectionParticles = dynamic(() => import("./SectionParticles"), { ssr: false });
 
 const items = [
   {
@@ -9,6 +12,8 @@ const items = [
     tag: "ЮРИСТ",
     pain: "Тратите часы на типовые документы и рутину",
     solution: "Автоматизация 70% рутинных задач с помощью AI",
+    metric: "70%",
+    metricLabel: "автоматизация рутины",
   },
   {
     icon: "M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3",
@@ -16,6 +21,8 @@ const items = [
     tag: "АДВОКАТ",
     pain: "Анализ практики отнимает целые дни",
     solution: "Поиск прецедентов и формирование позиции за минуты",
+    metric: "36x",
+    metricLabel: "быстрее анализ",
   },
   {
     icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
@@ -23,6 +30,8 @@ const items = [
     tag: "РУКОВОДИТЕЛЬ",
     pain: "Команда тонет в ручной работе",
     solution: "AI-инструменты для всего отдела, рост продуктивности x3",
+    metric: "x3",
+    metricLabel: "продуктивность",
   },
   {
     icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
@@ -30,80 +39,103 @@ const items = [
     tag: "УПРАВЛЯЮЩИЙ",
     pain: "Огромные объёмы данных и документов",
     solution: "AI-анализ финансов, автоматические отчёты",
+    metric: "40ч",
+    metricLabel: "экономия/мес",
   },
 ];
 
 export default function Audience() {
   return (
-    <section id="about" className="py-28 bg-navy-800 relative overflow-hidden">
+    <section id="about" className="py-28 md:py-36 bg-navy-800 relative overflow-hidden">
+      <SectionParticles id="audience-particles" preset="matrix" />
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       <div className="absolute top-1/2 left-0 w-[300px] h-[300px] bg-gold/5 rounded-full blur-[100px] pointer-events-none -translate-y-1/2" />
+      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-cyber-purple/[0.03] rounded-full blur-[120px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
+      <div className="max-w-6xl mx-auto px-6 relative z-10">
         <ScrollReveal direction="up">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">
+          <div className="text-center mb-16 md:mb-20">
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <div className="w-10 h-px bg-gradient-to-r from-transparent to-gold/40" />
+              <span className="text-[10px] font-mono uppercase tracking-[0.35em] text-gray-600">
+                Целевая аудитория
+              </span>
+              <div className="w-10 h-px bg-gradient-to-l from-transparent to-gold/40" />
+            </div>
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-5">
               Кому необходим <span className="text-gold">этот курс</span>
             </h2>
-            <p className="text-gray-400 max-w-xl mx-auto">
+            <p className="text-gray-500 max-w-xl mx-auto">
               Независимо от специализации — AI ускорит вашу работу
             </p>
           </div>
         </ScrollReveal>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Horizontal stacked cards — unique layout */}
+        <div className="space-y-4">
           {items.map((item, i) => (
-            <ScrollReveal key={i} direction="up" delay={i * 80}>
-              <div
-                className="group relative p-6 bg-white/[0.03] backdrop-blur-sm border border-white/5 hover:border-gold/30 hover:shadow-[0_0_20px_rgba(0,207,255,0.12)] transition-all duration-500"
-              >
-                {/* SVG Corner Decoration — top-left */}
-                <svg
-                  className="absolute top-0 left-0 w-5 h-5 text-gold/30 group-hover:text-gold/60 transition-colors duration-500"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M0 12V0h12" stroke="currentColor" strokeWidth="1" />
-                </svg>
+            <ScrollReveal key={i} direction={i % 2 === 0 ? "left" : "right"} delay={i * 80}>
+              <div className="group relative grid md:grid-cols-12 gap-0 bg-white/[0.02] border border-white/[0.06] hover:border-gold/30 transition-all duration-700 overflow-hidden">
 
-                {/* SVG Corner Decoration — bottom-right */}
-                <svg
-                  className="absolute bottom-0 right-0 w-5 h-5 text-gold/30 group-hover:text-gold/60 transition-colors duration-500"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M20 8V20H8" stroke="currentColor" strokeWidth="1" />
-                </svg>
-
-                <div className="absolute inset-0 bg-gradient-to-b from-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                <div className="relative z-10">
-                  {/* Tag label */}
-                  <span className="font-mono text-[10px] uppercase tracking-widest text-gray-600 mb-3 block">
-                    {item.tag}
+                {/* Left — metric highlight */}
+                <div className="md:col-span-2 bg-white/[0.02] border-r border-white/[0.06] p-6 md:p-8 flex flex-col items-center justify-center text-center">
+                  <div
+                    className="text-3xl md:text-4xl font-heading font-black mb-1"
+                    style={{
+                      background: "linear-gradient(135deg, #00CFFF, #fff)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      backgroundClip: "text",
+                    }}
+                  >
+                    {item.metric}
+                  </div>
+                  <span className="text-[9px] font-mono text-gray-600 uppercase tracking-wider">
+                    {item.metricLabel}
                   </span>
+                </div>
 
-                  {/* Icon wrapped in bordered square */}
-                  <div className="w-12 h-12 flex items-center justify-center border border-gold/20 bg-gold/10 mb-5">
-                    <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
-                    </svg>
+                {/* Center — content */}
+                <div className="md:col-span-8 p-6 md:p-8 relative">
+                  {/* Tag */}
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-gold/10 border border-gold/20 flex items-center justify-center group-hover:bg-gold/15 transition-colors duration-500">
+                      <svg className="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
+                      </svg>
+                    </div>
+                    <div>
+                      <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-gray-600 block">
+                        {item.tag}
+                      </span>
+                      <h3 className="font-heading font-bold text-lg text-white group-hover:text-gold transition-colors duration-500">
+                        {item.title}
+                      </h3>
+                    </div>
                   </div>
 
-                  <h3 className="font-heading font-bold text-lg mb-4 text-gold">{item.title}</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-2">
-                      <span className="text-cyber-purple text-xs mt-1 shrink-0">&#x2715;</span>
-                      <p className="text-sm text-gray-500 line-through decoration-gray-700">{item.pain}</p>
+                  {/* Pain → Solution */}
+                  <div className="grid md:grid-cols-2 gap-4 mt-4">
+                    <div className="flex items-start gap-2.5">
+                      <span className="text-red-500/60 text-xs mt-0.5 shrink-0">✕</span>
+                      <p className="text-sm text-gray-500 line-through decoration-gray-700/50">{item.pain}</p>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-gold text-xs mt-1 shrink-0">&#x2713;</span>
+                    <div className="flex items-start gap-2.5">
+                      <span className="text-gold text-xs mt-0.5 shrink-0">✓</span>
                       <p className="text-sm text-gray-300">{item.solution}</p>
                     </div>
                   </div>
                 </div>
+
+                {/* Right — number */}
+                <div className="hidden md:flex md:col-span-2 items-center justify-center border-l border-white/[0.06]">
+                  <span className="text-[72px] font-heading font-black text-white/[0.03] select-none leading-none group-hover:text-white/[0.06] transition-colors duration-700">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                </div>
+
+                {/* Hover bottom line */}
+                <div className="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-gradient-to-r from-gold/60 via-gold/30 to-transparent transition-all duration-700" />
               </div>
             </ScrollReveal>
           ))}

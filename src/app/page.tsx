@@ -4,7 +4,9 @@ import Ticker from "@/components/Ticker";
 import TrustBadges from "@/components/TrustBadges";
 import SectionDivider from "@/components/SectionDivider";
 import WhyNow from "@/components/WhyNow";
+import Manifesto from "@/components/Manifesto";
 import Audience from "@/components/Audience";
+import TimeSavingsCalc from "@/components/TimeSavingsCalc";
 import UseCases from "@/components/UseCases";
 import Experts from "@/components/Experts";
 import Bonus from "@/components/Bonus";
@@ -26,7 +28,9 @@ export default function Home() {
       <TrustBadges />
       <SectionDivider />
       <WhyNow />
+      <Manifesto />
       <Audience />
+      <TimeSavingsCalc />
       <SectionDivider />
       <UseCases />
       <SectionDivider />

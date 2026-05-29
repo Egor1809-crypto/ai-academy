@@ -1,9 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { Particles, ParticlesProvider } from "@tsparticles/react";
-import { loadSlim } from "@tsparticles/slim";
-import type { Engine, ISourceOptions } from "@tsparticles/engine";
+import { Particles } from "@tsparticles/react";
+import type { ISourceOptions } from "@tsparticles/engine";
 
 /**
  * Preset configurations — each section gets a unique particle feel.
@@ -203,17 +202,6 @@ const PRESETS: Record<ParticlePreset, () => ISourceOptions> = {
   }),
 };
 
-/* ── Canvas ── */
-function ParticleCanvas({ id, preset }: { id: string; preset: ParticlePreset }) {
-  const options = useMemo(() => PRESETS[preset](), [preset]);
-  return <Particles id={id} className="absolute inset-0 z-0 pointer-events-none" options={options} />;
-}
-
-/* ── Engine init (shared) ── */
-async function initEngine(engine: Engine): Promise<void> {
-  await loadSlim(engine);
-}
-
 /* ── Public component ── */
 interface SectionParticlesProps {
   id: string;
@@ -221,9 +209,6 @@ interface SectionParticlesProps {
 }
 
 export default function SectionParticles({ id, preset }: SectionParticlesProps) {
-  return (
-    <ParticlesProvider init={initEngine}>
-      <ParticleCanvas id={id} preset={preset} />
-    </ParticlesProvider>
-  );
+  const options = useMemo(() => PRESETS[preset](), [preset]);
+  return <Particles id={id} className="absolute inset-0 z-0 pointer-events-none" options={options} />;
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Space_Grotesk, Inter } from "next/font/google";
 import ScrollProgress from "@/components/ScrollProgress";
 import ManyashaChat from "@/components/ManyashaChat";
+import ParticlesInit from "@/components/ParticlesInit";
 import JsonLd from "@/components/JsonLd";
 import "./globals.css";
 
@@ -96,9 +97,11 @@ export default function RootLayout({
         <JsonLd />
       </head>
       <body className="antialiased selection:bg-gold selection:text-navy-900">
-        <ScrollProgress />
-        {children}
-        <ManyashaChat />
+        <ParticlesInit>
+          <ScrollProgress />
+          {children}
+          <ManyashaChat />
+        </ParticlesInit>
       </body>
     </html>
   );

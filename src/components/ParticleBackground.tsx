@@ -1,11 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
-import { Particles, ParticlesProvider } from "@tsparticles/react";
-import { loadSlim } from "@tsparticles/slim";
-import type { Engine, ISourceOptions } from "@tsparticles/engine";
+import { Particles } from "@tsparticles/react";
+import type { ISourceOptions } from "@tsparticles/engine";
 
-function ParticleCanvas() {
+export default function ParticleBackground() {
   const options: ISourceOptions = useMemo(
     () => ({
       fullScreen: false,
@@ -59,17 +58,5 @@ function ParticleCanvas() {
 
   return (
     <Particles id="hero-particles" className="absolute inset-0 z-0" options={options} />
-  );
-}
-
-async function initEngine(engine: Engine): Promise<void> {
-  await loadSlim(engine);
-}
-
-export default function ParticleBackground() {
-  return (
-    <ParticlesProvider init={initEngine}>
-      <ParticleCanvas />
-    </ParticlesProvider>
   );
 }

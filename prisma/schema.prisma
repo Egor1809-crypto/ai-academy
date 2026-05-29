@@ -9,12 +9,12 @@ datasource db {
 
 model Lead {
   id        Int      @id @default(autoincrement())
-  name      String
-  phone     String
-  email     String?
-  tariff    String
-  comment   String?
-  status    String   @default("new")
+  name      String   @db.VarChar(100)
+  phone     String   @db.VarChar(20)
+  email     String?  @db.VarChar(200)
+  tariff    String   @db.VarChar(50)
+  comment   String?  @db.VarChar(1000)
+  status    String   @default("new") @db.VarChar(20)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 

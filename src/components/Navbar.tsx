@@ -123,7 +123,7 @@ export default function Navbar() {
 
     {showRegistration && (
       <RegistrationModal
-        tariff="Стандарт"
+        tariff="Премиум"
         onClose={() => setShowRegistration(false)}
       />
     )}

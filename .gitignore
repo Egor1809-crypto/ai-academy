@@ -44,3 +44,9 @@ next-env.d.ts
 # claude code
 .claude/
 
+
+# Bot runtime data (PII — never commit)
+bot/data/
+
+# Stray nested project copy (has its own .git — never commit)
+/ai-academy/

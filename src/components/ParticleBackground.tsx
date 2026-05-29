@@ -1,10 +1,20 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Particles } from "@tsparticles/react";
 import type { ISourceOptions } from "@tsparticles/engine";
 
 export default function ParticleBackground() {
+  // Skip the particle engine entirely for visitors who prefer reduced motion.
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setReducedMotion(
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    );
+  }, []);
+
   const options: ISourceOptions = useMemo(
     () => ({
       fullScreen: false,
@@ -55,6 +65,8 @@ export default function ParticleBackground() {
     }),
     []
   );
+
+  if (reducedMotion) return null;
 
   return (
     <Particles id="hero-particles" className="absolute inset-0 z-0" options={options} />

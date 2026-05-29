@@ -10,9 +10,12 @@ const SYSTEM_PROMPT = MANYASHA_PROMPT_SITE;
 
 // 15 messages per minute per IP — generous for chat, blocks abuse
 const limiter = createRateLimiter("chat", { limit: 15, windowSeconds: 60 });
+// Global backstop: hard cap on total chat calls per minute regardless of IP.
+// Protects the paid API budget against IP spoofing / distributed abuse.
+const globalLimiter = createRateLimiter("chat-global", { limit: 200, windowSeconds: 60 });
 
 export async function POST(req: NextRequest) {
-  // Rate limit check
+  // Rate limit check (per-IP, then global)
   const ip = getClientIP(req);
   const rl = limiter.check(ip);
   if (!rl.allowed) {
@@ -21,6 +24,16 @@ export async function POST(req: NextRequest) {
       {
         status: 429,
         headers: { "Retry-After": String(rl.retryAfterSeconds) },
+      },
+    );
+  }
+  const grl = globalLimiter.check("global");
+  if (!grl.allowed) {
+    return NextResponse.json(
+      { error: "Сервис временно перегружен. Попробуйте позже." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(grl.retryAfterSeconds) },
       },
     );
   }
@@ -83,8 +96,8 @@ export async function POST(req: NextRequest) {
     });
 
     if (!response.ok) {
-      const err = await response.text();
-      console.error("Navy API error:", response.status, err);
+      // Log status only — avoid persisting upstream response bodies.
+      console.error("Navy API error:", response.status);
       return NextResponse.json(
         { error: "AI service error" },
         { status: 502 },

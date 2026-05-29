@@ -73,8 +73,8 @@ export default function Hero() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 items-start mb-8 mt-10">
-              <Link
-                href="/tariffs"
+              <a
+                href="#tariffs"
                 className="relative group px-10 py-4 bg-linear-to-r from-cyber-purple to-gold text-white font-heading font-bold uppercase tracking-widest text-base rounded-full overflow-hidden glow-purple transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,0,122,0.6)] hover:-translate-y-0.5"
               >
                 <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
@@ -84,7 +84,7 @@ export default function Hero() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
                 </span>
-              </Link>
+              </a>
               <Link
                 href="/program"
                 className="px-10 py-4 border border-white/20 text-white font-heading font-bold uppercase tracking-widest text-base rounded-full hover:border-gold hover:text-gold transition-all duration-300 backdrop-blur-sm"

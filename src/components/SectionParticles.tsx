@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Particles } from "@tsparticles/react";
 import type { ISourceOptions } from "@tsparticles/engine";
 
@@ -210,5 +210,49 @@ interface SectionParticlesProps {
 
 export default function SectionParticles({ id, preset }: SectionParticlesProps) {
   const options = useMemo(() => PRESETS[preset](), [preset]);
-  return <Particles id={id} className="absolute inset-0 z-0 pointer-events-none" options={options} />;
+  const containerRef = useRef<HTMLDivElement>(null);
+  // Only mount the (CPU-heavy) particle engine when the section is on screen,
+  // and never for visitors who asked the OS for reduced motion.
+  const [active, setActive] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    if (prefersReduced) return;
+
+    const el = containerRef.current;
+    if (!el) return;
+
+    // Fallback for environments without IntersectionObserver.
+    if (typeof IntersectionObserver === "undefined") {
+      setActive(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          setActive(entry.isIntersecting);
+        }
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      className="absolute inset-0 z-0 pointer-events-none"
+      aria-hidden="true"
+    >
+      {active && (
+        <Particles id={id} className="absolute inset-0" options={options} />
+      )}
+    </div>
+  );
 }

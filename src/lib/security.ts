@@ -1,17 +1,15 @@
-import { timingSafeEqual } from "crypto";
+import { createHash, timingSafeEqual } from "crypto";
 
 /**
  * Timing-safe string comparison.
- * Prevents timing attacks on password/token checks.
+ * Both inputs are SHA-256 hashed first, so the buffers are always equal length
+ * (32 bytes) — this removes any timing/length side channel and lets us compare
+ * secrets of differing lengths without leaking which one is longer.
  */
 export function safeCompare(a: string, b: string): boolean {
-  if (a.length !== b.length) {
-    // Pad to same length to avoid leaking length info via timing
-    const maxLen = Math.max(a.length, b.length);
-    a = a.padEnd(maxLen, "\0");
-    b = b.padEnd(maxLen, "\0");
-  }
-  return timingSafeEqual(Buffer.from(a), Buffer.from(b));
+  const ha = createHash("sha256").update(String(a)).digest();
+  const hb = createHash("sha256").update(String(b)).digest();
+  return timingSafeEqual(ha, hb);
 }
 
 /**

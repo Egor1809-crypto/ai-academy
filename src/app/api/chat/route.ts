@@ -4,7 +4,7 @@ import { createRateLimiter, getClientIP } from "@/lib/rate-limit";
 
 const NAVI_API_KEY = process.env.NAVI_API_KEY;
 const NAVI_BASE_URL = "https://api.navy/v1";
-const MODEL = "deepseek-chat";
+const MODEL = "gpt-4o-mini";
 
 const SYSTEM_PROMPT = MANYASHA_PROMPT_SITE;
 

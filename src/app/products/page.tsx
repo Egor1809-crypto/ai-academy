@@ -191,12 +191,6 @@ export default function ProductsPage() {
           <div className="max-w-6xl mx-auto px-6 relative z-10">
             <ScrollReveal direction="up">
               <div className="text-center mb-20">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-gold/10 border border-gold/20 mb-8">
-                  <span className="w-1.5 h-1.5 bg-gold rounded-full animate-pulse" />
-                  <span className="text-gold text-xs font-mono uppercase tracking-widest">
-                    Каталог
-                  </span>
-                </div>
                 <h1 className="text-4xl md:text-6xl font-bold mb-6">
                   Наши{" "}
                   <span className="text-gradient-gold">продукты</span>

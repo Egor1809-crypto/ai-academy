@@ -141,70 +141,16 @@ export default function Manifesto() {
           </div>
         </div>
 
-        {/* ═══════════ PETER I QUOTE — Premium blockquote ═══════════ */}
-        <div className="border-y border-white/[0.05]">
-          <div className="max-w-5xl mx-auto px-6 py-20 md:py-28">
-            <ScrollReveal direction="fade">
-              <div className="relative bg-white/[0.015] border border-white/[0.06] p-10 md:p-16">
-                <CornerTL />
-                <CornerBR />
-
-                {/* Large decorative quote mark with glow */}
-                <div
-                  className="absolute -top-6 left-8 md:left-12 text-[140px] md:text-[200px] leading-none select-none pointer-events-none font-serif"
-                  style={{
-                    background: "linear-gradient(180deg, rgba(0,207,255,0.15) 0%, transparent 80%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text",
-                  }}
-                >
-                  &ldquo;
-                </div>
-
-                <div className="relative z-10">
-                  <blockquote>
-                    <p className="text-xl md:text-2xl lg:text-[28px] text-white/75 font-light leading-[1.6] italic tracking-wide">
-                      {MANIFESTO.peterQuote.text}
-                    </p>
-                  </blockquote>
-
-                  {/* Author line with gold accent */}
-                  <div className="mt-10 flex items-center gap-5">
-                    <div className="h-px flex-1 max-w-[60px] bg-gradient-to-r from-gold/60 to-transparent" />
-                    <div className="w-12 h-12 border border-gold/30 overflow-hidden shadow-[0_0_20px_rgba(0,207,255,0.1)]">
-                      <img
-                        src="/images/peter-i.jpg"
-                        alt="Пётр I"
-                        className="w-full h-full object-cover object-top"
-                        loading="lazy"
-                      />
-                    </div>
-                    <div>
-                      <cite className="text-gold font-heading font-bold text-base not-italic block tracking-wide">
-                        {MANIFESTO.peterQuote.author}
-                      </cite>
-                      <span className="text-gray-600 text-xs font-mono tracking-wider">
-                        {MANIFESTO.peterQuote.note}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </ScrollReveal>
-          </div>
-        </div>
-
         {/* ═══════════ STATS — ChainGPT neon card grid ═══════════ */}
         <div className="py-24 md:py-32">
           <div className="max-w-6xl mx-auto px-6">
             <ScrollReveal direction="up">
-              <div className="flex items-center justify-center gap-3 mb-16">
-                <div className="w-12 h-px bg-gradient-to-r from-transparent to-gold/40" />
-                <span className="text-[10px] font-mono uppercase tracking-[0.35em] text-gray-600">
+              <div className="flex items-center justify-center gap-4 mb-16">
+                <div className="w-12 h-px bg-gradient-to-r from-transparent to-gold/60" />
+                <span className="text-base md:text-xl font-heading font-bold uppercase tracking-[0.18em] text-gold">
                   Данные, которые нельзя игнорировать
                 </span>
-                <div className="w-12 h-px bg-gradient-to-l from-transparent to-gold/40" />
+                <div className="w-12 h-px bg-gradient-to-l from-transparent to-gold/60" />
               </div>
             </ScrollReveal>
 

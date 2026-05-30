@@ -18,6 +18,10 @@ const ManyashaEffects = dynamic(() => import("./ManyashaEffects"), {
   ssr: false,
 });
 
+const ManyashaOrbit = dynamic(() => import("./ManyashaOrbit"), {
+  ssr: false,
+});
+
 export default function Hero() {
   const [spotsLeft, setSpotsLeft] = useState<number | null>(null);
 
@@ -38,7 +42,7 @@ export default function Hero() {
       : "Набор открыт — загрузка...";
 
   return (
-    <section className="relative pt-20 pb-20 overflow-x-clip">
+    <section className="relative pt-32 lg:pt-40 pb-20 overflow-x-clip">
       <div className="absolute inset-0 bg-navy-900 z-0" />
       <div className="absolute inset-0 bg-tech-grid z-0" />
       <ParticleBackground />
@@ -50,7 +54,7 @@ export default function Hero() {
       <div className="max-w-[1440px] mx-auto px-6 relative z-10 w-full">
         <div className="grid lg:grid-cols-[1fr_1.4fr] gap-12 lg:gap-0 items-center">
           <div className="text-left">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-[4.5rem] font-bold leading-[1.08] mb-8 tracking-tight">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-[3.75rem] font-bold leading-[1.1] mb-8 tracking-tight">
               <span className="block text-white">Нейросети</span>
               <span className="block text-white">для юристов:</span>
               <span className="block text-gradient-gold mt-2">работайте быстрее</span>
@@ -105,17 +109,105 @@ export default function Hero() {
             {/* Visual effects around Manyasha */}
             <ManyashaEffects />
 
-            <div className="mascot-float relative z-10 w-full">
-              <Manyasha
-                size="hero"
-                hoverSpeech="Привет! Я Маняша — твой AI-помощник по юридическим нейросетям!"
-                pages={[
-                  { label: "О курсе", href: "/about", speech: "Расскажу всё о нашем курсе!" },
-                  { label: "Программа", href: "/program", speech: "Покажу программу обучения..." },
-                  { label: "Эксперты", href: "/experts", speech: "Познакомлю с нашими спикерами!" },
-                  { label: "Тарифы", href: "/tariffs", speech: "Подберём подходящий тариф!" },
-                ]}
-              />
+            <div className="mascot-float relative z-10 w-full scale-110 lg:scale-125 translate-y-10 lg:translate-y-16 origin-center">
+              <ManyashaOrbit />
+
+              {/* ── Голо-проектор: чистый СИММЕТРИЧНЫЙ луч строго ВНИЗ из-под платформы ──
+                   Вся группа обёрнута в один слой с горизонтальным сдвигом (--holo-x),
+                   чтобы точно совпасть с центром платформы на картинке.
+                   Если луч съезжает вбок — меняется ТОЛЬКО translateX у этого враппера. */}
+              <div
+                className="absolute inset-0 pointer-events-none z-0"
+                style={{ transform: "translateX(-4%)" }}
+              >
+                {/* Яркий эмиттер-источник прямо под платформой */}
+                <div
+                  className="absolute left-1/2 top-[95%] w-[30%] h-[5px] rounded-full"
+                  style={{
+                    background:
+                      "linear-gradient(to right, transparent, rgba(170,245,255,0.95) 35%, rgba(150,242,255,1) 50%, rgba(170,245,255,0.95) 65%, transparent)",
+                    filter: "blur(2px)",
+                    mixBlendMode: "screen",
+                    animation: "holo-emitter 3s ease-in-out infinite",
+                  }}
+                />
+                {/* Гало вокруг эмиттера */}
+                <div
+                  className="absolute left-1/2 -translate-x-1/2 top-[93%] w-[40%] h-[10%]"
+                  style={{
+                    background:
+                      "radial-gradient(ellipse at center, rgba(140,240,255,0.6) 0%, rgba(0,207,255,0.26) 45%, transparent 72%)",
+                    filter: "blur(8px)",
+                    mixBlendMode: "screen",
+                    animation: "holo-pulse 3.2s ease-in-out infinite",
+                  }}
+                />
+
+                {/* Мягкая объёмная подсветка под лучами (амбиент, без чёткого края) */}
+                <div
+                  className="absolute left-1/2 -translate-x-1/2 top-[96%] w-[70%] h-[40%]"
+                  style={{
+                    background:
+                      "linear-gradient(to bottom, rgba(0,207,255,0.22) 0%, rgba(123,97,255,0.08) 55%, transparent 100%)",
+                    clipPath: "polygon(40% 0, 60% 0, 100% 100%, 0 100%)",
+                    filter: "blur(16px)",
+                    mixBlendMode: "screen",
+                    animation: "holo-flicker 3.4s ease-in-out infinite",
+                  }}
+                />
+
+                {/* ── Веер тонких разноцветных лучей, расходящихся ВНИЗ из эмиттера ── */}
+                {[
+                  { rot: -17, w: 5.5, color: "rgba(120,235,255,0.55)", h: 38, dur: "4.6s", delay: "0s" },
+                  { rot: -10, w: 4, color: "rgba(123,97,255,0.5)", h: 41, dur: "5.2s", delay: "0.5s" },
+                  { rot: -4, w: 6.5, color: "rgba(150,240,255,0.7)", h: 43, dur: "3.8s", delay: "0.2s" },
+                  { rot: 4, w: 6.5, color: "rgba(0,207,255,0.7)", h: 43, dur: "4.1s", delay: "0.7s" },
+                  { rot: 11, w: 4, color: "rgba(255,80,170,0.4)", h: 40, dur: "5.4s", delay: "0.35s" },
+                  { rot: 18, w: 5.5, color: "rgba(120,235,255,0.55)", h: 37, dur: "4.8s", delay: "0.6s" },
+                ].map((b, i) => (
+                  <div
+                    key={`beam-${i}`}
+                    className="absolute left-1/2 top-[95%]"
+                    style={{
+                      width: `${b.w}%`,
+                      height: `${b.h}%`,
+                      transformOrigin: "50% 0%",
+                      transform: `translateX(-50%) rotate(${b.rot}deg)`,
+                      background: `linear-gradient(to bottom, ${b.color} 0%, transparent 90%)`,
+                      clipPath: "polygon(28% 0, 72% 0, 100% 100%, 0 100%)",
+                      filter: "blur(3px)",
+                      mixBlendMode: "screen",
+                      animation: `holo-flicker ${b.dur} ease-in-out infinite ${b.delay}`,
+                    }}
+                  />
+                ))}
+
+                {/* Тонкий яркий центральный луч-стержень */}
+                <div
+                  className="absolute left-1/2 -translate-x-1/2 top-[95%] w-[3%] h-[40%]"
+                  style={{
+                    background:
+                      "linear-gradient(to bottom, rgba(190,250,255,0.85) 0%, rgba(0,207,255,0.3) 55%, transparent 100%)",
+                    filter: "blur(2px)",
+                    mixBlendMode: "screen",
+                    animation: "holo-emitter 3.2s ease-in-out infinite",
+                  }}
+                />
+
+              </div>
+
+              <div className="relative z-10">
+                <Manyasha
+                  size="hero"
+                  hoverSpeech="Привет! Я Маняша — твой AI-помощник по юридическим нейросетям!"
+                  pages={[
+                    { label: "О курсе", href: "/about", speech: "Расскажу всё о нашем курсе!" },
+                    { label: "Программа", href: "/program", speech: "Покажу программу обучения..." },
+                    { label: "Эксперты", href: "/experts", speech: "Познакомлю с нашими спикерами!" },
+                    { label: "Тарифы", href: "/tariffs", speech: "Подберём подходящий тариф!" },
+                  ]}
+                />
+              </div>
             </div>
           </div>
         </div>

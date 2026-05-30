@@ -537,6 +537,59 @@ async function notifyAdmin(text) {
 }
 
 // ─────────────────────────────────────────────────────────────
+// SITE LOGIN: "Войти через Telegram" deep-link confirmation
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * The site opens t.me/<bot>?start=auth_<code>. When the user presses Start we
+ * confirm their Telegram identity to the site over the shared ADMIN_PASSWORD
+ * secret; the site then logs the waiting browser in.
+ */
+async function handleTelegramAuth(ctx, code) {
+  const from = ctx.from;
+  if (!ADMIN_PASSWORD) {
+    await ctx.reply(
+      "⚠️ Вход через сайт временно недоступен. Сообщите администратору.",
+    );
+    return;
+  }
+  try {
+    const res = await fetch(`${API_URL}/api/auth/telegram/confirm`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-password": ADMIN_PASSWORD,
+      },
+      body: JSON.stringify({
+        code,
+        telegramId: String(from?.id ?? ""),
+        telegramUsername: from?.username || "",
+        firstName: from?.first_name || "",
+      }),
+    });
+
+    if (res.ok) {
+      await ctx.reply(
+        `✅ <b>Вход подтверждён!</b>\n\n` +
+          `Вернитесь на сайт — личный кабинет уже открыт. 🪆`,
+        { parse_mode: "HTML", reply_markup: mainKeyboard() },
+      );
+    } else if (res.status === 410) {
+      await ctx.reply(
+        "⏳ Ссылка для входа устарела. Откройте сайт и нажмите «Войти через Telegram» заново.",
+      );
+    } else {
+      await ctx.reply(
+        "⚠️ Не удалось подтвердить вход. Попробуйте ещё раз с сайта.",
+      );
+    }
+  } catch (e) {
+    console.error("[TelegramAuth] Failed:", e.message);
+    await ctx.reply("⚠️ Сервер сайта недоступен. Попробуйте позже.");
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
 // SET BOT COMMANDS
 // ─────────────────────────────────────────────────────────────
 
@@ -563,6 +616,13 @@ async function setBotCommands() {
 // ─────────────────────────────────────────────────────────────
 
 bot.command("start", async (ctx) => {
+  // Deep-link payload after /start (e.g. "auth_<code>" for site login)
+  const payload = typeof ctx.match === "string" ? ctx.match.trim() : "";
+  if (payload.startsWith("auth_")) {
+    await handleTelegramAuth(ctx, payload.slice(5));
+    return;
+  }
+
   const name = esc(ctx.from?.first_name) || "друг";
 
   const welcomeText =
@@ -1324,6 +1384,59 @@ bot.catch((err) => {
 // ─────────────────────────────────────────────────────────────
 // START
 // ─────────────────────────────────────────────────────────────
+
+// ─────────────────────────────────────────────────────────────
+// BROADCAST QUEUE POLLER — delivers broadcasts enqueued from the web admin
+// ─────────────────────────────────────────────────────────────
+
+let broadcastPolling = false;
+
+async function pollBroadcastQueue() {
+  if (broadcastPolling || !ADMIN_PASSWORD) return;
+  broadcastPolling = true;
+  try {
+    const res = await fetch(`${API_URL}/api/bot/broadcasts`, {
+      headers: { "x-admin-password": ADMIN_PASSWORD },
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    const b = data.broadcast;
+    if (!b || !b.message) return;
+
+    const chatIds = getAllChatIds();
+    let sent = 0;
+    let failed = 0;
+    for (const chatId of chatIds) {
+      try {
+        await bot.api.sendMessage(chatId, b.message, { parse_mode: "HTML" });
+        sent++;
+      } catch (e) {
+        failed++;
+      }
+      // Stay well under Telegram's ~30 msg/s broadcast limit.
+      await new Promise((r) => setTimeout(r, 40));
+    }
+
+    await fetch(`${API_URL}/api/bot/broadcasts`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-password": ADMIN_PASSWORD,
+      },
+      body: JSON.stringify({ id: b.id, sentCount: sent, failedCount: failed }),
+    });
+
+    await notifyAdmin(
+      `📤 <b>Рассылка с сайта доставлена</b>\n\n✅ Доставлено: ${sent}\n❌ Ошибки: ${failed}`,
+    );
+  } catch (e) {
+    console.error("[BroadcastPoll] Failed:", e.message);
+  } finally {
+    broadcastPolling = false;
+  }
+}
+
+setInterval(pollBroadcastQueue, 15000);
 
 await setBotCommands();
 

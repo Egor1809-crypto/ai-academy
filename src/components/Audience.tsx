@@ -55,12 +55,12 @@ export default function Audience() {
       <div className="max-w-6xl mx-auto px-6 relative z-10">
         <ScrollReveal direction="up">
           <div className="text-center mb-16 md:mb-20">
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="w-10 h-px bg-gradient-to-r from-transparent to-gold/40" />
-              <span className="text-[10px] font-mono uppercase tracking-[0.35em] text-gray-600">
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <div className="w-10 h-px bg-gradient-to-r from-transparent to-gold/60" />
+              <span className="text-base md:text-xl font-heading font-bold uppercase tracking-[0.18em] text-gold">
                 Целевая аудитория
               </span>
-              <div className="w-10 h-px bg-gradient-to-l from-transparent to-gold/40" />
+              <div className="w-10 h-px bg-gradient-to-l from-transparent to-gold/60" />
             </div>
             <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-5">
               Кому необходим <span className="text-gold">этот курс</span>

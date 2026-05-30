@@ -75,11 +75,17 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
+          <Link
+            href="/cabinet"
+            className="hidden md:block text-sm font-medium text-gray-300 uppercase tracking-widest hover:text-gold transition-colors"
+          >
+            Кабинет
+          </Link>
           <button
             onClick={() => setShowRegistration(true)}
             className="hidden md:block px-6 py-2.5 bg-transparent border border-gold text-gold font-heading font-bold hover:bg-gold hover:text-navy-900 transition-all duration-300 uppercase tracking-wide text-sm glow-gold-hover cursor-pointer"
           >
-            Регистрация
+            Оставить заявку
           </button>
 
           <button
@@ -111,11 +117,17 @@ export default function Navbar() {
               {l.label}
             </Link>
           ))}
+          <Link
+            href="/cabinet"
+            className="font-heading uppercase tracking-widest text-sm py-2 text-gray-300 hover:text-gold transition-colors"
+          >
+            Личный кабинет
+          </Link>
           <button
             onClick={() => { setShowRegistration(true); setMobileOpen(false); }}
             className="mt-2 py-3 bg-gold text-navy-900 font-heading font-bold uppercase text-sm text-center cursor-pointer"
           >
-            Регистрация
+            Оставить заявку
           </button>
         </div>
       </div>

@@ -250,9 +250,9 @@ export default function ManyashaChat() {
             <div className="absolute inset-0 bg-tech-grid opacity-30 pointer-events-none" />
             <div className="relative w-11 h-11 rounded-full overflow-hidden ring-2 ring-gold/40 shadow-lg shrink-0 bg-navy-900 ml-3">
               <img
-                src="/mascot/manyasha-idle-poster.jpg"
+                src="/mascot/manyasha-avatar.jpg"
                 alt="Маняша"
-                className="w-full h-full object-cover object-top scale-150 translate-y-1"
+                className="w-full h-full object-cover object-center"
               />
             </div>
             <div className="relative flex-1 min-w-0">
@@ -282,9 +282,9 @@ export default function ManyashaChat() {
               <div className="text-center py-6">
                 <div className="w-16 h-16 mx-auto mb-3 rounded-full overflow-hidden ring-2 ring-gold/30 bg-navy-900">
                   <img
-                    src="/mascot/manyasha-idle-poster.jpg"
+                    src="/mascot/manyasha-avatar.jpg"
                     alt="Маняша"
-                    className="w-full h-full object-cover object-top scale-150 translate-y-1"
+                    className="w-full h-full object-cover object-center"
                   />
                 </div>
                 <p className="text-white text-sm font-semibold">Привет! Я Маняша 👋</p>
@@ -313,9 +313,9 @@ export default function ManyashaChat() {
                 {msg.role === "assistant" && (
                   <div className="w-7 h-7 rounded-full overflow-hidden ring-1 ring-gold/30 bg-navy-900 shrink-0">
                     <img
-                      src="/mascot/manyasha-idle-poster.jpg"
+                      src="/mascot/manyasha-avatar.jpg"
                       alt=""
-                      className="w-full h-full object-cover object-top scale-150 translate-y-0.5"
+                      className="w-full h-full object-cover object-center"
                     />
                   </div>
                 )}
@@ -335,9 +335,9 @@ export default function ManyashaChat() {
               <div className="flex items-end gap-2 justify-start">
                 <div className="w-7 h-7 rounded-full overflow-hidden ring-1 ring-gold/30 bg-navy-900 shrink-0">
                   <img
-                    src="/mascot/manyasha-idle-poster.jpg"
+                    src="/mascot/manyasha-avatar.jpg"
                     alt=""
-                    className="w-full h-full object-cover object-top scale-150 translate-y-0.5"
+                    className="w-full h-full object-cover object-center"
                   />
                 </div>
                 <div className="bg-white/[0.07] border border-white/5 px-4 py-3 rounded-2xl rounded-bl-md">

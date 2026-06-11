@@ -11,6 +11,8 @@
   --color-cyber-blue: #00CFFF;
   --font-heading: var(--font-space-grotesk), "Space Grotesk", sans-serif;
   --font-body: var(--font-inter), "Inter", sans-serif;
+  --font-serif: var(--font-lora), "Lora", Georgia, serif;
+  --color-paper: #e8e2d2;
 }
 
 body {
@@ -23,6 +25,80 @@ body {
 h1, h2, h3, h4, h5, h6, .font-heading {
   font-family: var(--font-heading);
   text-transform: uppercase;
+}
+
+/* ─────────────────────────────────────────────────────────
+   «ДОСЬЕ» — фирменный язык: serif-заголовки, штампы, замазки,
+   маркер, заметки на полях. Профессиональная неряшливость.
+   ───────────────────────────────────────────────────────── */
+
+/* Редакторский serif, БЕЗ uppercase (перебивает глобальное правило) */
+.font-serif-display {
+  font-family: var(--font-serif);
+  text-transform: none;
+}
+
+/* Штамп-оттиск: чуть повёрнут, «недопропечатан» */
+.dossier-stamp {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  border: 1.5px solid currentColor;
+  padding: 0.2rem 0.55rem;
+  display: inline-block;
+  opacity: 0.85;
+  transform: rotate(-2deg);
+  border-radius: 2px;
+  /* лёгкая «недопечать» краёв */
+  -webkit-mask-image: radial-gradient(circle at 30% 40%, #000 96%, transparent 100%),
+                      radial-gradient(circle at 75% 65%, #000 97%, transparent 100%);
+  -webkit-mask-composite: source-over;
+  mask-image: radial-gradient(circle at 30% 40%, #000 96%, transparent 100%);
+}
+.dossier-stamp--alt { transform: rotate(1.5deg); }
+
+/* Замазка-цензура: цветная плашка, «снимается» при наведении на карточку */
+.dossier-redact {
+  position: relative;
+  background: #00CFFF;
+  color: transparent;
+  border-radius: 1px;
+  padding: 0 0.15em;
+  transition: background 0.35s ease, color 0.35s ease;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.group:hover .dossier-redact,
+.dossier-open .dossier-redact {
+  background: transparent;
+  color: inherit;
+}
+
+/* Маркер-выделение под ключевым словом (как хайлайтер, неровный) */
+.dossier-marker {
+  background: linear-gradient(104deg,
+    rgba(0,207,255,0) 0.5%,
+    rgba(0,207,255,0.28) 2%,
+    rgba(0,207,255,0.30) 96%,
+    rgba(0,207,255,0) 99%);
+  padding: 0.05em 0.1em;
+  border-radius: 0.1em;
+}
+
+/* Заметка на полях — моноширинная пометка юриста */
+.dossier-margin {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  color: rgba(255,255,255,0.32);
+  text-transform: uppercase;
+}
+
+/* «Бумажная» фактура для тёмной карточки досье */
+.dossier-card {
+  background:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0 1px, transparent 1px 4px),
+    #0a1628;
 }
 
 .bg-tech-grid {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { safeCompare, sanitizeInput } from "@/lib/security";
+import { sanitizeInput, bodyTooLarge } from "@/lib/security";
+import { isBotRequest } from "@/lib/admin";
 
 /**
  * Called server-to-server BY THE BOT after a user presses Start with an
@@ -10,11 +11,12 @@ import { safeCompare, sanitizeInput } from "@/lib/security";
  * polling `status` endpoint — the session is never created here.
  */
 export async function POST(req: NextRequest) {
-  const password = req.headers.get("x-admin-password");
-  const adminPassword = process.env.ADMIN_PASSWORD;
-  if (!password || !adminPassword || !safeCompare(password, adminPassword)) {
+  if (!isBotRequest(req)) {
     await new Promise((r) => setTimeout(r, 400));
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (bodyTooLarge(req, 8 * 1024)) {
+    return NextResponse.json({ error: "Payload too large" }, { status: 413 });
   }
 
   try {

@@ -1,7 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { createRateLimiter, getClientIP } from "@/lib/rate-limit";
-import { safeCompare, sanitizeInput, isValidPhone } from "@/lib/security";
+import {
+  safeCompare,
+  sanitizeInput,
+  isValidPhone,
+  isValidEmail,
+  bodyTooLarge,
+  normalizePhone,
+} from "@/lib/security";
 
 // 5 submissions per 10 minutes per IP — very strict, prevents spam
 const submitLimiter = createRateLimiter("leads-submit", { limit: 5, windowSeconds: 600 });
@@ -22,6 +29,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  if (bodyTooLarge(req, 16 * 1024)) {
+    return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+  }
+
   try {
     const body = await req.json();
     const { name, phone, email, tariff, comment } = body;
@@ -29,7 +40,7 @@ export async function POST(req: NextRequest) {
     // Honeypot check — if the hidden "website" field is filled, it's a bot
     if (body.website) {
       // Silently accept but don't store — bots think they succeeded
-      return NextResponse.json({ success: true, id: "ok" });
+      return NextResponse.json({ success: true });
     }
 
     if (!name || !phone || !tariff) {
@@ -59,6 +70,40 @@ export async function POST(req: NextRequest) {
         { error: "Некорректные данные" },
         { status: 400 },
       );
+    }
+
+    // Reject malformed emails instead of storing junk (downstream mailings).
+    if (cleanEmail && !isValidEmail(cleanEmail)) {
+      return NextResponse.json(
+        { error: "Введите корректный email" },
+        { status: 400 },
+      );
+    }
+
+    // Dedup by normalized phone within a 30-day window: if the same person
+    // re-submits, refresh their existing lead instead of creating a duplicate.
+    // Keeps the spots counter honest and the admin list clean.
+    const phoneDigits = normalizePhone(cleanPhone);
+    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const recent = await prisma.lead.findMany({
+      where: { createdAt: { gte: since } },
+      select: { id: true, phone: true },
+      orderBy: { createdAt: "desc" },
+      take: 200,
+    });
+    const dup = recent.find((l) => normalizePhone(l.phone) === phoneDigits);
+
+    if (dup) {
+      const lead = await prisma.lead.update({
+        where: { id: dup.id },
+        data: {
+          name: cleanName,
+          email: cleanEmail,
+          tariff: cleanTariff,
+          ...(cleanComment !== null ? { comment: cleanComment } : {}),
+        },
+      });
+      return NextResponse.json({ success: true, id: lead.id });
     }
 
     const lead = await prisma.lead.create({

@@ -81,6 +81,40 @@ export async function POST(req: NextRequest) {
   }
 }
 
+const ALLOWED_STATUSES = ["new", "contacted", "paid", "rejected"];
+
+export async function PATCH(req: NextRequest) {
+  const ip = getClientIP(req);
+  const rl = adminLimiter.check(ip);
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSeconds) } },
+    );
+  }
+
+  const password = req.headers.get("x-admin-password");
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!password || !adminPassword || !safeCompare(password, adminPassword)) {
+    await new Promise((r) => setTimeout(r, 500));
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const body = await req.json();
+    const id = Number(body.id);
+    const status = String(body.status ?? "");
+    if (!Number.isInteger(id) || !ALLOWED_STATUSES.includes(status)) {
+      return NextResponse.json({ error: "Invalid id or status" }, { status: 400 });
+    }
+    const lead = await prisma.lead.update({ where: { id }, data: { status } });
+    return NextResponse.json({ success: true, id: lead.id, status: lead.status });
+  } catch (error) {
+    console.error("Lead update error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
 export async function GET(req: NextRequest) {
   // Rate limit admin endpoint
   const ip = getClientIP(req);

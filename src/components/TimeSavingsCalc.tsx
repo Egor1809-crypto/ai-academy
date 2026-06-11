@@ -11,6 +11,67 @@ function formatNumber(n: number): string {
   return n.toLocaleString("ru-RU");
 }
 
+// Отзывы выпускников — слева и справа от калькулятора (по бокам, хаотично).
+const FLOATING_COMMENTS = [
+  {
+    initial: "М",
+    name: "Марина Кравцова",
+    role: "Корпоративный юрист",
+    text: "Свела ставку с реальными часами на договорах — вышло под 70 000 ₽ в месяц. Эту работу я больше не беру на выходные.",
+    rotate: "xl:-rotate-3",
+    accent: "border-gold/25",
+    pos: "xl:-left-60 xl:top-2",
+  },
+  {
+    initial: "А",
+    name: "Артём Соловьёв",
+    role: "Адвокат",
+    text: "Первичный анализ дел теперь занимает втрое меньше времени. Освободившиеся часы отдаю клиентам, а не рутине.",
+    rotate: "xl:rotate-3",
+    accent: "border-cyber-purple/30",
+    pos: "xl:-right-60 xl:top-1/4",
+  },
+  {
+    initial: "Е",
+    name: "Елена Ветрова",
+    role: "Глава юр. отдела",
+    text: "Посчитала по всему отделу — годовая экономия вышла как зарплата ещё одного юриста. Для бюджета это весомо.",
+    rotate: "xl:rotate-2",
+    accent: "border-emerald-500/25",
+    pos: "xl:-left-56 xl:bottom-2",
+  },
+];
+
+function CommentBody({ c }: { c: (typeof FLOATING_COMMENTS)[number] }) {
+  return (
+    <>
+      <Stars />
+      <p className="text-base text-gray-100 leading-snug mb-5">«{c.text}»</p>
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gold to-cyber-purple flex items-center justify-center font-heading font-bold text-navy-900 text-sm shrink-0">
+          {c.initial}
+        </div>
+        <div>
+          <p className="text-sm font-bold text-white leading-tight">{c.name}</p>
+          <p className="text-xs text-gray-500 font-mono">{c.role}</p>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function Stars() {
+  return (
+    <div className="flex gap-0.5 mb-1.5">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <svg key={i} className="w-3 h-3 text-gold" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.96a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.447a1 1 0 00-.364 1.118l1.287 3.96c.3.922-.755 1.688-1.54 1.118l-3.367-2.447a1 1 0 00-1.176 0l-3.367 2.447c-.784.57-1.838-.196-1.539-1.118l1.286-3.96a1 1 0 00-.363-1.118L2.27 9.387c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.96z" />
+        </svg>
+      ))}
+    </div>
+  );
+}
+
 /* ── SVG corner decorations ─────────────────────────────────── */
 function CornerTL() {
   return (
@@ -27,8 +88,12 @@ function CornerBR() {
   );
 }
 
+// Стоимость курса для расчёта окупаемости (берём средний тариф).
+const COURSE_PRICE = 45000;
+
 export default function TimeSavingsCalc() {
   const [hoursPerWeek, setHoursPerWeek] = useState(20);
+  const [rate, setRate] = useState<number>(CALC.avgHourlyRate);
 
   const results = useMemo(() => {
     const totalDefaultHours = CALC.tasks.reduce((s, t) => s + t.hoursPerWeek, 0);
@@ -49,21 +114,27 @@ export default function TimeSavingsCalc() {
     });
 
     const yearlyHoursSaved = totalSavedWeekly * CALC.workWeeksPerYear;
-    const yearlySavingsRub = yearlyHoursSaved * CALC.avgHourlyRate;
+    const yearlySavingsRub = yearlyHoursSaved * rate;
     const monthlyHoursSaved = totalSavedWeekly * 4;
+    const monthlySavingsRub = (yearlySavingsRub / 12);
     const freedDaysPerYear = Math.round(yearlyHoursSaved / 8);
 
     return {
       breakdown,
       totalSavedWeekly: Math.round(totalSavedWeekly * 10) / 10,
       monthlyHoursSaved: Math.round(monthlyHoursSaved),
+      monthlySavingsRub: Math.round(monthlySavingsRub),
       yearlyHoursSaved: Math.round(yearlyHoursSaved),
       yearlySavingsRub: Math.round(yearlySavingsRub),
       freedDaysPerYear,
     };
-  }, [hoursPerWeek]);
+  }, [hoursPerWeek, rate]);
 
-  const roiMonths = Math.max(1, Math.ceil(45000 / (results.yearlySavingsRub / 12)));
+  const roiDays = Math.max(
+    1,
+    Math.ceil(COURSE_PRICE / (results.monthlySavingsRub / 30)),
+  );
+  const roiMonths = Math.max(1, Math.ceil(COURSE_PRICE / results.monthlySavingsRub));
 
   return (
     <section className="py-28 md:py-36 relative overflow-hidden">
@@ -109,10 +180,24 @@ export default function TimeSavingsCalc() {
               с AI?
             </h2>
             <p className="text-gray-500 max-w-lg mx-auto text-base">
-              Передвиньте ползунок — узнайте реальную цену рутины
+              Укажите часы рутины и свою ставку — увидите личную выгоду в часах и
+              рублях, с прозрачной формулой расчёта
             </p>
           </div>
         </ScrollReveal>
+
+        {/* На широких экранах сужаем калькулятор, чтобы по бокам встали отзывы */}
+        <div className="relative xl:max-w-4xl xl:mx-auto">
+
+        {/* Отзывы-«крылья» — слева и справа от калькулятора (только xl+) */}
+        {FLOATING_COMMENTS.map((c) => (
+          <div
+            key={c.name}
+            className={`hidden xl:block absolute xl:w-56 z-10 bg-navy-900/90 backdrop-blur-md border ${c.accent} rounded-2xl p-6 shadow-[0_18px_50px_rgba(0,0,0,0.5)] transition-all duration-300 hover:rotate-0 hover:z-40 hover:-translate-y-1 ${c.rotate} ${c.pos}`}
+          >
+            <CommentBody c={c} />
+          </div>
+        ))}
 
         <div className="grid lg:grid-cols-5 gap-6 md:gap-8">
 
@@ -127,10 +212,10 @@ export default function TimeSavingsCalc() {
                 <div className="mb-10">
                   <div className="flex justify-between items-end mb-5">
                     <div>
-                      <label className="text-[10px] text-gray-600 font-mono uppercase tracking-[0.2em] block mb-1">
+                      <label className="text-xs md:text-sm text-gray-400 font-mono uppercase tracking-[0.15em] block mb-1.5">
                         Часов рутины в неделю
                       </label>
-                      <p className="text-xs text-gray-500">Типовые документы, анализ, переписка</p>
+                      <p className="text-sm text-gray-500">Типовые документы, анализ, переписка</p>
                     </div>
                     <div className="text-right">
                       <span
@@ -190,11 +275,75 @@ export default function TimeSavingsCalc() {
                   </div>
                 </div>
 
+                {/* Rate slider */}
+                <div className="mb-10">
+                  <div className="flex justify-between items-end mb-5">
+                    <div>
+                      <label className="text-xs md:text-sm text-gray-400 font-mono uppercase tracking-[0.15em] block mb-1.5">
+                        Ваша ставка
+                      </label>
+                      <p className="text-sm text-gray-500">Сколько стоит час вашей работы</p>
+                    </div>
+                    <div className="text-right">
+                      <span
+                        className="text-4xl md:text-5xl font-heading font-black tabular-nums"
+                        style={{
+                          background: "linear-gradient(135deg, #00CFFF, #fff)",
+                          WebkitBackgroundClip: "text",
+                          WebkitTextFillColor: "transparent",
+                          backgroundClip: "text",
+                        }}
+                      >
+                        {formatNumber(rate)}
+                      </span>
+                      <span className="text-gray-500 text-sm ml-1">₽/ч</span>
+                    </div>
+                  </div>
+
+                  <div className="relative">
+                    <div className="absolute top-1/2 -translate-y-1/2 w-full h-1 bg-white/[0.06] rounded-full" />
+                    <div
+                      className="absolute top-1/2 -translate-y-1/2 h-1 bg-gradient-to-r from-gold to-cyber-purple rounded-full shadow-[0_0_10px_rgba(0,207,255,0.3)] transition-all duration-150"
+                      style={{ width: `${((rate - 1000) / 9000) * 100}%` }}
+                    />
+                    <input
+                      type="range"
+                      min={1000}
+                      max={10000}
+                      step={500}
+                      value={rate}
+                      onChange={(e) => setRate(Number(e.target.value))}
+                      className="relative w-full h-6 appearance-none bg-transparent cursor-pointer z-10
+                        [&::-webkit-slider-thumb]:appearance-none
+                        [&::-webkit-slider-thumb]:w-5
+                        [&::-webkit-slider-thumb]:h-5
+                        [&::-webkit-slider-thumb]:bg-gold
+                        [&::-webkit-slider-thumb]:rounded-full
+                        [&::-webkit-slider-thumb]:shadow-[0_0_20px_rgba(0,207,255,0.5)]
+                        [&::-webkit-slider-thumb]:cursor-pointer
+                        [&::-webkit-slider-thumb]:border-2
+                        [&::-webkit-slider-thumb]:border-white/20
+                        [&::-moz-range-thumb]:w-5
+                        [&::-moz-range-thumb]:h-5
+                        [&::-moz-range-thumb]:bg-gold
+                        [&::-moz-range-thumb]:rounded-full
+                        [&::-moz-range-thumb]:border-2
+                        [&::-moz-range-thumb]:border-white/20
+                        [&::-moz-range-thumb]:cursor-pointer
+                        [&::-moz-range-track]:bg-transparent"
+                    />
+                  </div>
+                  <div className="flex justify-between text-[10px] text-gray-700 font-mono mt-2">
+                    <span>1 000 ₽</span>
+                    <span>10 000 ₽</span>
+                  </div>
+                </div>
+
                 {/* Task breakdown */}
                 <div className="space-y-5">
                   <div className="flex items-center gap-2 mb-1">
                     <div className="w-4 h-px bg-gold/40" />
-                    <span className="text-[10px] text-gray-500 font-mono uppercase tracking-[0.2em]">
+                    <span className="text-xs md:text-sm text-gray-400 font-mono uppercase tracking-[0.15em]">
                       Экономия по категориям
                     </span>
                   </div>
@@ -202,14 +351,14 @@ export default function TimeSavingsCalc() {
                   {results.breakdown.map((task) => (
                     <div key={task.name} className="group">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-gray-400 group-hover:text-gray-200 transition-colors">
+                        <span className="text-base text-gray-300 group-hover:text-white transition-colors">
                           {task.name}
                         </span>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-gray-600 font-mono">
+                          <span className="text-sm text-gray-500 font-mono">
                             {task.before.toFixed(1)}ч → {task.after.toFixed(1)}ч
                           </span>
-                          <span className="text-xs font-mono font-bold text-gold bg-gold/[0.08] px-2 py-0.5 border border-gold/15">
+                          <span className="text-sm font-mono font-bold text-gold bg-gold/[0.08] px-2 py-0.5 border border-gold/15">
                             -{task.percent}%
                           </span>
                         </div>
@@ -230,11 +379,11 @@ export default function TimeSavingsCalc() {
 
                   {/* Legend */}
                   <div className="flex items-center gap-5 pt-3 border-t border-white/[0.04]">
-                    <div className="flex items-center gap-2 text-[10px] text-gray-600 font-mono">
+                    <div className="flex items-center gap-2 text-xs text-gray-500 font-mono">
                       <div className="w-5 h-1.5 bg-white/[0.06] rounded-full" />
                       Сейчас
                     </div>
-                    <div className="flex items-center gap-2 text-[10px] text-gray-600 font-mono">
+                    <div className="flex items-center gap-2 text-xs text-gray-500 font-mono">
                       <div className="w-5 h-1.5 bg-gradient-to-r from-gold to-gold/60 rounded-full" />
                       С AI
                     </div>
@@ -259,7 +408,7 @@ export default function TimeSavingsCalc() {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-40" />
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-gold" />
                     </span>
-                    <span className="text-[10px] text-gold/80 font-mono uppercase tracking-[0.3em]">
+                    <span className="text-xs md:text-sm text-gold/90 font-mono uppercase tracking-[0.2em]">
                       Ваша экономия
                     </span>
                   </div>
@@ -278,7 +427,7 @@ export default function TimeSavingsCalc() {
                     >
                       {results.totalSavedWeekly}ч
                     </div>
-                    <p className="text-sm text-gray-500 mt-2">экономии каждую неделю</p>
+                    <p className="text-base text-gray-400 mt-2">экономии каждую неделю</p>
                   </div>
 
                   <div className="w-full h-px bg-gradient-to-r from-gold/30 via-gold/10 to-transparent mb-6" />
@@ -289,7 +438,7 @@ export default function TimeSavingsCalc() {
                       <div className="text-2xl font-heading font-bold text-white tabular-nums">
                         {results.monthlyHoursSaved}ч
                       </div>
-                      <p className="text-[10px] text-gray-600 font-mono uppercase tracking-wider mt-0.5">
+                      <p className="text-xs text-gray-500 font-mono uppercase tracking-wider mt-1">
                         в месяц
                       </p>
                     </div>
@@ -315,7 +464,8 @@ export default function TimeSavingsCalc() {
                         {formatNumber(results.yearlySavingsRub)}&nbsp;₽
                       </div>
                       <p className="text-[10px] text-gray-700 mt-1 font-mono">
-                        при ставке {formatNumber(CALC.avgHourlyRate)} ₽/час
+                        ≈ {formatNumber(results.monthlySavingsRub)} ₽/мес · ставка{" "}
+                        {formatNumber(rate)} ₽/ч
                       </p>
                     </div>
                     <div className="w-12 h-12 bg-emerald-500/[0.08] border border-emerald-500/20 flex items-center justify-center shrink-0 group-hover:shadow-[0_0_15px_rgba(16,185,129,0.1)] transition-shadow duration-500">
@@ -326,16 +476,89 @@ export default function TimeSavingsCalc() {
                   </div>
                 </div>
 
-                {/* ROI badge */}
-                <div className="bg-white/[0.01] border border-white/[0.04] px-5 py-3 text-center">
-                  <p className="text-xs text-gray-500">
-                    Курс окупается за{" "}
-                    <span className="text-gold font-bold">{roiMonths}</span>{" "}
-                    {roiMonths === 1 ? "месяц" : roiMonths < 5 ? "месяца" : "месяцев"}
-                  </p>
+                {/* ROI / окупаемость курса */}
+                <div className="relative bg-white/[0.02] border border-gold/15 p-5">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-[10px] text-gray-600 font-mono uppercase tracking-[0.2em] mb-1">
+                        Окупаемость курса
+                      </p>
+                      <p className="text-sm text-gray-300">
+                        Курс ({formatNumber(COURSE_PRICE)} ₽) окупится за{" "}
+                        <span className="text-gold font-bold">
+                          {roiMonths === 1 ? `${roiDays} дн.` : `${roiMonths} мес.`}
+                        </span>
+                      </p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="text-2xl font-heading font-black text-gold tabular-nums leading-none">
+                        ×{Math.max(1, Math.round(results.yearlySavingsRub / COURSE_PRICE))}
+                      </div>
+                      <p className="text-[9px] text-gray-600 font-mono uppercase tracking-wider mt-1">
+                        возврат за год
+                      </p>
+                    </div>
+                  </div>
                 </div>
+
+                {/* Методология — прозрачный расчёт, без «магии ИИ» */}
+                <details className="group bg-white/[0.01] border border-white/[0.04] px-5 py-3">
+                  <summary className="flex items-center justify-between cursor-pointer list-none text-xs text-gray-500 hover:text-gray-300 transition-colors">
+                    <span className="font-mono uppercase tracking-[0.15em]">
+                      Как мы считаем
+                    </span>
+                    <svg
+                      className="w-4 h-4 transition-transform group-open:rotate-180"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </summary>
+                  <div className="mt-3 space-y-2 text-[11px] text-gray-500 leading-relaxed">
+                    <p>
+                      Берём ваши часы рутины и распределяем их по 5 типовым задачам
+                      юриста в реальной пропорции. Для каждой задачи применяем
+                      процент ускорения с AI (60–90%), подтверждённый на практике
+                      выпускников.
+                    </p>
+                    <p className="font-mono text-gray-600">
+                      Сэкономлено/нед = Σ (часы задачи × % ускорения)
+                    </p>
+                    <p className="font-mono text-gray-600">
+                      Доход/год = часы/нед × {CALC.workWeeksPerYear} нед × ваша ставка
+                    </p>
+                    <p className="text-gray-600">
+                      Это ориентир, а не гарантия — итог зависит от вашей практики.
+                    </p>
+                  </div>
+                </details>
               </div>
             </ScrollReveal>
+          </div>
+        </div>
+        </div>
+
+        {/* ═══ Отзывы выпускников — для экранов уже xl показываем сеткой снизу ═══ */}
+        <div className="xl:hidden mt-20 md:mt-24">
+          <div className="flex items-center justify-center gap-3 mb-12">
+            <div className="w-10 h-px bg-gradient-to-r from-transparent to-gold/60" />
+            <span className="text-sm md:text-base font-heading font-bold uppercase tracking-[0.18em] text-gold">
+              Так это работает у выпускников
+            </span>
+            <div className="w-10 h-px bg-gradient-to-l from-transparent to-gold/60" />
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {FLOATING_COMMENTS.map((c) => (
+              <div
+                key={c.name}
+                className={`bg-navy-900/85 backdrop-blur-md border ${c.accent} rounded-2xl p-6 shadow-[0_18px_50px_rgba(0,0,0,0.5)]`}
+              >
+                <CommentBody c={c} />
+              </div>
+            ))}
           </div>
         </div>
       </div>

@@ -6,9 +6,12 @@ const NAVI_BASE_URL = "https://api.navy/v1";
 
 // TTS is expensive — 10 requests per minute per IP
 const limiter = createRateLimiter("tts", { limit: 10, windowSeconds: 60 });
+// Global backstop: hard cap on total TTS calls per minute regardless of IP.
+// Protects the paid API budget against IP spoofing / distributed abuse.
+const globalLimiter = createRateLimiter("tts-global", { limit: 100, windowSeconds: 60 });
 
 export async function POST(req: NextRequest) {
-  // Rate limit check
+  // Rate limit check (per-IP, then global)
   const ip = getClientIP(req);
   const rl = limiter.check(ip);
   if (!rl.allowed) {
@@ -17,6 +20,16 @@ export async function POST(req: NextRequest) {
       {
         status: 429,
         headers: { "Retry-After": String(rl.retryAfterSeconds) },
+      },
+    );
+  }
+  const grl = globalLimiter.check("global");
+  if (!grl.allowed) {
+    return NextResponse.json(
+      { error: "Сервис временно перегружен. Попробуйте позже." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(grl.retryAfterSeconds) },
       },
     );
   }

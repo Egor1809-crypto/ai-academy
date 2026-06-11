@@ -7,6 +7,33 @@ import { EXPERTS } from "@/data/content";
 const frontman = EXPERTS.find((e) => e.isFounder)!;
 const experts = EXPERTS.filter((e) => !e.isFounder);
 
+const PHILOSOPHY =
+  "AI не заменит юриста. Но юрист, владеющий AI, заменит того, кто им не владеет. Мы учим не просто пользоваться нейросетями — мы учим думать на языке AI и применять его как стратегическое преимущество.";
+
+/* Цитата-философия основателя — отдельный «слой» поверх блока Димы. */
+function PhilosophyLayer({ className = "" }: { className?: string }) {
+  return (
+    <div
+      className={`bg-navy-900/95 backdrop-blur-md border border-gold/25 rounded-2xl p-8 shadow-[0_22px_60px_rgba(0,0,0,0.55)] ${className}`}
+    >
+      <div className="inline-flex items-center gap-2 px-3 py-1 bg-gold/10 border border-gold/20 mb-5">
+        <span className="text-gold text-[11px] font-mono uppercase tracking-widest">
+          Наша философия
+        </span>
+      </div>
+      <svg className="w-9 h-9 text-gold/40 mb-3" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311C9.591 11.69 11 13.207 11 15c0 1.855-1.5 3.4-3.407 3.4-1.084 0-2.126-.488-3.01-1.079zM14.583 17.321C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311C19.591 11.69 21 13.207 21 15c0 1.855-1.5 3.4-3.407 3.4-1.084 0-2.126-.488-3.01-1.079z" />
+      </svg>
+      <blockquote className="text-base md:text-lg font-heading font-medium text-white/90 leading-relaxed mb-4 italic">
+        {PHILOSOPHY}
+      </blockquote>
+      <div className="w-10 h-px bg-gold/40 mb-3" />
+      <p className="text-gold text-sm font-bold">{frontman.name}</p>
+      <p className="text-gray-500 text-xs font-mono mt-0.5">Основатель AI Legal</p>
+    </div>
+  );
+}
+
 function CornerSVGs({ className }: { className?: string }) {
   return (
     <>
@@ -66,11 +93,11 @@ export default function Experts() {
 
         {/* Frontman — featured horizontal card */}
         <ScrollReveal direction="up" delay={0}>
-          <div className="group mb-10">
+          <div className="group mb-10 relative">
             <span className="font-mono text-xs text-gray-600 mb-2 block">01</span>
-            <div className="relative flex flex-col md:flex-row bg-navy-800 border border-white/10 overflow-hidden hover:border-gold/40 hover:shadow-[0_0_30px_rgba(0,207,255,0.15)] hover:-translate-y-1 transition-all duration-500">
+            <div className="relative flex flex-col md:flex-row bg-navy-800 border border-white/10 overflow-hidden hover:border-gold/40 hover:shadow-[0_0_30px_rgba(0,207,255,0.15)] hover:-translate-y-1 transition-all duration-500 lg:pr-[21rem] xl:pr-[24rem] lg:min-h-[540px]">
               {/* Left: photo */}
-              <div className="relative w-full md:w-80 aspect-square md:aspect-auto md:min-h-[320px] bg-navy-700 shrink-0 overflow-hidden">
+              <div className="relative w-full md:w-80 aspect-square md:aspect-auto md:min-h-[320px] lg:min-h-[540px] bg-navy-700 shrink-0 overflow-hidden">
                 <CornerSVGs />
                 <div className="absolute inset-0 bg-gradient-to-br from-gold/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
                 <Image
@@ -109,6 +136,12 @@ export default function Experts() {
                 </div>
               </div>
             </div>
+
+            {/* Философия как слой — поверх правой части блока Димы (lg+) */}
+            <PhilosophyLayer className="hidden lg:block absolute top-1/2 -translate-y-1/2 right-5 xl:right-4 w-[19rem] xl:w-[21rem] z-30 rotate-1" />
+
+            {/* На мобильных — той же цитатой, но обычным блоком под карточкой */}
+            <PhilosophyLayer className="lg:hidden mt-6" />
           </div>
         </ScrollReveal>
 

@@ -9,14 +9,77 @@ datasource db {
 
 model Lead {
   id        Int      @id @default(autoincrement())
-  name      String
-  phone     String
-  email     String?
-  tariff    String
-  comment   String?
-  status    String   @default("new")
+  name      String   @db.VarChar(100)
+  phone     String   @db.VarChar(20)
+  email     String?  @db.VarChar(200)
+  tariff    String   @db.VarChar(50)
+  comment   String?  @db.VarChar(1000)
+  status    String   @default("new") @db.VarChar(20)
+  source    String?  @db.VarChar(40)
+  userId    Int?     @map("user_id")
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([userId])
   @@map("leads")
+}
+
+// Registered users — can sign in via email/password and/or Telegram.
+model User {
+  id               Int       @id @default(autoincrement())
+  email            String?   @unique @db.VarChar(200)
+  passwordHash     String?   @map("password_hash") @db.VarChar(255)
+  name             String    @db.VarChar(100)
+  phone            String?   @db.VarChar(20)
+  telegramId       String?   @unique @map("telegram_id") @db.VarChar(32)
+  telegramUsername String?   @map("telegram_username") @db.VarChar(64)
+  tariff           String?   @db.VarChar(50)
+  role             String    @default("user") @db.VarChar(20)
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  sessions         Session[]
+  leads            Lead[]
+
+  @@map("users")
+}
+
+// Server-side sessions. The opaque token id lives in an httpOnly cookie.
+model Session {
+  id        String   @id @db.VarChar(64)
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+// One-time codes for the "Login via Telegram" deep-link flow.
+model AuthCode {
+  code             String    @id @db.VarChar(48)
+  telegramId       String?   @map("telegram_id") @db.VarChar(32)
+  telegramUsername String?   @map("telegram_username") @db.VarChar(64)
+  firstName        String?   @map("first_name") @db.VarChar(100)
+  confirmedAt      DateTime? @map("confirmed_at")
+  consumedAt       DateTime? @map("consumed_at")
+  expiresAt        DateTime  @map("expires_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  @@map("auth_codes")
+}
+
+// Broadcast queue: web admin enqueues, the bot polls + delivers to all users.
+model Broadcast {
+  id          Int       @id @default(autoincrement())
+  message     String    @db.VarChar(4000)
+  status      String    @default("pending") @db.VarChar(20)
+  sentCount   Int       @default(0) @map("sent_count")
+  failedCount Int       @default(0) @map("failed_count")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  sentAt      DateTime? @map("sent_at")
+
+  @@index([status])
+  @@map("broadcasts")
 }

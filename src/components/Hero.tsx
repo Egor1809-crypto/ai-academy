@@ -18,6 +18,10 @@ const ManyashaEffects = dynamic(() => import("./ManyashaEffects"), {
   ssr: false,
 });
 
+const ManyashaOrbit = dynamic(() => import("./ManyashaOrbit"), {
+  ssr: false,
+});
+
 export default function Hero() {
   const [spotsLeft, setSpotsLeft] = useState<number | null>(null);
 
@@ -38,7 +42,7 @@ export default function Hero() {
       : "Набор открыт — загрузка...";
 
   return (
-    <section className="relative pt-20 pb-20 overflow-x-clip">
+    <section className="relative pt-32 lg:pt-40 pb-20 overflow-x-clip">
       <div className="absolute inset-0 bg-navy-900 z-0" />
       <div className="absolute inset-0 bg-tech-grid z-0" />
       <ParticleBackground />
@@ -50,7 +54,7 @@ export default function Hero() {
       <div className="max-w-[1440px] mx-auto px-6 relative z-10 w-full">
         <div className="grid lg:grid-cols-[1fr_1.4fr] gap-12 lg:gap-0 items-center">
           <div className="text-left">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-[4.5rem] font-bold leading-[1.08] mb-8 tracking-tight">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-[3.75rem] font-bold leading-[1.1] mb-8 tracking-tight">
               <span className="block text-white">Нейросети</span>
               <span className="block text-white">для юристов:</span>
               <span className="block text-gradient-gold mt-2">работайте быстрее</span>
@@ -73,8 +77,8 @@ export default function Hero() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 items-start mb-8 mt-10">
-              <Link
-                href="/tariffs"
+              <a
+                href="#tariffs"
                 className="relative group px-10 py-4 bg-linear-to-r from-cyber-purple to-gold text-white font-heading font-bold uppercase tracking-widest text-base rounded-full overflow-hidden glow-purple transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,0,122,0.6)] hover:-translate-y-0.5"
               >
                 <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
@@ -84,7 +88,7 @@ export default function Hero() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
                 </span>
-              </Link>
+              </a>
               <Link
                 href="/program"
                 className="px-10 py-4 border border-white/20 text-white font-heading font-bold uppercase tracking-widest text-base rounded-full hover:border-gold hover:text-gold transition-all duration-300 backdrop-blur-sm"
@@ -105,17 +109,21 @@ export default function Hero() {
             {/* Visual effects around Manyasha */}
             <ManyashaEffects />
 
-            <div className="mascot-float relative z-10 w-full">
-              <Manyasha
-                size="hero"
-                hoverSpeech="Привет! Я Маняша — твой AI-помощник по юридическим нейросетям!"
-                pages={[
-                  { label: "О курсе", href: "/about", speech: "Расскажу всё о нашем курсе!" },
-                  { label: "Программа", href: "/program", speech: "Покажу программу обучения..." },
-                  { label: "Эксперты", href: "/experts", speech: "Познакомлю с нашими спикерами!" },
-                  { label: "Тарифы", href: "/tariffs", speech: "Подберём подходящий тариф!" },
-                ]}
-              />
+            <div className="mascot-float relative z-10 w-full scale-110 lg:scale-125 translate-y-10 lg:translate-y-16 origin-center">
+              <ManyashaOrbit />
+
+              <div className="relative z-10">
+                <Manyasha
+                  size="hero"
+                  hoverSpeech="Привет! Я Маняша — твой AI-помощник по юридическим нейросетям!"
+                  pages={[
+                    { label: "О курсе", href: "/about", speech: "Расскажу всё о нашем курсе!" },
+                    { label: "Программа", href: "/program", speech: "Покажу программу обучения..." },
+                    { label: "Эксперты", href: "/experts", speech: "Познакомлю с нашими спикерами!" },
+                    { label: "Тарифы", href: "/tariffs", speech: "Подберём подходящий тариф!" },
+                  ]}
+                />
+              </div>
             </div>
           </div>
         </div>

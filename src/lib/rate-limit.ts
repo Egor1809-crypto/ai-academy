@@ -84,16 +84,35 @@ export function createRateLimiter(name: string, options: RateLimiterOptions) {
 }
 
 /**
- * Extract client IP from Next.js request.
- * Checks x-forwarded-for (reverse proxy), x-real-ip, then falls back to "unknown".
+ * Number of trusted reverse proxies in front of the app.
+ * x-forwarded-for is a client-appendable chain: a request arrives as
+ *   [spoofed values from client...] , [real client IP added by our edge] , [internal hops]
+ * so the genuine client IP is the Nth-from-the-right entry, where N = trusted hops.
+ * Configure via TRUSTED_PROXY_HOPS (default 1 — a single edge proxy like Vercel/nginx).
+ * Reading the rightmost trusted hop prevents clients from spoofing arbitrary IPs
+ * to win a fresh rate-limit bucket on every request.
+ */
+const TRUSTED_PROXY_HOPS = Math.max(1, Number(process.env.TRUSTED_PROXY_HOPS ?? 1));
+
+/**
+ * Extract client IP from a Next.js request.
+ * Trusts only the rightmost N entries of x-forwarded-for (N = TRUSTED_PROXY_HOPS),
+ * since everything to the left can be forged by the client.
  */
 export function getClientIP(req: Request): string {
   const forwarded = req.headers.get("x-forwarded-for");
   if (forwarded) {
-    // x-forwarded-for can be comma-separated; first is the client
-    return forwarded.split(",")[0].trim();
+    const parts = forwarded
+      .split(",")
+      .map((p) => p.trim())
+      .filter(Boolean);
+    if (parts.length > 0) {
+      // Take the entry our own trusted proxy appended (Nth from the right).
+      const idx = Math.max(0, parts.length - TRUSTED_PROXY_HOPS);
+      return parts[idx];
+    }
   }
   const realIp = req.headers.get("x-real-ip");
-  if (realIp) return realIp;
+  if (realIp) return realIp.trim();
   return "unknown";
 }

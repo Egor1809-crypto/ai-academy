@@ -3,44 +3,8 @@
 export default function ManyashaEffects() {
   return (
     <div className="absolute inset-0 pointer-events-none z-20" aria-hidden>
-      {/* ── Orbiting ring ── */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] aspect-square">
-        <div
-          className="absolute inset-0 rounded-full border border-cyan-400/15"
-          style={{ animation: "orbit-spin 20s linear infinite" }}
-        />
-        {/* Orbiting dot 1 */}
-        <div
-          className="absolute w-2.5 h-2.5 bg-cyan-400 rounded-full shadow-[0_0_12px_rgba(0,207,255,0.7)]"
-          style={{
-            top: "0%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            animation: "orbit-spin 20s linear infinite",
-          }}
-        />
-        {/* Orbiting dot 2 (opposite side, slower) */}
-        <div
-          className="absolute w-2 h-2 bg-purple-400 rounded-full shadow-[0_0_10px_rgba(168,85,247,0.7)]"
-          style={{
-            bottom: "0%",
-            left: "50%",
-            transform: "translate(-50%, 50%)",
-            animation: "orbit-spin 20s linear infinite reverse",
-          }}
-        />
-      </div>
-
-      {/* ── Second orbit ring (tilted via perspective) ── */}
-      <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] aspect-square"
-        style={{ transform: "translate(-50%, -50%) rotateX(60deg)" }}
-      >
-        <div
-          className="absolute inset-0 rounded-full border border-purple-500/10"
-          style={{ animation: "orbit-spin 15s linear infinite reverse" }}
-        />
-      </div>
+      {/* Orbit/radar moved into ManyashaOrbit (rendered around the mascot so it
+          stays perfectly centered on her). */}
 
       {/* ── Floating tech labels (like ChainGPT) ── */}
 

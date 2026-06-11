@@ -28,9 +28,23 @@ const BOT_TOKEN = env.BOT_TOKEN;
 const SITE_URL = env.SITE_URL || "https://ailegal.ru";
 const API_URL = env.API_URL || "http://localhost:3099";
 const ADMIN_CHAT_ID = env.ADMIN_CHAT_ID || "";
+const ADMIN_PASSWORD = env.ADMIN_PASSWORD || "";
 const NAVI_API_KEY = env.NAVI_API_KEY || "";
 const NAVI_BASE_URL = "https://api.navy/v1";
 const AI_MODEL = "deepseek-chat";
+const MAX_AI_INPUT = 1000; // cap user text forwarded to the paid LLM
+
+/**
+ * Escape user-controlled text before embedding it in a Telegram
+ * parse_mode:"HTML" message. Without this, a user's name/message containing
+ * <, >, & can break formatting or inject clickable links into the admin chat.
+ */
+function esc(s) {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
 
 const DATA_DIR = resolve(__dirname, "data");
 const USERS_FILE = resolve(DATA_DIR, "users.json");
@@ -56,7 +70,8 @@ function loadUsers() {
 
 function saveUsers(users) {
   try {
-    writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), "utf-8");
+    // mode 0o600 — readable/writable by the bot's user only (contains PII)
+    writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), { encoding: "utf-8", mode: 0o600 });
   } catch (e) {
     console.error("[UserStore] Failed to save users.json:", e.message);
   }
@@ -522,6 +537,59 @@ async function notifyAdmin(text) {
 }
 
 // ─────────────────────────────────────────────────────────────
+// SITE LOGIN: "Войти через Telegram" deep-link confirmation
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * The site opens t.me/<bot>?start=auth_<code>. When the user presses Start we
+ * confirm their Telegram identity to the site over the shared ADMIN_PASSWORD
+ * secret; the site then logs the waiting browser in.
+ */
+async function handleTelegramAuth(ctx, code) {
+  const from = ctx.from;
+  if (!ADMIN_PASSWORD) {
+    await ctx.reply(
+      "⚠️ Вход через сайт временно недоступен. Сообщите администратору.",
+    );
+    return;
+  }
+  try {
+    const res = await fetch(`${API_URL}/api/auth/telegram/confirm`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-password": ADMIN_PASSWORD,
+      },
+      body: JSON.stringify({
+        code,
+        telegramId: String(from?.id ?? ""),
+        telegramUsername: from?.username || "",
+        firstName: from?.first_name || "",
+      }),
+    });
+
+    if (res.ok) {
+      await ctx.reply(
+        `✅ <b>Вход подтверждён!</b>\n\n` +
+          `Вернитесь на сайт — личный кабинет уже открыт. 🪆`,
+        { parse_mode: "HTML", reply_markup: mainKeyboard() },
+      );
+    } else if (res.status === 410) {
+      await ctx.reply(
+        "⏳ Ссылка для входа устарела. Откройте сайт и нажмите «Войти через Telegram» заново.",
+      );
+    } else {
+      await ctx.reply(
+        "⚠️ Не удалось подтвердить вход. Попробуйте ещё раз с сайта.",
+      );
+    }
+  } catch (e) {
+    console.error("[TelegramAuth] Failed:", e.message);
+    await ctx.reply("⚠️ Сервер сайта недоступен. Попробуйте позже.");
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
 // SET BOT COMMANDS
 // ─────────────────────────────────────────────────────────────
 
@@ -548,7 +616,14 @@ async function setBotCommands() {
 // ─────────────────────────────────────────────────────────────
 
 bot.command("start", async (ctx) => {
-  const name = ctx.from?.first_name || "друг";
+  // Deep-link payload after /start (e.g. "auth_<code>" for site login)
+  const payload = typeof ctx.match === "string" ? ctx.match.trim() : "";
+  if (payload.startsWith("auth_")) {
+    await handleTelegramAuth(ctx, payload.slice(5));
+    return;
+  }
+
+  const name = esc(ctx.from?.first_name) || "друг";
 
   const welcomeText =
     `Добро пожаловать, <b>${name}</b>! 👋\n\n` +
@@ -984,7 +1059,9 @@ bot.command("admin", async (ctx) => {
   let todayLeads = 0;
   let totalLeads = 0;
   try {
-    const res = await fetch(`${API_URL}/api/leads`);
+    const res = await fetch(`${API_URL}/api/leads`, {
+      headers: { "x-admin-password": ADMIN_PASSWORD },
+    });
     if (res.ok) {
       const data = await res.json();
       const leads = Array.isArray(data) ? data : (data.leads || []);
@@ -1026,7 +1103,9 @@ bot.command("stats", async (ctx) => {
 
   let totalLeads = 0;
   try {
-    const res = await fetch(`${API_URL}/api/leads`);
+    const res = await fetch(`${API_URL}/api/leads`, {
+      headers: { "x-admin-password": ADMIN_PASSWORD },
+    });
     if (res.ok) {
       const data = await res.json();
       const leads = Array.isArray(data) ? data : (data.leads || []);
@@ -1089,7 +1168,8 @@ bot.command("broadcast", async (ctx) => {
 // ─────────────────────────────────────────────────────────────
 
 bot.on("message:text", async (ctx) => {
-  const text = ctx.message.text;
+  // Cap length before anything is forwarded to the paid LLM.
+  const text = ctx.message.text.slice(0, MAX_AI_INPUT);
 
   // ── Manyasha AI chat mode ──
   if (ctx.session.step === "manyasha_chat") {
@@ -1107,7 +1187,8 @@ bot.on("message:text", async (ctx) => {
         ctx.session.chatHistory = ctx.session.chatHistory.slice(-20);
       }
 
-      await ctx.reply(`🪆 ${reply}`, { parse_mode: "HTML" });
+      // LLM output is untrusted formatting — send as plain text (no parse_mode).
+      await ctx.reply(`🪆 ${reply}`);
     } else {
       await ctx.reply(
         "🪆 Извини, не могу подключиться к серверу. Попробуй позже или используй команды бота! 🔌"
@@ -1123,7 +1204,7 @@ bot.on("message:text", async (ctx) => {
       await ctx.replyWithChatAction("typing");
       const reply = await askManyashaAI(text, []);
       if (reply) {
-        await ctx.reply(`🪆 ${reply}\n\n<i>Совет: нажми «🪆 Спросить Маняшу» для полноценного диалога!</i>`, {
+        await ctx.reply(`🪆 ${esc(reply)}\n\n<i>Совет: нажми «🪆 Спросить Маняшу» для полноценного диалога!</i>`, {
           parse_mode: "HTML",
         });
         return;
@@ -1165,10 +1246,10 @@ bot.on("message:text", async (ctx) => {
     // Notify admin
     await notifyAdmin(
       `🔔 <b>Новый лид (гайд)</b>\n\n` +
-        `👤 ${ctx.session.data.name}\n` +
-        `📱 ${ctx.session.data.phone}\n` +
-        `📱 Telegram: @${ctx.from?.username || "нет"}\n` +
-        `🆔 ID: ${ctx.from?.id}`
+        `👤 ${esc(ctx.session.data.name)}\n` +
+        `📱 ${esc(ctx.session.data.phone)}\n` +
+        `📱 Telegram: @${esc(ctx.from?.username || "нет")}\n` +
+        `🆔 ID: ${esc(ctx.from?.id)}`
     );
 
     // Send the guide
@@ -1267,21 +1348,21 @@ async function submitLead(ctx) {
   // Notify admin
   await notifyAdmin(
     `🔔 <b>Новая заявка</b>\n\n` +
-      `👤 ${name}\n` +
-      `📱 ${phone}\n` +
-      `${email ? `📧 ${email}\n` : ""}` +
-      `💼 ${label}\n` +
-      `📱 Telegram: @${ctx.from?.username || "нет"}\n` +
-      `🆔 ID: ${ctx.from?.id}`
+      `👤 ${esc(name)}\n` +
+      `📱 ${esc(phone)}\n` +
+      `${email ? `📧 ${esc(email)}\n` : ""}` +
+      `💼 ${esc(label)}\n` +
+      `📱 Telegram: @${esc(ctx.from?.username || "нет")}\n` +
+      `🆔 ID: ${esc(ctx.from?.id)}`
   );
 
   await ctx.reply(
     `✅ <b>Заявка отправлена!</b>\n\n` +
       `──────────────────────────\n\n` +
-      `👤 <b>Имя:</b> ${name}\n` +
-      `📱 <b>Телефон:</b> ${phone}\n` +
-      `${email ? `📧 <b>Email:</b> ${email}\n` : ""}` +
-      `💼 <b>Продукт:</b> ${label}\n\n` +
+      `👤 <b>Имя:</b> ${esc(name)}\n` +
+      `📱 <b>Телефон:</b> ${esc(phone)}\n` +
+      `${email ? `📧 <b>Email:</b> ${esc(email)}\n` : ""}` +
+      `💼 <b>Продукт:</b> ${esc(label)}\n\n` +
       `──────────────────────────\n\n` +
       `Наш менеджер свяжется с вами в ближайшее время! 🚀`,
     { parse_mode: "HTML", reply_markup: mainKeyboard() }
@@ -1304,6 +1385,59 @@ bot.catch((err) => {
 // START
 // ─────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────
+// BROADCAST QUEUE POLLER — delivers broadcasts enqueued from the web admin
+// ─────────────────────────────────────────────────────────────
+
+let broadcastPolling = false;
+
+async function pollBroadcastQueue() {
+  if (broadcastPolling || !ADMIN_PASSWORD) return;
+  broadcastPolling = true;
+  try {
+    const res = await fetch(`${API_URL}/api/bot/broadcasts`, {
+      headers: { "x-admin-password": ADMIN_PASSWORD },
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    const b = data.broadcast;
+    if (!b || !b.message) return;
+
+    const chatIds = getAllChatIds();
+    let sent = 0;
+    let failed = 0;
+    for (const chatId of chatIds) {
+      try {
+        await bot.api.sendMessage(chatId, b.message, { parse_mode: "HTML" });
+        sent++;
+      } catch (e) {
+        failed++;
+      }
+      // Stay well under Telegram's ~30 msg/s broadcast limit.
+      await new Promise((r) => setTimeout(r, 40));
+    }
+
+    await fetch(`${API_URL}/api/bot/broadcasts`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-password": ADMIN_PASSWORD,
+      },
+      body: JSON.stringify({ id: b.id, sentCount: sent, failedCount: failed }),
+    });
+
+    await notifyAdmin(
+      `📤 <b>Рассылка с сайта доставлена</b>\n\n✅ Доставлено: ${sent}\n❌ Ошибки: ${failed}`,
+    );
+  } catch (e) {
+    console.error("[BroadcastPoll] Failed:", e.message);
+  } finally {
+    broadcastPolling = false;
+  }
+}
+
+setInterval(pollBroadcastQueue, 15000);
+
 await setBotCommands();
 
 bot.start({
@@ -1311,6 +1445,6 @@ bot.start({
     console.log(`\n🤖 Bot @${info.username} started successfully`);
     console.log(`   Site: ${SITE_URL}`);
     console.log(`   API:  ${API_URL}`);
-    console.log(`   Admin: ${ADMIN_CHAT_ID || "not set"}\n`);
+    console.log(`   Admin: ${ADMIN_CHAT_ID ? "configured" : "not set"}\n`);
   },
 });

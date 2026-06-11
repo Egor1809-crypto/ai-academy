@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Inter } from "next/font/google";
+import { Space_Grotesk, Inter, Lora } from "next/font/google";
 import ScrollProgress from "@/components/ScrollProgress";
 import ManyashaChat from "@/components/ManyashaChat";
+import ParticlesInit from "@/components/ParticlesInit";
 import JsonLd from "@/components/JsonLd";
 import "./globals.css";
 
@@ -16,6 +17,15 @@ const inter = Inter({
   subsets: ["latin", "latin-ext", "cyrillic"],
   weight: ["300", "400", "500", "600"],
   variable: "--font-inter",
+  display: "swap",
+});
+
+// Редакторский serif для «досье»-заголовков
+const lora = Lora({
+  subsets: ["latin", "latin-ext", "cyrillic"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-lora",
   display: "swap",
 });
 
@@ -90,15 +100,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ru" className={`scroll-smooth ${spaceGrotesk.variable} ${inter.variable}`}>
+    <html lang="ru" className={`scroll-smooth ${spaceGrotesk.variable} ${inter.variable} ${lora.variable}`}>
       <head>
         <link rel="icon" href="/favicon.jpg" type="image/jpeg" />
         <JsonLd />
       </head>
       <body className="antialiased selection:bg-gold selection:text-navy-900">
-        <ScrollProgress />
-        {children}
-        <ManyashaChat />
+        <ParticlesInit>
+          <ScrollProgress />
+          {children}
+          <ManyashaChat />
+        </ParticlesInit>
       </body>
     </html>
   );

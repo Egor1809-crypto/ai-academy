@@ -25,7 +25,11 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const leadsCount = await prisma.lead.count();
+    // Count only leads that actually occupy a spot — exclude rejected ones so
+    // refusals/spam don't artificially close the course on the landing page.
+    const leadsCount = await prisma.lead.count({
+      where: { status: { not: "rejected" } },
+    });
     const spotsLeft = Math.max(0, TOTAL_SPOTS - leadsCount);
 
     return NextResponse.json(

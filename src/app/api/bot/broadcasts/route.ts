@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { isAdminRequest } from "@/lib/admin";
+import { isBotRequest } from "@/lib/admin";
+import { bodyTooLarge } from "@/lib/security";
 
 /**
  * Bot-facing broadcast queue. The bot polls GET to claim the next pending
@@ -9,29 +10,31 @@ import { isAdminRequest } from "@/lib/admin";
  */
 
 export async function GET(req: NextRequest) {
-  if (!isAdminRequest(req)) {
+  if (!isBotRequest(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
-    // Claim the oldest pending broadcast in a transaction to avoid double send.
-    const claimed = await prisma.$transaction(async (tx) => {
-      const next = await tx.broadcast.findFirst({
-        where: { status: "pending" },
-        orderBy: { createdAt: "asc" },
-      });
-      if (!next) return null;
-      await tx.broadcast.update({
-        where: { id: next.id },
-        data: { status: "sending" },
-      });
-      return next;
+    // Find the oldest pending broadcast, then ATOMICALLY claim it via a
+    // conditional updateMany: only the request whose update actually flips a
+    // still-"pending" row (count === 1) wins. Concurrent pollers / retries that
+    // lose the race get count === 0 and back off — prevents double-send.
+    const next = await prisma.broadcast.findFirst({
+      where: { status: "pending" },
+      orderBy: { createdAt: "asc" },
     });
-
-    if (!claimed) {
+    if (!next) {
       return NextResponse.json({ broadcast: null });
     }
-    return NextResponse.json({ broadcast: { id: claimed.id, message: claimed.message } });
+    const claim = await prisma.broadcast.updateMany({
+      where: { id: next.id, status: "pending" },
+      data: { status: "sending" },
+    });
+    if (claim.count !== 1) {
+      // Another poller claimed it first — nothing to do this round.
+      return NextResponse.json({ broadcast: null });
+    }
+    return NextResponse.json({ broadcast: { id: next.id, message: next.message } });
   } catch (error) {
     console.error("Bot broadcast claim error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
@@ -39,8 +42,11 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!isAdminRequest(req)) {
+  if (!isBotRequest(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (bodyTooLarge(req, 8 * 1024)) {
+    return NextResponse.json({ error: "Payload too large" }, { status: 413 });
   }
 
   try {
@@ -51,8 +57,10 @@ export async function POST(req: NextRequest) {
     if (!Number.isInteger(id)) {
       return NextResponse.json({ error: "Invalid id" }, { status: 400 });
     }
-    await prisma.broadcast.update({
-      where: { id },
+    // Only finalize a broadcast that is actually in-flight ("sending") — guards
+    // against a stray report flipping an arbitrary row to "sent".
+    const res = await prisma.broadcast.updateMany({
+      where: { id, status: "sending" },
       data: {
         status: "sent",
         sentCount: Number.isFinite(sentCount) ? sentCount : 0,
@@ -60,6 +68,9 @@ export async function POST(req: NextRequest) {
         sentAt: new Date(),
       },
     });
+    if (res.count !== 1) {
+      return NextResponse.json({ error: "Broadcast not in sending state" }, { status: 409 });
+    }
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Bot broadcast report error:", error);

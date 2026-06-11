@@ -37,3 +37,22 @@ export function isValidPhone(phone: string): boolean {
 export function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
+
+/**
+ * Reject oversized request bodies BEFORE buffering/parsing them.
+ * Guards against memory-exhaustion DoS via huge JSON payloads.
+ * Returns true if the declared Content-Length exceeds maxBytes.
+ */
+export function bodyTooLarge(req: Request, maxBytes: number): boolean {
+  const raw = req.headers.get("content-length");
+  if (!raw) return false; // length unknown — per-field caps still apply downstream
+  const len = Number(raw);
+  return Number.isFinite(len) && len > maxBytes;
+}
+
+/**
+ * Normalize a phone number to digits only (for dedup / comparison).
+ */
+export function normalizePhone(phone: string): string {
+  return phone.replace(/\D/g, "");
+}

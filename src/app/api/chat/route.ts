@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MANYASHA_PROMPT_SITE } from "@/data/content";
 import { createRateLimiter, getClientIP } from "@/lib/rate-limit";
+import { bodyTooLarge } from "@/lib/security";
 
 const NAVI_API_KEY = process.env.NAVI_API_KEY;
 const NAVI_BASE_URL = "https://api.navy/v1";
@@ -45,6 +46,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  if (bodyTooLarge(req, 32 * 1024)) {
+    return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+  }
+
   try {
     const body = await req.json();
     const { messages } = body;
@@ -55,9 +60,15 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
     }
+    // Reject absurdly long arrays BEFORE any per-item work — avoids an O(n)
+    // validation loop blocking the event loop on a malicious huge payload.
+    if (messages.length > 50) {
+      return NextResponse.json({ error: "Too many messages" }, { status: 400 });
+    }
 
-    // Validate message structure
-    for (const msg of messages) {
+    // Only the last 10 are ever sent to the LLM — validate just those.
+    const recent = messages.slice(-10);
+    for (const msg of recent) {
       if (
         typeof msg !== "object" ||
         !msg ||
@@ -72,10 +83,10 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Limit history to last 10 messages to save tokens
-    const trimmedMessages = messages.slice(-10).map((m: { role: string; content: string }) => ({
+    // Cap individual message length to save tokens / bound payload.
+    const trimmedMessages = recent.map((m: { role: string; content: string }) => ({
       role: m.role,
-      content: m.content.slice(0, 2000), // cap individual message length
+      content: m.content.slice(0, 2000),
     }));
 
     const response = await fetch(`${NAVI_BASE_URL}/chat/completions`, {

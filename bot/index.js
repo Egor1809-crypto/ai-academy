@@ -13,7 +13,16 @@ import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const envFile = readFileSync(resolve(__dirname, ".env"), "utf-8");
+// Fail fast with a clear message if the env file is missing/unreadable, instead
+// of crash-looping under PM2 with an opaque ENOENT.
+let envFile;
+try {
+  envFile = readFileSync(resolve(__dirname, ".env"), "utf-8");
+} catch (e) {
+  console.error(`[FATAL] Не удалось прочитать bot/.env: ${e.message}`);
+  console.error("Создайте bot/.env с BOT_TOKEN, SITE_URL, API_URL, ADMIN_CHAT_ID и т.д.");
+  process.exit(1);
+}
 const env = Object.fromEntries(
   envFile
     .split("\n")
@@ -25,14 +34,50 @@ const env = Object.fromEntries(
 );
 
 const BOT_TOKEN = env.BOT_TOKEN;
-const SITE_URL = env.SITE_URL || "https://ailegal.ru";
+const SITE_URL = env.SITE_URL;
 const API_URL = env.API_URL || "http://localhost:3099";
 const ADMIN_CHAT_ID = env.ADMIN_CHAT_ID || "";
 const ADMIN_PASSWORD = env.ADMIN_PASSWORD || "";
+// Dedicated server-to-server secret for bot→site calls. Falls back to
+// ADMIN_PASSWORD for a zero-downtime transition until BOT_SHARED_SECRET is set
+// in both envs (site reads it via isBotRequest()).
+const BOT_SHARED_SECRET = env.BOT_SHARED_SECRET || ADMIN_PASSWORD;
 const NAVI_API_KEY = env.NAVI_API_KEY || "";
 const NAVI_BASE_URL = "https://api.navy/v1";
 const AI_MODEL = "deepseek-chat";
 const MAX_AI_INPUT = 1000; // cap user text forwarded to the paid LLM
+
+// Fail fast on missing critical config rather than running with broken buttons.
+const __missing = [];
+if (!BOT_TOKEN) __missing.push("BOT_TOKEN");
+if (!SITE_URL) __missing.push("SITE_URL");
+if (__missing.length) {
+  console.error(`[FATAL] Отсутствуют обязательные переменные в bot/.env: ${__missing.join(", ")}`);
+  process.exit(1);
+}
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Per-user sliding-window rate limit for PAID LLM calls — protects the API
+// budget from a single user/bot spamming the free-form chat fallback.
+const __aiCalls = new Map(); // userId -> number[] (timestamps)
+function aiRateLimitOk(userId, limit = 10, windowMs = 60_000) {
+  const now = Date.now();
+  const arr = (__aiCalls.get(userId) || []).filter((t) => now - t < windowMs);
+  if (arr.length >= limit) {
+    __aiCalls.set(userId, arr);
+    return false;
+  }
+  arr.push(now);
+  __aiCalls.set(userId, arr);
+  // Opportunistic cleanup to bound memory.
+  if (__aiCalls.size > 5000) {
+    for (const [k, v] of __aiCalls) {
+      if (!v.some((t) => now - t < windowMs)) __aiCalls.delete(k);
+    }
+  }
+  return true;
+}
 
 /**
  * Escape user-controlled text before embedding it in a Telegram
@@ -547,7 +592,7 @@ async function notifyAdmin(text) {
  */
 async function handleTelegramAuth(ctx, code) {
   const from = ctx.from;
-  if (!ADMIN_PASSWORD) {
+  if (!BOT_SHARED_SECRET) {
     await ctx.reply(
       "⚠️ Вход через сайт временно недоступен. Сообщите администратору.",
     );
@@ -558,7 +603,7 @@ async function handleTelegramAuth(ctx, code) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-admin-password": ADMIN_PASSWORD,
+        "x-bot-secret": BOT_SHARED_SECRET,
       },
       body: JSON.stringify({
         code,
@@ -1128,6 +1173,50 @@ bot.command("stats", async (ctx) => {
   );
 });
 
+/**
+ * Send one broadcast message with retry/backoff. Honors Telegram's retry_after
+ * on 429 and retries transient 5xx; treats permanent errors (e.g. 403 — user
+ * blocked the bot) as a non-retryable failure. Returns true on delivery.
+ */
+async function sendBroadcastMessage(chatId, message) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      await bot.api.sendMessage(chatId, message, { parse_mode: "HTML" });
+      return true;
+    } catch (e) {
+      const retryAfter = e?.parameters?.retry_after;
+      const code = e?.error_code;
+      if (retryAfter) {
+        await sleep(retryAfter * 1000 + 250);
+        continue;
+      }
+      if (code === 429 || (code >= 500 && code < 600)) {
+        await sleep(500 * (attempt + 1));
+        continue;
+      }
+      return false; // permanent (blocked/deactivated/etc.)
+    }
+  }
+  return false;
+}
+
+/**
+ * Deliver a message to many chats with throttling (~25 msg/s, under Telegram's
+ * ~30/s limit) and per-message retries. Shared by manual /broadcast and the
+ * web-admin broadcast queue so both behave identically.
+ */
+async function deliverToAll(chatIds, message) {
+  let sent = 0;
+  let failed = 0;
+  for (const chatId of chatIds) {
+    const ok = await sendBroadcastMessage(chatId, message);
+    if (ok) sent++;
+    else failed++;
+    await sleep(40);
+  }
+  return { sent, failed };
+}
+
 bot.command("broadcast", async (ctx) => {
   if (!isAdmin(ctx)) {
     return;
@@ -1142,17 +1231,7 @@ bot.command("broadcast", async (ctx) => {
   }
 
   const chatIds = getAllChatIds();
-  let sent = 0;
-  let failed = 0;
-
-  for (const chatId of chatIds) {
-    try {
-      await bot.api.sendMessage(chatId, text, { parse_mode: "HTML" });
-      sent++;
-    } catch (e) {
-      failed++;
-    }
-  }
+  const { sent, failed } = await deliverToAll(chatIds, text);
 
   await ctx.reply(
     `📤 <b>Рассылка завершена</b>\n\n` +
@@ -1173,6 +1252,10 @@ bot.on("message:text", async (ctx) => {
 
   // ── Manyasha AI chat mode ──
   if (ctx.session.step === "manyasha_chat") {
+    if (!aiRateLimitOk(ctx.from?.id ?? "anon")) {
+      await ctx.reply("🪆 Слишком много сообщений подряд. Подожди минутку 🙏");
+      return;
+    }
     await ctx.replyWithChatAction("typing");
 
     const reply = await askManyashaAI(text, ctx.session.chatHistory || []);
@@ -1201,6 +1284,9 @@ bot.on("message:text", async (ctx) => {
   if (!ctx.session.step) {
     // Only respond to non-empty text that isn't a button label
     if (NAVI_API_KEY && text.length > 1) {
+      if (!aiRateLimitOk(ctx.from?.id ?? "anon")) {
+        return; // silently ignore over-limit free-form spam
+      }
       await ctx.replyWithChatAction("typing");
       const reply = await askManyashaAI(text, []);
       if (reply) {
@@ -1381,6 +1467,15 @@ bot.catch((err) => {
   console.error(`[BotError] Update ${ctx?.update?.update_id}:`, e);
 });
 
+// Last-resort process guards: log instead of letting a stray rejection/throw
+// kill the bot silently (PM2 would crash-loop). Keep the process alive.
+process.on("unhandledRejection", (reason) => {
+  console.error("[unhandledRejection]", reason);
+});
+process.on("uncaughtException", (err) => {
+  console.error("[uncaughtException]", err);
+});
+
 // ─────────────────────────────────────────────────────────────
 // START
 // ─────────────────────────────────────────────────────────────
@@ -1392,11 +1487,11 @@ bot.catch((err) => {
 let broadcastPolling = false;
 
 async function pollBroadcastQueue() {
-  if (broadcastPolling || !ADMIN_PASSWORD) return;
+  if (broadcastPolling || !BOT_SHARED_SECRET) return;
   broadcastPolling = true;
   try {
     const res = await fetch(`${API_URL}/api/bot/broadcasts`, {
-      headers: { "x-admin-password": ADMIN_PASSWORD },
+      headers: { "x-bot-secret": BOT_SHARED_SECRET },
     });
     if (!res.ok) return;
     const data = await res.json();
@@ -1404,24 +1499,14 @@ async function pollBroadcastQueue() {
     if (!b || !b.message) return;
 
     const chatIds = getAllChatIds();
-    let sent = 0;
-    let failed = 0;
-    for (const chatId of chatIds) {
-      try {
-        await bot.api.sendMessage(chatId, b.message, { parse_mode: "HTML" });
-        sent++;
-      } catch (e) {
-        failed++;
-      }
-      // Stay well under Telegram's ~30 msg/s broadcast limit.
-      await new Promise((r) => setTimeout(r, 40));
-    }
+    // Throttled delivery with per-message retries (shared with /broadcast).
+    const { sent, failed } = await deliverToAll(chatIds, b.message);
 
     await fetch(`${API_URL}/api/bot/broadcasts`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-admin-password": ADMIN_PASSWORD,
+        "x-bot-secret": BOT_SHARED_SECRET,
       },
       body: JSON.stringify({ id: b.id, sentCount: sent, failedCount: failed }),
     });

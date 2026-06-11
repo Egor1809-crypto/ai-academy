@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createRateLimiter, getClientIP } from "@/lib/rate-limit";
+import { bodyTooLarge } from "@/lib/security";
 
 const NAVI_API_KEY = process.env.NAVI_API_KEY;
 const NAVI_BASE_URL = "https://api.navy/v1";
@@ -36,6 +37,10 @@ export async function POST(req: NextRequest) {
 
   if (!NAVI_API_KEY) {
     return NextResponse.json({ error: "API key not configured" }, { status: 500 });
+  }
+
+  if (bodyTooLarge(req, 8 * 1024)) {
+    return NextResponse.json({ error: "Payload too large" }, { status: 413 });
   }
 
   try {

@@ -291,6 +291,10 @@ export default function ManyashaChat() {
                 <p className="text-gray-400 text-xs mt-1.5 max-w-[240px] mx-auto leading-relaxed">
                   Помогу разобраться с курсом, программой и тарифами. Спрашивайте!
                 </p>
+                <p className="text-gray-500 text-[10px] mt-2 max-w-[250px] mx-auto leading-relaxed">
+                  Сообщения обрабатываются сторонним AI-сервисом. Не вводите персональные данные
+                  и конфиденциальную информацию.
+                </p>
                 <div className="flex flex-wrap gap-2 justify-center mt-5">
                   {QUICK_QUESTIONS.map((q) => (
                     <button

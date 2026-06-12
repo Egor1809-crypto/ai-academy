@@ -58,6 +58,12 @@ if (__missing.length) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// 152-ФЗ: текст-уведомление о согласии, добавляется в начало флоу сбора заявки.
+// Продолжение флоу (ввод имени) — affirmative action подтверждения согласия.
+const CONSENT_NOTICE =
+  `<i>Продолжая, вы подтверждаете, что вам есть 18 лет, и даёте согласие на обработку ` +
+  `персональных данных. Политика: ${SITE_URL}/legal/privacy</i>`;
+
 // Per-user sliding-window rate limit for PAID LLM calls — protects the API
 // budget from a single user/bot spamming the free-form chat fallback.
 const __aiCalls = new Map(); // userId -> number[] (timestamps)
@@ -714,8 +720,10 @@ bot.callbackQuery("lead_magnet_start", async (ctx) => {
   await ctx.editMessageText(
     `🎁 <b>Бесплатный гайд: 5 промптов для юристов</b>\n\n` +
       `Чтобы отправить вам гайд, мне нужно узнать пару деталей.\n\n` +
+      `Продолжая, вы подтверждаете, что вам есть 18 лет, и даёте согласие на обработку ` +
+      `персональных данных (<a href="${SITE_URL}/legal/privacy">политика</a>).\n\n` +
       `Введите ваше <b>имя</b>:`,
-    { parse_mode: "HTML" }
+    { parse_mode: "HTML", link_preview_options: { is_disabled: true } }
   );
 });
 
@@ -783,8 +791,8 @@ bot.callbackQuery(/^apply_product_/, async (ctx) => {
   ctx.session.step = "name";
   ctx.session.data = { product: product ? product.name : productId };
   await ctx.reply(
-    `📝 <b>Заявка: ${product ? product.name : productId}</b>\n\nВведите ваше <b>имя</b>:`,
-    { parse_mode: "HTML" }
+    `📝 <b>Заявка: ${product ? product.name : productId}</b>\n\n${CONSENT_NOTICE}\n\nВведите ваше <b>имя</b>:`,
+    { parse_mode: "HTML", link_preview_options: { is_disabled: true } }
   );
 });
 
@@ -902,8 +910,8 @@ bot.callbackQuery(/^apply_tariff_/, async (ctx) => {
   ctx.session.step = "name";
   ctx.session.data = { tariff: tariffName };
   await ctx.reply(
-    `📝 <b>Заявка на тариф «${tariffName}»</b>\n\nВведите ваше <b>имя</b>:`,
-    { parse_mode: "HTML" }
+    `📝 <b>Заявка на тариф «${tariffName}»</b>\n\n${CONSENT_NOTICE}\n\nВведите ваше <b>имя</b>:`,
+    { parse_mode: "HTML", link_preview_options: { is_disabled: true } }
   );
 });
 
@@ -1033,8 +1041,9 @@ async function handleApply(ctx) {
     `📝 <b>Заявка на курс AI Legal</b>\n\n` +
       `──────────────────────────\n\n` +
       `Давайте оформим заявку! Это займёт 1 минуту.\n\n` +
+      `${CONSENT_NOTICE}\n\n` +
       `Введите ваше <b>имя</b>:`,
-    { parse_mode: "HTML" }
+    { parse_mode: "HTML", link_preview_options: { is_disabled: true } }
   );
 }
 
@@ -1323,6 +1332,9 @@ bot.on("message:text", async (ctx) => {
           phone: ctx.session.data.phone,
           tariff: "Lead Magnet",
           source: "telegram_bot_guide",
+          // Пользователь подтвердил согласие на старте флоу (см. lead_magnet_start)
+          consent: true,
+          marketingConsent: false,
         }),
       });
     } catch (e) {
@@ -1423,6 +1435,9 @@ async function submitLead(ctx) {
         email,
         tariff: tariff || product || "Не выбрано",
         source: "telegram_bot",
+        // Пользователь подтвердил согласие на старте флоу заявки
+        consent: true,
+        marketingConsent: false,
       }),
     });
 

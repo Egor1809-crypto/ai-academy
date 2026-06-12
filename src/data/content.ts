@@ -8,16 +8,28 @@
 // ── Общие настройки ──────────────────────────────────────────
 
 export const SITE = {
+  // Бренд / коммерческое обозначение курса (для маркетинга и UI)
   name: "AI Legal",
   fullName: "AI Legal Academy",
-  domain: "ailegal.ru",
-  url: "https://ailegal.ru",
+  // Оператор персональных данных / исполнитель по оферте (юрлицо)
+  operator: "ООО «АСПБ»",
+  operatorFull:
+    "Общество с ограниченной ответственностью «АСПБ» (Агентство сопровождения процедур банкротства)",
+  domain: "expertum.pro",
+  url: "https://expertum.pro",
   telegramBot: "https://t.me/ailegal_academy_bot",
-  email: "hello@ailegal.ru",
-  phone: "+7 (495) 123-45-67",
-  address: "Москва, Пресненская наб. 12",
-  inn: "7703123456",
-  ogrn: "1234567890123",
+  email: "bankrotstvo-partner@yandex.ru",
+  phone: "+7 929 653-33-40",
+  // TODO: указать полный юридический адрес (улица, дом, индекс)
+  address: "г. Саратов",
+  city: "Саратов",
+  inn: "6452098049",
+  kpp: "645001001",
+  ogrn: "1126450005406",
+  director: "Лисенкова Юлия Валерьевна",
+  regDate: "10.04.2012",
+  // Дата редакции юридических документов (политика, оферта, согласия)
+  legalRevision: "11.06.2026",
   copyright: `AI Legal ${new Date().getFullYear()}`,
   socials: {
     telegram: "https://t.me/ailegal_academy",

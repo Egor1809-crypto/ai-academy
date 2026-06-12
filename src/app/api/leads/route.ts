@@ -9,6 +9,7 @@ import {
   bodyTooLarge,
   normalizePhone,
 } from "@/lib/security";
+import { SITE } from "@/data/content";
 
 // 5 submissions per 10 minutes per IP — very strict, prevents spam
 const submitLimiter = createRateLimiter("leads-submit", { limit: 5, windowSeconds: 600 });
@@ -41,6 +42,16 @@ export async function POST(req: NextRequest) {
     if (body.website) {
       // Silently accept but don't store — bots think they succeeded
       return NextResponse.json({ success: true });
+    }
+
+    // 152-ФЗ: без явного согласия на обработку ПДн данные принимать нельзя.
+    const consent = body.consent === true;
+    const marketingConsent = body.marketingConsent === true;
+    if (!consent) {
+      return NextResponse.json(
+        { error: "Требуется согласие на обработку персональных данных" },
+        { status: 400 },
+      );
     }
 
     if (!name || !phone || !tariff) {
@@ -101,6 +112,11 @@ export async function POST(req: NextRequest) {
           email: cleanEmail,
           tariff: cleanTariff,
           ...(cleanComment !== null ? { comment: cleanComment } : {}),
+          consent: true,
+          marketingConsent,
+          consentAt: new Date(),
+          consentIp: ip,
+          policyVersion: SITE.legalRevision,
         },
       });
       return NextResponse.json({ success: true, id: lead.id });
@@ -113,6 +129,11 @@ export async function POST(req: NextRequest) {
         email: cleanEmail,
         tariff: cleanTariff,
         ...(cleanComment !== null ? { comment: cleanComment } : {}),
+        consent: true,
+        marketingConsent,
+        consentAt: new Date(),
+        consentIp: ip,
+        policyVersion: SITE.legalRevision,
       },
     });
 

@@ -275,6 +275,13 @@ export default function AuthForm() {
               </Link>{" "}
               — мы свяжемся и откроем доступ.
             </p>
+            <p className="mt-3 text-[11px] text-gray-600">
+              Выполняя вход, вы соглашаетесь с{" "}
+              <Link href="/legal/privacy" className="text-gold/70 hover:text-gold underline underline-offset-2">
+                политикой конфиденциальности
+              </Link>
+              .
+            </p>
           </div>
         </div>
       </div>

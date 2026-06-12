@@ -18,6 +18,13 @@ model Lead {
   source    String?  @db.VarChar(40)
   userId    Int?     @map("user_id")
   user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  // Доказуемость согласия на обработку ПДн (ч.1 ст.9 152-ФЗ): бремя доказывания
+  // на операторе — фиксируем факт, время, IP и версию документов.
+  consent          Boolean   @default(false)
+  marketingConsent Boolean   @default(false) @map("marketing_consent")
+  consentAt        DateTime? @map("consent_at")
+  consentIp        String?   @map("consent_ip") @db.VarChar(64)
+  policyVersion    String?   @map("policy_version") @db.VarChar(20)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -36,6 +43,10 @@ model User {
   telegramUsername String?   @map("telegram_username") @db.VarChar(64)
   tariff           String?   @db.VarChar(50)
   role             String    @default("user") @db.VarChar(20)
+  // Согласие на обработку ПДн, зафиксированное при регистрации.
+  consentAt        DateTime? @map("consent_at")
+  consentVersion   String?   @map("consent_version") @db.VarChar(20)
+  marketingConsent Boolean   @default(false) @map("marketing_consent")
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")
   sessions         Session[]

@@ -123,6 +123,9 @@ export default function Footer() {
               {[
                 { label: "Договор оферты", href: "/legal/offer" },
                 { label: "Политика конфиденциальности", href: "/legal/privacy" },
+                { label: "Согласие на обработку ПДн", href: "/legal/consent" },
+                { label: "Политика cookie", href: "/legal/cookies" },
+                { label: "Пользовательское соглашение", href: "/legal/terms" },
                 { label: "Лицензия", href: "/legal/license" },
               ].map((doc) => (
                 <Link
@@ -144,7 +147,7 @@ export default function Footer() {
               &copy; {SITE.copyright}. Все права защищены.
             </span>
             <span className="text-[10px] text-gray-700 font-mono">
-              ИНН {SITE.inn} &middot; ОГРН {SITE.ogrn}
+              {SITE.operator} &middot; ИНН {SITE.inn} &middot; КПП {SITE.kpp} &middot; ОГРН {SITE.ogrn}
             </span>
           </div>
         </div>

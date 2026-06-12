@@ -9,6 +9,8 @@ interface Props {
 
 export default function RegistrationModal({ tariff, onClose }: Props) {
   const [form, setForm] = useState({ name: "", phone: "", email: "", comment: "", website: "" });
+  const [consent, setConsent] = useState(false);
+  const [marketing, setMarketing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
@@ -28,18 +30,25 @@ export default function RegistrationModal({ tariff, onClose }: Props) {
       setError("Введите корректный номер телефона");
       return;
     }
+    if (!consent) {
+      setError("Необходимо согласие на обработку персональных данных");
+      return;
+    }
     setLoading(true);
     setError("");
     try {
       const res = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, tariff }),
+        body: JSON.stringify({ ...form, tariff, consent, marketingConsent: marketing }),
       });
-      if (!res.ok) throw new Error("Ошибка отправки");
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.error || "Ошибка отправки");
+      }
       setSuccess(true);
-    } catch {
-      setError("Произошла ошибка. Попробуйте позже.");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Произошла ошибка. Попробуйте позже.");
     } finally {
       setLoading(false);
     }
@@ -166,10 +175,45 @@ export default function RegistrationModal({ tariff, onClose }: Props) {
                 </div>
               )}
 
+              {/* Согласие на обработку ПДн (152-ФЗ) — обязательное, не предзаполнено */}
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={consent}
+                  onChange={(e) => setConsent(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 shrink-0 accent-gold cursor-pointer"
+                />
+                <span className="text-[11px] text-gray-400 leading-snug">
+                  Мне исполнилось 18 лет. Я даю{" "}
+                  <a href="/legal/consent" target="_blank" className="text-gold/70 hover:text-gold underline underline-offset-2">
+                    согласие на обработку персональных данных
+                  </a>{" "}
+                  и ознакомлен(а) с{" "}
+                  <a href="/legal/privacy" target="_blank" className="text-gold/70 hover:text-gold underline underline-offset-2">
+                    политикой конфиденциальности
+                  </a>
+                  .
+                </span>
+              </label>
+
+              {/* Согласие на рекламную рассылку — отдельное, необязательное */}
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={marketing}
+                  onChange={(e) => setMarketing(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 shrink-0 accent-gold cursor-pointer"
+                />
+                <span className="text-[11px] text-gray-400 leading-snug">
+                  Согласен(на) получать информационные и рекламные сообщения о курсах и акциях
+                  (необязательно).
+                </span>
+              </label>
+
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full py-4 bg-gold text-navy-900 font-bold uppercase text-sm hover:bg-gold-light transition-all duration-300 disabled:opacity-50 cursor-pointer shadow-[0_0_20px_rgba(0,207,255,0.2)] hover:shadow-[0_0_30px_rgba(0,207,255,0.4)]"
+                disabled={loading || !consent}
+                className="w-full py-4 bg-gold text-navy-900 font-bold uppercase text-sm hover:bg-gold-light transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-[0_0_20px_rgba(0,207,255,0.2)] hover:shadow-[0_0_30px_rgba(0,207,255,0.4)]"
               >
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -183,13 +227,6 @@ export default function RegistrationModal({ tariff, onClose }: Props) {
                   "Отправить заявку"
                 )}
               </button>
-
-              <p className="text-[10px] text-gray-600 text-center">
-                Нажимая кнопку, вы соглашаетесь с{" "}
-                <a href="/legal/privacy" target="_blank" className="text-gold/60 hover:text-gold underline underline-offset-2">
-                  политикой конфиденциальности
-                </a>
-              </p>
             </form>
           </>
         )}

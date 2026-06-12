@@ -1,6 +1,6 @@
 import { MetadataRoute } from "next";
 
-const BASE_URL = "https://ailegal.ru";
+const BASE_URL = "https://expertum.pro";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date().toISOString();

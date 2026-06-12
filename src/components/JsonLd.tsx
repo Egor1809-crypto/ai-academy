@@ -4,13 +4,14 @@ function buildOrganizationSchema() {
   return {
     "@type": "Organization",
     name: SITE.fullName,
+    legalName: SITE.operatorFull,
     url: SITE.url,
     logo: `${SITE.url}/favicon.jpg`,
     email: SITE.email,
     telephone: SITE.phone,
     address: {
       "@type": "PostalAddress",
-      addressLocality: "Москва",
+      addressLocality: SITE.city,
       addressCountry: "RU",
       streetAddress: SITE.address,
     },
@@ -44,12 +45,8 @@ function buildCourseSchema() {
         url: `${SITE.url}/tariffs`,
       })),
     },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: "9.2",
-      bestRating: "10",
-      ratingCount: "500",
-    },
+    // aggregateRating убран: рейтинг/число выпускников требуют документального
+    // подтверждения (ст. 5 ФЗ «О рекламе»). Вернуть после подтверждения.
     inLanguage: "ru",
     numberOfCredits: COURSE.modules,
     educationalLevel: "Professional",

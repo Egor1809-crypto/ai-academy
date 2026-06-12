@@ -4,6 +4,7 @@ import ScrollProgress from "@/components/ScrollProgress";
 import ManyashaChat from "@/components/ManyashaChat";
 import ParticlesInit from "@/components/ParticlesInit";
 import JsonLd from "@/components/JsonLd";
+import CookieConsent from "@/components/CookieConsent";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -30,7 +31,7 @@ const lora = Lora({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://ailegal.ru"),
+  metadataBase: new URL("https://expertum.pro"),
   title: {
     default: "Нейросети для юристов | AI Legal — курс от экспертов",
     template: "%s | AI Legal",
@@ -60,7 +61,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ru_RU",
     siteName: "AI Legal",
-    url: "https://ailegal.ru",
+    url: "https://expertum.pro",
     images: [
       {
         url: "/og-image.jpg",
@@ -111,6 +112,7 @@ export default function RootLayout({
           {children}
           <ManyashaChat />
         </ParticlesInit>
+        <CookieConsent />
       </body>
     </html>
   );

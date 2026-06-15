@@ -46,7 +46,7 @@ const items = [
 
 export default function Audience() {
   return (
-    <section id="about" className="py-28 md:py-36 bg-navy-800 relative overflow-hidden">
+    <section id="about" className="py-14 sm:py-20 md:py-36 bg-navy-800 relative overflow-hidden">
       <SectionParticles id="audience-particles" preset="matrix" />
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       <div className="absolute top-1/2 left-0 w-[300px] h-[300px] bg-gold/5 rounded-full blur-[100px] pointer-events-none -translate-y-1/2" />
@@ -54,7 +54,7 @@ export default function Audience() {
 
       <div className="max-w-6xl mx-auto px-6 relative z-10">
         <ScrollReveal direction="up">
-          <div className="text-center mb-16 md:mb-20">
+          <div className="text-center mb-10 sm:mb-14 md:mb-20">
             <div className="flex items-center justify-center gap-4 mb-6">
               <div className="w-10 h-px bg-gradient-to-r from-transparent to-gold/60" />
               <span className="text-base md:text-xl font-heading font-bold uppercase tracking-[0.18em] text-gold">

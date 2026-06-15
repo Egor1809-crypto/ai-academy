@@ -42,12 +42,12 @@ export default function FAQ() {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <section className="py-28 bg-tech-grid relative overflow-hidden">
+    <section className="py-14 sm:py-20 md:py-28 bg-tech-grid relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">
         <ScrollReveal direction="up">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10 md:mb-16">
             <h2 className="text-3xl md:text-5xl font-bold mb-4">
               Частые <span className="text-gold">вопросы</span>
             </h2>

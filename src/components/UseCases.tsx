@@ -21,13 +21,13 @@ const tools = ["CHATGPT", "CLAUDE", "MIDJOURNEY", "GEMINI", "PERPLEXITY", "RUNWA
 
 export default function UseCases() {
   return (
-    <section className="py-28 bg-tech-grid relative overflow-hidden">
+    <section className="py-14 sm:py-20 md:py-28 bg-tech-grid relative overflow-hidden">
       <SectionParticles id="usecases-particles" preset="orbit" />
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <ScrollReveal direction="up">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10 md:mb-16">
             <h2 className="text-3xl md:text-5xl font-bold mb-4">
               Решайте <span className="text-gold">реальные задачи</span> с AI
             </h2>
@@ -41,7 +41,7 @@ export default function UseCases() {
           {cases.map((c, index) => (
             <ScrollReveal key={c.n} direction="up" delay={index * 60}>
               <div
-                className={`relative bg-navy-900 p-8 border border-white/5 group transition-all duration-500 ${
+                className={`relative bg-navy-900 p-5 md:p-8 border border-white/5 group transition-all duration-500 ${
                   c.highlight
                     ? "border-l-2 border-l-gold bg-gold/[0.05] hover:shadow-[0_0_20px_rgba(0,207,255,0.1)]"
                     : "hover:border-l-2 hover:border-l-gold hover:shadow-[0_0_20px_rgba(0,207,255,0.08)]"
@@ -79,7 +79,7 @@ export default function UseCases() {
             <p className="text-center text-xs text-gray-500 font-mono uppercase tracking-widest mb-6">
               Инструменты, которые вы освоите
             </p>
-            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
+            <div className="flex flex-wrap justify-center items-center gap-5 md:p-8 md:gap-16">
               {tools.map((t) => (
                 <span
                   key={t}

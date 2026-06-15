@@ -61,7 +61,7 @@ export default function RegistrationModal({ tariff, onClose }: Props) {
     >
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
       <div
-        className="relative bg-navy-800 border border-gold/20 p-8 max-w-md w-full shadow-[0_0_60px_rgba(0,207,255,0.1)] animate-slideUp"
+        className="relative bg-navy-800 border border-gold/20 p-5 md:p-8 max-w-md w-full shadow-[0_0_60px_rgba(0,207,255,0.1)] animate-slideUp"
         onClick={(e) => e.stopPropagation()}
       >
         <button

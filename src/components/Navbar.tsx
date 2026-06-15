@@ -58,7 +58,7 @@ export default function Navbar() {
           </span>
         </a>
 
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300 uppercase tracking-widest">
+        <div className="hidden xl:flex items-center gap-8 text-sm font-medium text-gray-300 uppercase tracking-widest">
           {navLinks.map((l) => (
             <Link
               key={l.href}
@@ -77,19 +77,19 @@ export default function Navbar() {
         <div className="flex items-center gap-4">
           <Link
             href="/cabinet"
-            className="hidden md:block text-sm font-medium text-gray-300 uppercase tracking-widest hover:text-gold transition-colors"
+            className="hidden xl:block text-sm font-medium text-gray-300 uppercase tracking-widest hover:text-gold transition-colors"
           >
             Кабинет
           </Link>
           <button
             onClick={() => setShowRegistration(true)}
-            className="hidden md:block px-6 py-2.5 bg-transparent border border-gold text-gold font-heading font-bold hover:bg-gold hover:text-navy-900 transition-all duration-300 uppercase tracking-wide text-sm glow-gold-hover cursor-pointer"
+            className="hidden xl:block px-6 py-2.5 bg-transparent border border-gold text-gold font-heading font-bold hover:bg-gold hover:text-navy-900 transition-all duration-300 uppercase tracking-wide text-sm glow-gold-hover cursor-pointer"
           >
             Оставить заявку
           </button>
 
           <button
-            className="md:hidden w-10 h-10 flex flex-col items-center justify-center gap-1.5 cursor-pointer"
+            className="xl:hidden w-10 h-10 flex flex-col items-center justify-center gap-1.5 cursor-pointer"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Меню"
           >
@@ -101,7 +101,7 @@ export default function Navbar() {
       </div>
 
       <div
-        className={`md:hidden overflow-hidden transition-all duration-300 ${
+        className={`xl:hidden overflow-hidden transition-all duration-300 ${
           mobileOpen ? "max-h-80 border-t border-white/10" : "max-h-0"
         }`}
       >

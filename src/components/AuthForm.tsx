@@ -120,7 +120,7 @@ export default function AuthForm() {
           </span>
         </Link>
 
-        <div className="bg-navy-800 border border-white/10 p-8 rounded-xl shadow-[0_8px_40px_rgba(0,0,0,0.35)]">
+        <div className="bg-navy-800 border border-white/10 p-5 md:p-8 rounded-xl shadow-[0_8px_40px_rgba(0,0,0,0.35)]">
           <h1 className="font-heading font-bold text-2xl mb-1 text-white text-center">
             Вход в кабинет
           </h1>

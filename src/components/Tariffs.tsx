@@ -98,7 +98,7 @@ export default function Tariffs() {
 
   return (
     <>
-      <section id="tariffs" className="py-28 bg-tech-grid relative overflow-hidden">
+      <section id="tariffs" className="py-14 sm:py-20 md:py-28 bg-tech-grid relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
         <div className="absolute top-1/3 right-0 w-[450px] h-[450px] bg-cyber-purple/5 rounded-full blur-[150px] pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[450px] h-[450px] bg-gold/5 rounded-full blur-[150px] pointer-events-none" />
@@ -125,7 +125,7 @@ export default function Tariffs() {
           </ScrollReveal>
 
           {/* ── Countdown ── */}
-          <div className="max-w-xs mx-auto mb-16">
+          <div className="max-w-xs mx-auto mb-10 md:mb-16">
             <p className="text-center text-xs uppercase text-gray-500 font-mono tracking-widest mb-4">
               Спецпредложение истекает через
             </p>
@@ -140,7 +140,7 @@ export default function Tariffs() {
               return (
                 <ScrollReveal key={t.id} direction="up" delay={i * 120}>
                   <div
-                    className={`group relative p-8 flex flex-col h-full bg-white/[0.03] backdrop-blur-sm transition-all duration-500 ${s.ring} ${s.glow} ${
+                    className={`group relative p-5 md:p-8 flex flex-col h-full bg-white/[0.03] backdrop-blur-sm transition-all duration-500 ${s.ring} ${s.glow} ${
                       t.popular ? "lg:-translate-y-4" : ""
                     }`}
                   >

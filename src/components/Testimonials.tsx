@@ -50,7 +50,7 @@ const reviews = [
 
 export default function Testimonials() {
   return (
-    <section className="py-28 md:py-36 relative overflow-hidden">
+    <section className="py-14 sm:py-20 md:py-36 relative overflow-hidden">
       {/* Dark bg with subtle gradient */}
       <div className="absolute inset-0 bg-[linear-gradient(180deg,#050d1a_0%,#0a1628_50%,#050d1a_100%)]" />
       <SectionParticles id="testimonials-particles" preset="nebula" />
@@ -59,7 +59,7 @@ export default function Testimonials() {
 
       <div className="max-w-6xl mx-auto px-6 relative z-10">
         <ScrollReveal direction="up">
-          <div className="text-center mb-16 md:mb-20">
+          <div className="text-center mb-10 sm:mb-14 md:mb-20">
             <div className="flex items-center justify-center gap-3 mb-6">
               <div className="w-10 h-px bg-gradient-to-r from-transparent to-gold/40" />
               <span className="text-[10px] font-mono uppercase tracking-[0.35em] text-gray-600">

@@ -14,7 +14,7 @@ const PHILOSOPHY =
 function PhilosophyLayer({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`bg-navy-900/95 backdrop-blur-md border border-gold/25 rounded-2xl p-8 shadow-[0_22px_60px_rgba(0,0,0,0.55)] ${className}`}
+      className={`bg-navy-900/95 backdrop-blur-md border border-gold/25 rounded-2xl p-5 md:p-8 shadow-[0_22px_60px_rgba(0,0,0,0.55)] ${className}`}
     >
       <div className="inline-flex items-center gap-2 px-3 py-1 bg-gold/10 border border-gold/20 mb-5">
         <span className="text-gold text-[11px] font-mono uppercase tracking-widest">
@@ -75,13 +75,13 @@ function CornerSVGs({ className }: { className?: string }) {
 
 export default function Experts() {
   return (
-    <section id="experts" className="py-28 bg-navy-900 relative overflow-hidden">
+    <section id="experts" className="py-14 sm:py-20 md:py-28 bg-navy-900 relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       <div className="absolute bottom-0 left-1/2 w-[600px] h-[300px] bg-gold/5 rounded-full blur-[150px] pointer-events-none -translate-x-1/2" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <ScrollReveal direction="up">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10 md:mb-16">
             <h2 className="text-3xl md:text-5xl font-bold mb-4">
               Эксперты-<span className="text-gold">практики</span>
             </h2>
@@ -111,7 +111,7 @@ export default function Experts() {
               </div>
 
               {/* Right: text content */}
-              <div className="flex flex-col justify-center p-8 md:p-12 flex-1">
+              <div className="flex flex-col justify-center p-5 md:p-12 flex-1">
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-gold/10 border border-gold/20 w-fit mb-5">
                   <span className="w-1.5 h-1.5 bg-gold rounded-full animate-pulse" />
                   <span className="text-gold text-xs font-mono uppercase tracking-widest">Основатель</span>

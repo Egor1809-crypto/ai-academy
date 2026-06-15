@@ -17,7 +17,7 @@ export default function CTA() {
       .catch(() => {});
   }, []);
   return (
-    <section className="py-28 relative overflow-hidden">
+    <section className="py-14 sm:py-20 md:py-28 relative overflow-hidden">
       <div className="absolute inset-0 bg-linear-to-b from-navy-900 to-black z-0" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gold/5 rounded-full blur-[150px] pointer-events-none z-0" />
 
@@ -37,7 +37,7 @@ export default function CTA() {
           <span className="text-gradient-gold">уже на этой неделе</span>
         </h2>
 
-        <div className="relative bg-white/[0.03] backdrop-blur-sm border border-white/10 p-8 mb-12 max-w-3xl mx-auto">
+        <div className="relative bg-white/[0.03] backdrop-blur-sm border border-white/10 p-5 md:p-8 mb-12 max-w-3xl mx-auto">
           <svg className="absolute top-0 left-0 w-6 h-6 text-gold/40" viewBox="0 0 24 24" fill="none">
             <path d="M0 10 L0 0 L10 0" stroke="currentColor" strokeWidth="1.5" />
           </svg>

@@ -137,7 +137,7 @@ export default function TimeSavingsCalc() {
   const roiMonths = Math.max(1, Math.ceil(COURSE_PRICE / results.monthlySavingsRub));
 
   return (
-    <section className="py-28 md:py-36 relative overflow-hidden">
+    <section className="py-14 sm:py-20 md:py-36 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-navy-800" />
       <SectionParticles id="calc-particles" preset="sparks" />
@@ -152,7 +152,7 @@ export default function TimeSavingsCalc() {
 
         {/* ── Header ── */}
         <ScrollReveal direction="up">
-          <div className="text-center mb-16 md:mb-20">
+          <div className="text-center mb-10 sm:mb-14 md:mb-20">
             <div className="flex items-center justify-center gap-3 mb-8">
               <div className="w-10 h-px bg-gradient-to-r from-transparent to-gold/40" />
               <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-gold/[0.06] border border-gold/15">
@@ -204,7 +204,7 @@ export default function TimeSavingsCalc() {
           {/* ═══ Left — Slider + Breakdown ═══ */}
           <div className="lg:col-span-3">
             <ScrollReveal direction="up" delay={100}>
-              <div className="relative bg-white/[0.02] border border-white/[0.06] p-8 md:p-10">
+              <div className="relative bg-white/[0.02] border border-white/[0.06] p-5 md:p-10">
                 <CornerTL />
                 <CornerBR />
 
@@ -399,7 +399,7 @@ export default function TimeSavingsCalc() {
               <div className="space-y-5 h-full flex flex-col">
 
                 {/* Main savings card — premium gold border */}
-                <div className="relative flex-1 bg-gold/[0.04] border border-gold/20 p-8 md:p-9 shadow-[0_0_40px_rgba(0,207,255,0.06)]">
+                <div className="relative flex-1 bg-gold/[0.04] border border-gold/20 p-5 md:p-9 shadow-[0_0_40px_rgba(0,207,255,0.06)]">
                   <CornerTL />
                   <CornerBR />
 

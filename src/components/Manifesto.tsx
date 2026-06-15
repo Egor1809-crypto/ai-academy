@@ -145,7 +145,7 @@ export default function Manifesto() {
         <div className="py-24 md:py-32">
           <div className="max-w-6xl mx-auto px-6">
             <ScrollReveal direction="up">
-              <div className="flex items-center justify-center gap-4 mb-16">
+              <div className="flex items-center justify-center gap-4 mb-10 md:mb-16">
                 <div className="w-12 h-px bg-gradient-to-r from-transparent to-gold/60" />
                 <span className="text-base md:text-xl font-heading font-bold uppercase tracking-[0.18em] text-gold">
                   Данные, которые нельзя игнорировать

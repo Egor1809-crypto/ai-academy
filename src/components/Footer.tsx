@@ -12,7 +12,7 @@ export default function Footer() {
 
       {/* Main content */}
       <div className="max-w-7xl mx-auto px-6 pt-16 pb-8">
-        <div className="grid md:grid-cols-12 gap-12 mb-16">
+        <div className="grid md:grid-cols-12 gap-12 mb-10 md:mb-16">
           {/* Left — brand + description */}
           <div className="md:col-span-5">
             <Link href="/" className="flex items-center gap-2.5 mb-5 group">

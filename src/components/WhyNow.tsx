@@ -37,7 +37,7 @@ const STAIR_OFFSETS = ["md:mt-24", "md:mt-12", "md:mt-0"];
 
 export default function WhyNow() {
   return (
-    <section className="py-28 md:py-36 relative bg-navy-900 overflow-hidden">
+    <section className="py-14 sm:py-20 md:py-36 relative bg-navy-900 overflow-hidden">
       <SectionParticles id="whynow-particles" preset="constellation" />
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
       <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-cyber-purple/5 rounded-full blur-[150px] pointer-events-none" />
@@ -46,7 +46,7 @@ export default function WhyNow() {
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         {/* Header */}
         <ScrollReveal direction="up">
-          <div className="mb-20 md:mb-28 text-center">
+          <div className="mb-12 sm:mb-16 md:mb-28 text-center">
             <div className="flex items-center justify-center gap-3 mb-6">
               <div className="w-10 h-px bg-gradient-to-r from-transparent to-gold/40" />
               <span className="text-[10px] font-mono uppercase tracking-[0.35em] text-gray-600">
@@ -123,7 +123,7 @@ export default function WhyNow() {
 
                   {/* Card */}
                   <div
-                    className="relative bg-white/[0.02] backdrop-blur-sm border border-white/[0.07] p-8 md:p-9 group
+                    className="relative bg-white/[0.02] backdrop-blur-sm border border-white/[0.07] p-5 md:p-9 group
                       hover:border-gold/40 transition-all duration-700
                       hover:bg-white/[0.04]"
                     style={{

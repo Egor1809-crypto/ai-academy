@@ -18,7 +18,7 @@ export default function Bonus() {
 
       <div className="max-w-7xl mx-auto px-6">
         <ScrollReveal direction="up">
-        <div className="border border-gold/20 bg-white/[0.02] backdrop-blur-sm p-8 md:p-12 relative overflow-hidden">
+        <div className="border border-gold/20 bg-white/[0.02] backdrop-blur-sm p-6 md:p-12 relative overflow-hidden">
           <svg className="absolute top-0 left-0 w-8 h-8 text-gold/50" viewBox="0 0 32 32" fill="none">
             <path d="M0 12 L0 0 L12 0" stroke="currentColor" strokeWidth="1.5" />
           </svg>
@@ -64,7 +64,7 @@ export default function Bonus() {
               </div>
             </div>
 
-            <div className="relative bg-navy-900/80 border border-gold/20 p-6 backdrop-blur-sm shrink-0">
+            <div className="relative bg-navy-900/80 border border-gold/20 p-4 sm:p-6 backdrop-blur-sm shrink-0">
               <svg className="absolute top-0 left-0 w-5 h-5 text-gold/40" viewBox="0 0 20 20" fill="none">
                 <path d="M0 8 L0 0 L8 0" stroke="currentColor" strokeWidth="1.5" />
               </svg>

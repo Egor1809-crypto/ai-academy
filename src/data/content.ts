@@ -154,7 +154,7 @@ export const EXPERTS: Expert[] = [
     desc: "Руководитель команды арбитражных управляющих. Интегрировал AI-системы в работу 50+ юридических компаний. Автор методологии «AI-First Legal Practice».",
     shortDesc: "Создатель курса и методологии внедрения AI в юридическую практику. Руководит стратегическим развитием проекта.",
     initials: "ДС",
-    photo: "/experts/sizov.jpg",
+    photo: "/experts/sizov-v2.jpg",
     emoji: "👨‍💼",
     isFounder: true,
     metrics: [

@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useTTS } from "@/hooks/useTTS";
+import { useAlphaVideoFallback } from "@/hooks/useAlphaVideoFallback";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -37,6 +38,11 @@ export default function ManyashaChat() {
   const [dragging, setDragging] = useState(false);
   const [chatSize, setChatSize] = useState(CHAT_DEFAULT);
   const [hydrated, setHydrated] = useState(false);
+  // Тот же фолбэк, что и в Hero: если alpha-WebM рендерится чёрным (баг Chrome) —
+  // показываем статичный прозрачный кадр маскота.
+  const mascotVideoRef = useRef<HTMLVideoElement>(null);
+  const [mascotForcedFallback, setMascotForcedFallback] = useState(false);
+  const mascotImgFallback = useAlphaVideoFallback(mascotVideoRef) || mascotForcedFallback;
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -428,18 +434,29 @@ export default function ManyashaChat() {
             dragging ? "cursor-grabbing" : "cursor-grab"
           } hover:drop-shadow-[0_0_24px_rgba(0,207,255,0.4)]`}
         >
-          <video
-            src="/mascot/manyasha-idle-alpha.webm"
-            poster="/mascot/manyasha-idle-poster.jpg"
-            loop
-            muted
-            playsInline
-            autoPlay
-            preload="auto"
-            draggable={false}
-            className="w-full h-auto pointer-events-none"
-            style={{ background: "transparent" }}
-          />
+          {mascotImgFallback ? (
+            <img
+              src="/mascot/manyasha-idle-fallback.webp"
+              alt="Маняша — AI-помощник"
+              draggable={false}
+              className="w-full h-auto pointer-events-none select-none"
+            />
+          ) : (
+            <video
+              ref={mascotVideoRef}
+              src="/mascot/manyasha-idle-alpha.webm"
+              poster="/mascot/manyasha-idle-poster.jpg"
+              loop
+              muted
+              playsInline
+              autoPlay
+              preload="auto"
+              draggable={false}
+              onError={() => setMascotForcedFallback(true)}
+              className="w-full h-auto pointer-events-none"
+              style={{ background: "transparent" }}
+            />
+          )}
         </div>
 
         {!chatOpen && !dragging && (

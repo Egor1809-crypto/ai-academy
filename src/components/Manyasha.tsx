@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useTTS } from "@/hooks/useTTS";
+import { useAlphaVideoFallback } from "@/hooks/useAlphaVideoFallback";
 
 export interface ManyashaPage {
   label: string;
@@ -43,6 +44,11 @@ export default function Manyasha({
   const [showGuide, setShowGuide] = useState(false);
   const [displayedText, setDisplayedText] = useState("");
   const [hasGreeted, setHasGreeted] = useState(false);
+  // Фолбэк на статичную прозрачную картинку, если alpha-WebM не рендерится
+  // корректно (баг Chrome на части GPU: VP9-alpha → чёрный прямоугольник).
+  const detectedFallback = useAlphaVideoFallback(idleRef);
+  const [forcedFallback, setForcedFallback] = useState(false);
+  const imgFallback = detectedFallback || forcedFallback;
   const { speak, stop } = useTTS();
   const router = useRouter();
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -179,28 +185,41 @@ export default function Manyasha({
           onMouseLeave={handleMouseLeave}
           onClick={handleClick}
         >
-          <video
-            ref={idleRef}
-            src="/mascot/manyasha-idle-alpha.webm"
-            poster="/mascot/manyasha-idle-poster.jpg"
-            loop
-            muted
-            playsInline
-            autoPlay
-            preload="auto"
-            className={`w-full h-auto ${state === "idle" ? "block" : "hidden"}`}
-            style={{ background: "transparent" }}
-          />
-          <video
-            ref={activeRef}
-            src="/mascot/manyasha-greeting-alpha.webm"
-            loop
-            muted
-            playsInline
-            preload="auto"
-            className={`w-full h-auto ${state === "active" ? "block" : "hidden"}`}
-            style={{ background: "transparent" }}
-          />
+          {imgFallback ? (
+            <img
+              src="/mascot/manyasha-idle-fallback.webp"
+              alt="Маняша — AI-помощник"
+              draggable={false}
+              className="w-full h-auto select-none"
+            />
+          ) : (
+            <>
+              <video
+                ref={idleRef}
+                src="/mascot/manyasha-idle-alpha.webm"
+                poster="/mascot/manyasha-idle-poster.jpg"
+                loop
+                muted
+                playsInline
+                autoPlay
+                preload="auto"
+                onError={() => setForcedFallback(true)}
+                className={`w-full h-auto ${state === "idle" ? "block" : "hidden"}`}
+                style={{ background: "transparent" }}
+              />
+              <video
+                ref={activeRef}
+                src="/mascot/manyasha-greeting-alpha.webm"
+                loop
+                muted
+                playsInline
+                preload="auto"
+                onError={() => setForcedFallback(true)}
+                className={`w-full h-auto ${state === "active" ? "block" : "hidden"}`}
+                style={{ background: "transparent" }}
+              />
+            </>
+          )}
         </div>
 
         {/* Navigation guide */}

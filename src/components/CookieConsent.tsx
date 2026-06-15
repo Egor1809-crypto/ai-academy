@@ -45,32 +45,41 @@ export default function CookieConsent() {
       role="dialog"
       aria-live="polite"
       aria-label="Уведомление об использовании cookies"
-      className="fixed bottom-0 inset-x-0 z-[200] p-4 sm:p-5 animate-slideUp"
+      className="fixed bottom-3 inset-x-3 sm:inset-x-auto sm:left-4 sm:bottom-4 z-[200] sm:max-w-[340px] animate-slideUp"
     >
-      <div className="max-w-4xl mx-auto bg-navy-800/95 backdrop-blur border border-gold/20 shadow-[0_0_40px_rgba(0,207,255,0.12)] p-5 sm:p-6 flex flex-col md:flex-row md:items-center gap-4">
-        <p className="text-gray-300 text-sm leading-relaxed flex-1">
-          Мы используем cookies и обрабатываем технические данные (IP-адрес, данные о
-          посещении) для работы сайта и улучшения сервиса. Продолжая, вы соглашаетесь
-          с этим. Подробнее — в{" "}
-          <Link href="/legal/cookies" className="text-gold/80 hover:text-gold underline underline-offset-2">
-            Политике cookies
-          </Link>{" "}
-          и{" "}
-          <Link href="/legal/privacy" className="text-gold/80 hover:text-gold underline underline-offset-2">
-            Политике конфиденциальности
-          </Link>
-          .
-        </p>
-        <div className="flex gap-3 shrink-0">
+      <div className="relative bg-navy-800/95 backdrop-blur-md border border-gold/25 rounded-xl shadow-[0_12px_40px_rgba(0,0,0,0.5)] p-4">
+        {/* Уголок-акцент в фирменном стиле */}
+        <svg className="absolute top-0 left-0 w-4 h-4 text-gold/50" viewBox="0 0 16 16" fill="none">
+          <path d="M0 6 L0 0 L6 0" stroke="currentColor" strokeWidth="1.5" />
+        </svg>
+
+        <div className="flex items-start gap-2.5 mb-3">
+          <span className="shrink-0 mt-0.5 text-lg leading-none" aria-hidden>
+            🍪
+          </span>
+          <p className="text-gray-300 text-xs leading-relaxed">
+            Используем cookies и технические данные (IP, посещения) для работы сайта.
+            Подробнее —{" "}
+            <Link href="/legal/cookies" className="text-gold/80 hover:text-gold underline underline-offset-2">
+              cookies
+            </Link>{" "}
+            и{" "}
+            <Link href="/legal/privacy" className="text-gold/80 hover:text-gold underline underline-offset-2">
+              конфиденциальность
+            </Link>
+            .
+          </p>
+        </div>
+        <div className="flex gap-2">
           <button
             onClick={() => choose("rejected")}
-            className="flex-1 md:flex-none px-5 py-2.5 border border-white/20 text-white text-sm font-bold uppercase tracking-wide hover:bg-white/10 transition-colors cursor-pointer"
+            className="flex-1 px-3 py-2 border border-white/20 text-white text-xs font-bold uppercase tracking-wide hover:bg-white/10 transition-colors cursor-pointer rounded-md"
           >
             Отклонить
           </button>
           <button
             onClick={() => choose("accepted")}
-            className="flex-1 md:flex-none px-5 py-2.5 bg-gold text-navy-900 text-sm font-bold uppercase tracking-wide hover:bg-gold-light transition-colors cursor-pointer"
+            className="flex-1 px-3 py-2 bg-gold text-navy-900 text-xs font-bold uppercase tracking-wide hover:bg-gold-light transition-colors cursor-pointer rounded-md"
           >
             Принять
           </button>

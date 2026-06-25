@@ -58,7 +58,7 @@ export default async function CabinetPage() {
   const initials = (user.name || "?").trim().slice(0, 1).toUpperCase();
 
   return (
-    <div className="min-h-screen bg-navy-900 text-white relative">
+    <div className="min-h-screen bg-navy-900 text-white relative font-heading">
       {/* фон */}
       <CabinetBackground />
       <div className="absolute inset-0 bg-tech-grid opacity-[0.4] pointer-events-none" />
@@ -110,7 +110,7 @@ export default async function CabinetPage() {
               </p>
             </div>
             <div className="text-right">
-              <p className="text-[10px] text-gray-500 uppercase tracking-wider font-mono mb-1">
+              <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">
                 Старт потока
               </p>
               <p className="font-heading font-bold text-gold text-lg">
@@ -123,7 +123,7 @@ export default async function CabinetPage() {
         {/* Stat cards */}
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <div className="bg-navy-800 border border-white/10 rounded-xl p-5">
-            <p className="text-[10px] text-gray-500 uppercase tracking-wider font-mono mb-2">
+            <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">
               Тариф
             </p>
             <p className="font-heading font-bold text-xl text-gold truncate">
@@ -138,7 +138,7 @@ export default async function CabinetPage() {
             </p>
           </div>
           <div className="bg-navy-800 border border-white/10 rounded-xl p-5">
-            <p className="text-[10px] text-gray-500 uppercase tracking-wider font-mono mb-2">
+            <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">
               Прогресс
             </p>
             <p className="font-heading font-bold text-xl">{progressPct}%</p>
@@ -150,14 +150,14 @@ export default async function CabinetPage() {
             </div>
           </div>
           <div className="bg-navy-800 border border-white/10 rounded-xl p-5">
-            <p className="text-[10px] text-gray-500 uppercase tracking-wider font-mono mb-2">
+            <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">
               Модулей
             </p>
             <p className="font-heading font-bold text-xl">{COURSE_MODULES.length}</p>
             <p className="text-xs text-gray-500 mt-1">{totalLessons} уроков</p>
           </div>
           <div className="bg-navy-800 border border-white/10 rounded-xl p-5">
-            <p className="text-[10px] text-gray-500 uppercase tracking-wider font-mono mb-2">
+            <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">
               Мои заявки
             </p>
             <p className="font-heading font-bold text-xl">{leads.length}</p>
@@ -195,7 +195,7 @@ export default async function CabinetPage() {
                         : "bg-navy-900/50 border-white/5"
                     }`}
                   >
-                    <span className="font-mono text-gold text-sm w-7 shrink-0">
+                    <span className="text-gold text-sm w-7 shrink-0">
                       {m.num}
                     </span>
                     <div className="flex-1 min-w-0">
@@ -277,7 +277,7 @@ export default async function CabinetPage() {
                       >
                         <div>
                           <p className="text-sm font-medium">{lead.tariff}</p>
-                          <p className="text-xs text-gray-500 font-mono">
+                          <p className="text-xs text-gray-500">
                             {new Date(lead.createdAt).toLocaleDateString("ru-RU", {
                               day: "2-digit",
                               month: "2-digit",
@@ -310,19 +310,19 @@ export default async function CabinetPage() {
               </div>
               <dl className="space-y-4 text-sm">
                 <div>
-                  <dt className="text-[10px] text-gray-500 uppercase tracking-wider font-mono">Имя</dt>
+                  <dt className="text-[10px] text-gray-500 uppercase tracking-wider">Имя</dt>
                   <dd className="text-gray-100">{user.name || "—"}</dd>
                 </div>
                 <div className="border-t border-white/5 pt-3">
-                  <dt className="text-[10px] text-gray-500 uppercase tracking-wider font-mono">Email</dt>
+                  <dt className="text-[10px] text-gray-500 uppercase tracking-wider">Email</dt>
                   <dd className="text-gray-100 break-all">{user.email || "—"}</dd>
                 </div>
                 <div className="border-t border-white/5 pt-3">
-                  <dt className="text-[10px] text-gray-500 uppercase tracking-wider font-mono">Телефон</dt>
+                  <dt className="text-[10px] text-gray-500 uppercase tracking-wider">Телефон</dt>
                   <dd className="text-gray-100">{user.phone || "—"}</dd>
                 </div>
                 <div className="border-t border-white/5 pt-3">
-                  <dt className="text-[10px] text-gray-500 uppercase tracking-wider font-mono">Telegram</dt>
+                  <dt className="text-[10px] text-gray-500 uppercase tracking-wider">Telegram</dt>
                   <dd className="text-gray-100 flex items-center gap-2">
                     {user.telegramUsername ? (
                       <>

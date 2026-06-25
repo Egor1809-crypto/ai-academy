@@ -32,6 +32,10 @@ export async function POST(req: NextRequest) {
       user?.passwordHash != null && (await verifyPassword(password, user.passwordHash));
 
     if (!user || !ok) {
+      // ст.16 149-ФЗ: журналирование попыток входа (пишется в логи PM2 → logrotate).
+      console.warn(
+        `[auth][login][FAIL] ${JSON.stringify({ ts: new Date().toISOString(), ip, email })}`,
+      );
       // Constant-ish delay to slow brute force
       await new Promise((r) => setTimeout(r, 400));
       return NextResponse.json({ error: "Неверный email или пароль" }, { status: 401 });
@@ -40,6 +44,9 @@ export async function POST(req: NextRequest) {
     const token = await createSession(user.id);
     await setSessionCookie(token);
 
+    console.info(
+      `[auth][login][OK] ${JSON.stringify({ ts: new Date().toISOString(), ip, userId: user.id })}`,
+    );
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Login error:", error);

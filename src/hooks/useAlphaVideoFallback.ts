@@ -48,6 +48,17 @@ export function useAlphaVideoFallback(
     }
   }, [ref]);
 
+  // BUG_FIX_CONTEXT: Safari (desktop+iOS) не поддерживает VP9/VP8-WebM вообще —
+  // видео не декодируется и виден чёрный фон <video>; onError при этом срабатывает
+  // ненадёжно. Детерминированно ловим это через canPlayType и сразу включаем
+  // статичный фолбэк, не дожидаясь onError/таймаута.
+  useEffect(() => {
+    const test = document.createElement("video");
+    const vp9 = test.canPlayType('video/webm; codecs="vp9"');
+    const vp8 = test.canPlayType('video/webm; codecs="vp8"');
+    if (!vp9 && !vp8) setFallback(true);
+  }, []);
+
   useEffect(() => {
     const v = ref.current;
     if (!v) return;

@@ -239,7 +239,7 @@ export default function TimeSavingsCalc() {
                     <div className="absolute top-1/2 -translate-y-1/2 w-full h-1 bg-white/[0.06] rounded-full" />
                     {/* Active track with glow */}
                     <div
-                      className="absolute top-1/2 -translate-y-1/2 h-1 bg-gradient-to-r from-gold to-cyber-purple rounded-full shadow-[0_0_10px_rgba(0,207,255,0.3)] transition-all duration-150"
+                      className="absolute top-1/2 -translate-y-1/2 h-1 bg-gradient-to-r from-gold to-cyber-purple rounded-full shadow-[0_0_10px_rgba(0,207,255,0.3)]"
                       style={{ width: `${((hoursPerWeek - 5) / 35) * 100}%` }}
                     />
                     <input
@@ -303,7 +303,7 @@ export default function TimeSavingsCalc() {
                   <div className="relative">
                     <div className="absolute top-1/2 -translate-y-1/2 w-full h-1 bg-white/[0.06] rounded-full" />
                     <div
-                      className="absolute top-1/2 -translate-y-1/2 h-1 bg-gradient-to-r from-gold to-cyber-purple rounded-full shadow-[0_0_10px_rgba(0,207,255,0.3)] transition-all duration-150"
+                      className="absolute top-1/2 -translate-y-1/2 h-1 bg-gradient-to-r from-gold to-cyber-purple rounded-full shadow-[0_0_10px_rgba(0,207,255,0.3)]"
                       style={{ width: `${((rate - 1000) / 9000) * 100}%` }}
                     />
                     <input

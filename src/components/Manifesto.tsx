@@ -109,7 +109,7 @@ export default function Manifesto() {
               {/* Tag with neon dot */}
               <div className="flex items-center gap-3 mb-12 justify-center">
                 <NeonDot />
-                <span className="text-[11px] font-mono uppercase tracking-[0.35em] text-gray-500">
+                <span className="text-base md:text-xl font-heading font-bold uppercase tracking-[0.18em] text-white">
                   Манифест
                 </span>
                 <div className="w-16 h-px bg-gradient-to-r from-gold/40 to-transparent" />
@@ -118,7 +118,7 @@ export default function Manifesto() {
               {/* Huge headline — Malvah inspired (massive scale, tight leading) */}
               <h2 className="text-center">
                 <span className="block text-5xl md:text-7xl lg:text-[110px] font-heading font-black leading-[0.85] tracking-[-0.02em] text-white/90">
-                  Адаптируйся.
+                  Адаптируйся
                 </span>
                 <span
                   className="block text-5xl md:text-7xl lg:text-[110px] font-heading font-black leading-[0.85] tracking-[-0.02em] mt-2"
@@ -130,7 +130,7 @@ export default function Manifesto() {
                     filter: "drop-shadow(0 0 40px rgba(0,207,255,0.15))",
                   }}
                 >
-                  Или уступи.
+                  Или уступи
                 </span>
               </h2>
 

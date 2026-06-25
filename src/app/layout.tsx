@@ -101,7 +101,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ru" className={`scroll-smooth ${spaceGrotesk.variable} ${inter.variable} ${lora.variable}`}>
+    <html lang="ru" className={`${spaceGrotesk.variable} ${inter.variable} ${lora.variable}`}>
       <head>
         <link rel="icon" href="/favicon.jpg" type="image/jpeg" />
         <JsonLd />

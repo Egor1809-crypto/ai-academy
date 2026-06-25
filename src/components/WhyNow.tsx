@@ -49,14 +49,15 @@ export default function WhyNow() {
           <div className="mb-12 sm:mb-16 md:mb-28 text-center">
             <div className="flex items-center justify-center gap-3 mb-6">
               <div className="w-10 h-px bg-gradient-to-r from-transparent to-gold/40" />
-              <span className="text-[10px] font-mono uppercase tracking-[0.35em] text-gray-600">
+              <span className="text-base md:text-xl font-heading font-bold uppercase tracking-[0.18em] text-white">
                 Почему сейчас
               </span>
               <div className="w-10 h-px bg-gradient-to-l from-transparent to-gold/40" />
             </div>
             <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-5">
-              Профессия юриста{" "}
+              <span className="block">Профессия юриста</span>
               <span
+                className="block"
                 style={{
                   background: "linear-gradient(135deg, #00CFFF 0%, #7B61FF 50%, #FF007A 100%)",
                   WebkitBackgroundClip: "text",

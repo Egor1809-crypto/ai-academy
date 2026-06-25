@@ -43,14 +43,14 @@ export default function TrustBadges() {
 
         <ScrollReveal direction="fade" delay={300}>
           <div className="pt-8 border-t border-white/5">
-            <p className="text-center text-[10px] text-gray-600 uppercase tracking-[0.3em] font-mono mb-6">
+            <p className="text-center text-base md:text-xl font-heading font-bold uppercase tracking-[0.18em] text-gold mb-10">
               Инструменты, которые вы освоите
             </p>
-            <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10">
+            <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4 md:gap-x-14 md:py-4">
               {partners.map((p) => (
                 <span
                   key={p}
-                  className="font-heading font-bold text-lg tracking-widest text-white/15 hover:text-gold/40 transition-colors duration-500 cursor-default uppercase"
+                  className="font-heading font-bold text-3xl md:text-5xl tracking-widest text-white/70 hover:text-gold transition-colors duration-500 cursor-default uppercase"
                 >
                   {p}
                 </span>

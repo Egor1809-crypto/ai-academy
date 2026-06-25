@@ -105,10 +105,7 @@ export default function Audience() {
                       </svg>
                     </div>
                     <div>
-                      <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-gray-600 block">
-                        {item.tag}
-                      </span>
-                      <h3 className="font-heading font-bold text-lg text-white group-hover:text-gold transition-colors duration-500">
+                      <h3 className="font-heading font-bold text-xl text-white group-hover:text-gold transition-colors duration-500">
                         {item.title}
                       </h3>
                     </div>

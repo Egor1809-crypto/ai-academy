@@ -109,7 +109,7 @@ export default function Tariffs() {
             <div className="text-center mb-10">
               <div className="flex items-center justify-center gap-3 mb-6">
                 <div className="w-10 h-px bg-gradient-to-r from-transparent to-gold/40" />
-                <span className="text-[10px] font-mono uppercase tracking-[0.35em] text-gray-500">
+                <span className="text-base md:text-xl font-heading font-bold uppercase tracking-[0.18em] text-gold">
                   Тарифы и стоимость
                 </span>
                 <div className="w-10 h-px bg-gradient-to-l from-transparent to-gold/40" />

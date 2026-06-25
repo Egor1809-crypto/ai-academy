@@ -76,14 +76,14 @@ export default function UseCases() {
 
         <ScrollReveal direction="fade" delay={200}>
           <div className="mt-16 pt-8 border-t border-white/10">
-            <p className="text-center text-xs text-gray-500 font-mono uppercase tracking-widest mb-6">
+            <p className="text-center text-base md:text-xl font-heading font-bold uppercase tracking-[0.18em] text-gold mb-10">
               Инструменты, которые вы освоите
             </p>
-            <div className="flex flex-wrap justify-center items-center gap-5 md:p-8 md:gap-16">
+            <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4 md:gap-x-14 md:py-4">
               {tools.map((t) => (
                 <span
                   key={t}
-                  className="font-heading font-bold text-xl md:text-2xl tracking-widest text-white/20 hover:text-gold/60 transition-colors duration-500 cursor-default"
+                  className="font-heading font-bold text-3xl md:text-5xl tracking-widest text-white/70 hover:text-gold transition-colors duration-500 cursor-default"
                 >
                   {t}
                 </span>

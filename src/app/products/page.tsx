@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import ProductCard from "@/components/ProductCard";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CTA from "@/components/CTA";
@@ -206,77 +206,7 @@ export default function ProductsPage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.map((product, i) => (
                 <ScrollReveal key={product.href} delay={i * 100}>
-                  <Link href={product.href} className="group block h-full">
-                    <div className="relative h-full bg-white/[0.03] border border-white/10 p-8 transition-all duration-500 hover:border-gold/30 hover:bg-white/[0.05] hover:shadow-[0_0_40px_rgba(0,207,255,0.08)] hover:-translate-y-1">
-                      {/* Corner decorations */}
-                      <svg
-                        className="absolute top-0 left-0 w-5 h-5 text-gold/0 group-hover:text-gold/30 transition-colors duration-500"
-                        viewBox="0 0 20 20"
-                        fill="none"
-                      >
-                        <path
-                          d="M0 20V0h20"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                        />
-                      </svg>
-                      <svg
-                        className="absolute bottom-0 right-0 w-5 h-5 text-gold/0 group-hover:text-gold/30 transition-colors duration-500"
-                        viewBox="0 0 20 20"
-                        fill="none"
-                      >
-                        <path
-                          d="M20 0v20H0"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                        />
-                      </svg>
-
-                      {/* Tag */}
-                      <div className="flex items-center justify-between mb-6">
-                        <span
-                          className={`text-[10px] font-mono font-bold uppercase tracking-widest px-3 py-1 border ${product.tagColor}`}
-                        >
-                          {product.tag}
-                        </span>
-                        <div className="w-10 h-10 flex items-center justify-center text-gold/60 group-hover:text-gold transition-colors duration-300">
-                          {product.icon}
-                        </div>
-                      </div>
-
-                      {/* Title */}
-                      <h3 className="font-heading font-bold text-lg mb-3 text-white group-hover:text-gold transition-colors duration-300">
-                        {product.title}
-                      </h3>
-
-                      {/* Description */}
-                      <p className="text-gray-400 text-sm leading-relaxed mb-6">
-                        {product.description}
-                      </p>
-
-                      {/* Price + Arrow */}
-                      <div className="flex items-center justify-between mt-auto">
-                        <span className="text-gold font-heading font-bold text-sm">
-                          {product.price}
-                        </span>
-                        <span className="w-8 h-8 flex items-center justify-center border border-white/10 group-hover:border-gold/40 group-hover:bg-gold/10 transition-all duration-300">
-                          <svg
-                            className="w-4 h-4 text-gray-500 group-hover:text-gold group-hover:translate-x-0.5 transition-all duration-300"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 5l7 7-7 7"
-                            />
-                          </svg>
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
+                  <ProductCard {...product} />
                 </ScrollReveal>
               ))}
             </div>

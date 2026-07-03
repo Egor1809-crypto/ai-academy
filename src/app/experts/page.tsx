@@ -12,18 +12,9 @@ export const metadata = {
 };
 
 const expertise = [
-  {
-    number: "15+",
-    label: "Лет в юриспруденции",
-  },
-  {
-    number: "500+",
-    label: "Обученных юристов",
-  },
-  {
-    number: "50+",
-    label: "AI-интеграций в юрфирмы",
-  },
+  { number: "15+", label: "Лет в практике" },
+  { number: "500+", label: "Юристов обучено" },
+  { number: "50+", label: "Фирм под AI" },
 ];
 
 export default function ExpertsPage() {
@@ -37,74 +28,94 @@ export default function ExpertsPage() {
           <div className="absolute -top-24 -right-24 w-[620px] h-[620px] bg-cyber-purple/[0.07] rounded-full blur-[170px] pointer-events-none" />
           <div className="absolute bottom-0 -left-20 w-[520px] h-[380px] bg-gold/[0.06] rounded-full blur-[150px] pointer-events-none" />
           <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+          {/* Скан-луч «сканирование тома дела» */}
+          <div
+            className="absolute left-0 w-full h-[130px] z-[1] pointer-events-none"
+            style={{
+              background: "linear-gradient(180deg, transparent, rgba(0,207,255,0.08) 50%, transparent)",
+              animation: "scan-hero 7s linear infinite",
+            }}
+          />
 
           <div className="max-w-7xl mx-auto px-6 w-full relative z-10">
             {/* мономётки-«шифры дела» по краям */}
             <div className="flex items-start justify-between mb-8 md:mb-14">
               <span className="text-[10px] md:text-[11px] font-mono uppercase tracking-[0.32em] text-gray-500">
-                Досье · Эксперты
+                Дело № AL-2026 · Том III — Состав
               </span>
-              <span className="text-[10px] md:text-[11px] font-mono uppercase tracking-[0.32em] text-gray-500 text-right">
-                AI&nbsp;Legal · Саратов
+              <span className="inline-flex items-center gap-2 text-[10px] md:text-[11px] font-mono uppercase tracking-[0.32em] text-gray-500 text-right">
+                <span className="text-cyber-purple/80">REC</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-cyber-purple animate-pulse" />
+                Заверено практикой
               </span>
             </div>
 
-            {/* Гигантский editorial-сплит */}
+            {/* Гигантский editorial-сплит — антитеза без эха соседней секции */}
             <ScrollReveal direction="up">
-              <h1 className="font-heading font-black uppercase leading-[0.82] tracking-[-0.02em] text-white">
+              <p className="font-mono text-[11px] md:text-xs uppercase tracking-[0.3em] text-gray-500 mb-4">
+                Теорию вы уже читали.
+              </p>
+              <h1 className="relative font-heading font-black uppercase leading-[0.82] tracking-[-0.02em] text-white">
                 <span className="block text-5xl sm:text-7xl md:text-8xl lg:text-[8.5rem]">
-                  Не теоретики
+                  Практика,
                 </span>
-                <span className="flex items-baseline gap-4 flex-wrap mt-1">
-                  <span
-                    className="font-serif-display italic font-medium text-5xl sm:text-7xl md:text-8xl lg:text-[8.5rem]"
-                    style={{
-                      background: "linear-gradient(120deg, #70EFFF 0%, #00CFFF 45%, #FF007A 105%)",
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                      backgroundClip: "text",
-                      filter: "drop-shadow(0 0 40px rgba(0,207,255,0.18))",
-                    }}
-                  >
-                    практики
-                  </span>
-                  <span className="dossier-stamp text-gold/70 text-[10px] md:text-xs not-italic mb-3 hidden sm:inline-block">
-                    Практика
-                  </span>
+                <span
+                  className="block font-serif-display italic font-medium text-5xl sm:text-7xl md:text-8xl lg:text-[8.5rem] mt-1 w-fit"
+                  style={{
+                    background: "linear-gradient(120deg, #70EFFF 0%, #00CFFF 45%, #FF007A 105%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                    filter: "drop-shadow(0 0 40px rgba(0,207,255,0.18))",
+                  }}
+                >
+                  а не теория
+                </span>
+                {/* «Печать на деле» */}
+                <span className="dossier-stamp dossier-stamp--alt text-gold/50 text-[10px] md:text-xs not-italic absolute right-0 -bottom-2 hidden md:inline-block">
+                  Заверено делами
                 </span>
               </h1>
             </ScrollReveal>
 
-            {/* Разделитель с инлайн-лейблами (редакторская строка) */}
+            {/* Оглавление тома — редакторская строка с нумерацией */}
             <div className="mt-9 md:mt-12 border-t border-white/10 pt-5">
               <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[10px] md:text-[11px] font-mono uppercase tracking-[0.22em] text-gray-500">
-                <span>AI-внедрение</span>
-                <span className="text-gold/40">/</span>
-                <span>Судебная практика</span>
-                <span className="text-gold/40">/</span>
-                <span>Договоры</span>
-                <span className="text-gold/40">/</span>
-                <span>Legal Design</span>
+                <span><span className="text-gold/40 mr-1.5">01</span>AI-внедрение</span>
+                <span className="text-gold/30">·</span>
+                <span><span className="text-gold/40 mr-1.5">02</span>Судебная практика</span>
+                <span className="text-gold/30">·</span>
+                <span><span className="text-gold/40 mr-1.5">03</span>Договоры</span>
+                <span className="text-gold/30">·</span>
+                <span><span className="text-gold/40 mr-1.5">04</span>Legal Design</span>
               </div>
             </div>
 
             {/* Подзаголовок + стат-фигуры (редакторский футер) */}
             <div className="mt-10 md:mt-16 grid md:grid-cols-[1.15fr_1fr] gap-8 md:gap-16 items-end">
-              <p className="text-gray-400 text-lg md:text-xl leading-relaxed max-w-xl">
-                Преподаватели ежедневно применяют AI в реальной юридической работе —
-                внедряют нейросети в юрфирмы и получают измеримые результаты.
+              <p className="text-gray-300 text-lg md:text-xl leading-relaxed max-w-xl">
+                Каждый в этом составе ведёт живую практику — и применяет в ней AI.
+                Не демо на слайдах, а{" "}
+                <span className="dossier-marker text-white">инструмент в исходящих документах</span>,
+                который приносит клиенту измеримый результат.
               </p>
-              <div className="flex justify-between md:justify-end gap-6 md:gap-12">
-                {expertise.map((e, i) => (
-                  <div key={i} className="text-left md:text-right">
-                    <div className="text-4xl md:text-5xl font-heading font-black text-gradient-gold leading-none">
-                      {e.number}
+              <div>
+                <p className="dossier-margin mb-3 md:text-right">Материалы дела</p>
+                <div className="flex justify-between md:justify-end gap-6 md:gap-12">
+                  {expertise.map((e, i) => (
+                    <div key={i} className="text-left md:text-right">
+                      <div className="text-4xl md:text-5xl font-heading font-black text-gradient-gold leading-none">
+                        {e.number}
+                      </div>
+                      <div className="text-[9px] md:text-[10px] font-mono uppercase tracking-wider text-gray-500 mt-2 max-w-[92px] md:ml-auto">
+                        {e.label}
+                      </div>
                     </div>
-                    <div className="text-[9px] md:text-[10px] font-mono uppercase tracking-wider text-gray-500 mt-2 max-w-[92px] md:ml-auto">
-                      {e.label}
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+                <p className="dossier-margin mt-4 md:text-right text-[10px]">
+                  По состоянию на III кв. 2026 · данные заверены
+                </p>
               </div>
             </div>
           </div>

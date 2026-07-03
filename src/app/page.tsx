@@ -8,6 +8,7 @@ import Manifesto from "@/components/Manifesto";
 import Audience from "@/components/Audience";
 import TimeSavingsCalc from "@/components/TimeSavingsCalc";
 import UseCases from "@/components/UseCases";
+import LiveDemo from "@/components/LiveDemo";
 import Experts from "@/components/Experts";
 import Bonus from "@/components/Bonus";
 import Tariffs from "@/components/Tariffs";
@@ -33,6 +34,7 @@ export default function Home() {
       <TimeSavingsCalc />
       <SectionDivider />
       <UseCases />
+      <LiveDemo />
       <SectionDivider />
       <Experts />
       <Bonus />

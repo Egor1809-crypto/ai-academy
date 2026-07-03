@@ -6,7 +6,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CTA from "@/components/CTA";
 import ScrollReveal from "@/components/ScrollReveal";
-import RocketAssembly from "@/components/RocketAssembly";
 
 const SectionParticles = dynamic(() => import("@/components/SectionParticles"), { ssr: false });
 
@@ -328,11 +327,6 @@ export default function ProgramPage() {
                       );
                     })}
                   </div>
-                </div>
-
-                {/* Собирающаяся ракета — деталь за деталью по маршруту */}
-                <div className="mt-8 hidden lg:block">
-                  <RocketAssembly active={active} total={modules.length} hex={a.hex} />
                 </div>
               </div>
 

@@ -313,14 +313,6 @@ img {
   background-clip: text;
 }
 
-/* Скан-луч hero экспертов — «сканирование тома дела» (кинематографичность). */
-@keyframes scan-hero {
-  0% { transform: translateY(-140px); opacity: 0; }
-  8% { opacity: 1; }
-  92% { opacity: 1; }
-  100% { transform: translateY(88vh); opacity: 0; }
-}
-
 /* Уважение системной настройки «уменьшить движение» — вестибулярная безопасность.
    Гасим бесконечные анимации (ticker, holo-*, mascot-float, sweep-x, pulse) и переходы. */
 @media (prefers-reduced-motion: reduce) {

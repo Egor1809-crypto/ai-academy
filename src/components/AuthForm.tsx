@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import AuthDecor from "./AuthDecor";
 
 type Method = "email" | "telegram" | "phone";
 
@@ -106,6 +107,9 @@ export default function AuthForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-navy-900 px-4 py-12 relative overflow-hidden">
+      {/* фирменный гжель-хологрма-фон */}
+      <div className="absolute inset-0 bg-tech-grid opacity-[0.35] pointer-events-none" />
+      <AuthDecor />
       {/* фоновые блики */}
       <div className="absolute top-1/4 left-1/3 w-[400px] h-[400px] bg-gold/5 rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/3 w-[360px] h-[360px] bg-cyber-purple/8 rounded-full blur-[130px] pointer-events-none" />

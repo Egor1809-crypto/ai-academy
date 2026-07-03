@@ -28,14 +28,6 @@ export default function ExpertsPage() {
           <div className="absolute -top-24 -right-24 w-[620px] h-[620px] bg-cyber-purple/[0.07] rounded-full blur-[170px] pointer-events-none" />
           <div className="absolute bottom-0 -left-20 w-[520px] h-[380px] bg-gold/[0.06] rounded-full blur-[150px] pointer-events-none" />
           <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-          {/* Скан-луч «сканирование тома дела» */}
-          <div
-            className="absolute left-0 w-full h-[130px] z-[1] pointer-events-none"
-            style={{
-              background: "linear-gradient(180deg, transparent, rgba(0,207,255,0.08) 50%, transparent)",
-              animation: "scan-hero 7s linear infinite",
-            }}
-          />
 
           <div className="max-w-7xl mx-auto px-6 w-full relative z-10">
             {/* мономётки-«шифры дела» по краям */}
@@ -43,10 +35,8 @@ export default function ExpertsPage() {
               <span className="text-[10px] md:text-[11px] font-mono uppercase tracking-[0.32em] text-gray-500">
                 Дело № AL-2026 · Том III — Состав
               </span>
-              <span className="inline-flex items-center gap-2 text-[10px] md:text-[11px] font-mono uppercase tracking-[0.32em] text-gray-500 text-right">
-                <span className="text-cyber-purple/80">REC</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-cyber-purple animate-pulse" />
-                Заверено практикой
+              <span className="text-[10px] md:text-[11px] font-mono uppercase tracking-[0.32em] text-gray-500 text-right">
+                AI&nbsp;Legal · 2026
               </span>
             </div>
 

@@ -61,7 +61,11 @@ export default function ManyashaChat() {
 
   // Виджет-маскот не показываем на главной (там Маняша в Hero) и в личном
   // кабинете (там деловой интерфейс — матрёшка отвлекает).
-  const hideWidget = pathname === "/" || pathname.startsWith("/cabinet");
+  const hideWidget =
+    pathname === "/" ||
+    pathname.startsWith("/cabinet") ||
+    pathname === "/login" ||
+    pathname === "/register";
   const { speak } = useTTS();
 
   const mascotWidth = SIZES[sizeIdx];

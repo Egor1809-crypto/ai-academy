@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createHash } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { createSession, setSessionCookie, verifyPassword } from "@/lib/auth";
 import { createRateLimiter, getClientIP } from "@/lib/rate-limit";
@@ -32,9 +33,13 @@ export async function POST(req: NextRequest) {
       user?.passwordHash != null && (await verifyPassword(password, user.passwordHash));
 
     if (!user || !ok) {
-      // ст.16 149-ФЗ: журналирование попыток входа (пишется в логи PM2 → logrotate).
+      // Журналирование попыток входа (логи PM2 → logrotate). BUG_FIX_CONTEXT:
+      // раньше писали email открытым текстом — это накопление ПДн третьих лиц в
+      // логах (минимизация по ст.5 152-ФЗ). Логируем псевдонимный хеш: brute-force
+      // и корреляция попыток сохраняются, plaintext-ПДн — нет.
+      const emailHash = createHash("sha256").update(email).digest("hex").slice(0, 12);
       console.warn(
-        `[auth][login][FAIL] ${JSON.stringify({ ts: new Date().toISOString(), ip, email })}`,
+        `[auth][login][FAIL] ${JSON.stringify({ ts: new Date().toISOString(), ip, emailHash })}`,
       );
       // Constant-ish delay to slow brute force
       await new Promise((r) => setTimeout(r, 400));

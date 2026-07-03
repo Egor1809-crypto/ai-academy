@@ -73,8 +73,7 @@ export default function CookieConsent() {
 
   return (
     <div
-      role="dialog"
-      aria-live="polite"
+      role="region"
       aria-label="Уведомление об использовании cookies"
       className="fixed bottom-3 inset-x-3 sm:inset-x-auto sm:left-5 sm:bottom-5 z-[200] sm:max-w-[384px]"
     >

@@ -312,3 +312,16 @@ img {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* Уважение системной настройки «уменьшить движение» — вестибулярная безопасность.
+   Гасим бесконечные анимации (ticker, holo-*, mascot-float, sweep-x, pulse) и переходы. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

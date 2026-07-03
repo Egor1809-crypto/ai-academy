@@ -41,13 +41,14 @@ export default async function CabinetPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  // Gather this user's applications: linked by id, or matched by email/phone.
-  const orConditions: Array<Record<string, unknown>> = [{ userId: user.id }];
-  if (user.email) orConditions.push({ email: user.email });
-  if (user.phone) orConditions.push({ phone: user.phone });
-
+  // BUG_FIX_CONTEXT: раньше заявки матчились по OR(email/phone) — но phone/email
+  // в модели Lead НЕ уникальны, поэтому при совпадении номера/почты (семья,
+  // помощник, опечатка, общий info@) пользователь видел ЧУЖИЕ заявки — утечка ПДн
+  // по 152-ФЗ. Ключуем строго по явной связи userId. Чтобы «дозаявки» показывались,
+  // Lead.userId нужно проставлять при выдаче доступа/привязке аккаунта, а не
+  // матчить по общим контактным полям на чтении.
   const leads = await prisma.lead.findMany({
-    where: { OR: orConditions },
+    where: { userId: user.id },
     orderBy: { createdAt: "desc" },
     take: 50,
   });

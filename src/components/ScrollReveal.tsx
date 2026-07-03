@@ -19,6 +19,12 @@ export default function ScrollReveal({
 }: ScrollRevealProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  // Уважение системной настройки «уменьшить движение»: показываем контент сразу,
+  // без слайд-анимации (детект в эффекте — SSR-безопасно, без гидрационных рассинхронов).
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    setReduce(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  }, []);
 
   useEffect(() => {
     const el = ref.current;
@@ -52,9 +58,11 @@ export default function ScrollReveal({
       ref={ref}
       className={className}
       style={{
-        opacity: isVisible ? 1 : 0,
-        transform: isVisible ? "translateY(0) translateX(0)" : transforms[direction],
-        transition: `opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`,
+        opacity: reduce || isVisible ? 1 : 0,
+        transform: reduce ? "none" : isVisible ? "translateY(0) translateX(0)" : transforms[direction],
+        transition: reduce
+          ? "none"
+          : `opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`,
         willChange: "opacity, transform",
       }}
     >

@@ -52,11 +52,22 @@ export default function Manyasha({
   const { speak, stop } = useTTS();
   const router = useRouter();
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const navTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Force autoplay on mount
   useEffect(() => {
     idleRef.current?.play().catch(() => {});
   }, []);
+
+  // Очистка таймеров при размонтировании (hover-greeting и nav-переход), чтобы
+  // они не срабатывали после ухода со страницы.
+  useEffect(
+    () => () => {
+      if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+      if (navTimerRef.current) clearTimeout(navTimerRef.current);
+    },
+    [],
+  );
 
   // Play/pause videos based on state
   useEffect(() => {
@@ -139,7 +150,12 @@ export default function Manyasha({
       setSpeech(page.speech);
       speak(page.speech);
       setShowGuide(false);
-      setTimeout(() => {
+      // BUG_FIX_CONTEXT: раньше таймер навигации не хранился и не очищался — если
+      // пользователь уходил со страницы в течение 2с, router.push всё равно
+      // срабатывал и «выдёргивал» его на страницу маскота (навигация-хайджек).
+      if (navTimerRef.current) clearTimeout(navTimerRef.current);
+      navTimerRef.current = setTimeout(() => {
+        navTimerRef.current = null;
         router.push(page.href);
       }, 2000);
     },
@@ -184,6 +200,16 @@ export default function Manyasha({
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
           onClick={handleClick}
+          role={pages && pages.length ? "button" : undefined}
+          tabIndex={pages && pages.length ? 0 : undefined}
+          aria-label={pages && pages.length ? "Маняша — открыть навигацию" : undefined}
+          aria-expanded={pages && pages.length ? showGuide : undefined}
+          onKeyDown={(e) => {
+            if ((pages?.length ?? 0) > 0 && (e.key === "Enter" || e.key === " ")) {
+              e.preventDefault();
+              handleClick();
+            }
+          }}
         >
           {imgFallback ? (
             <img

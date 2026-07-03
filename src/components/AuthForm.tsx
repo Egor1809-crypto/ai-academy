@@ -124,12 +124,17 @@ export default function AuthForm() {
           </span>
         </Link>
 
-        <div className="bg-navy-800 border border-white/10 p-5 md:p-8 rounded-xl shadow-[0_8px_40px_rgba(0,0,0,0.35)]">
+        <div className="relative bg-navy-800 border border-white/10 p-5 md:p-8 rounded-xl shadow-[0_8px_40px_rgba(0,0,0,0.35)]">
+          <span className="hud-corner-tl" />
+          <span className="hud-corner-br" />
+          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-gray-500 text-center mb-2">
+            Личное дело
+          </p>
           <h1 className="font-heading font-bold text-2xl mb-1 text-white text-center">
             Вход в кабинет
           </h1>
           <p className="text-gray-400 text-sm text-center mb-6">
-            Выберите удобный способ входа
+            Продолжим работу с того места, где вы остановились
           </p>
 
           {/* Переключатель способов */}

@@ -65,7 +65,8 @@ export default function ManyashaChat() {
     pathname === "/" ||
     pathname.startsWith("/cabinet") ||
     pathname === "/login" ||
-    pathname === "/register";
+    pathname === "/register" ||
+    pathname === "/experts";
   const { speak } = useTTS();
 
   const mascotWidth = SIZES[sizeIdx];

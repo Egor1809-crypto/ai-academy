@@ -192,14 +192,28 @@ export default function ProgramPage() {
               <div className="text-center mb-16">
                 <div className="flex items-center justify-center gap-3 mb-6">
                   <div className="w-10 h-px bg-gradient-to-r from-transparent to-gold/40" />
-                  <span className="text-[10px] font-mono uppercase tracking-[0.35em] text-gray-600">
+                  <span className="text-base md:text-xl font-heading font-bold uppercase tracking-[0.18em] text-gold">
                     Модули курса
                   </span>
                   <div className="w-10 h-px bg-gradient-to-l from-transparent to-gold/40" />
                 </div>
-                <h2 className="text-3xl md:text-5xl font-bold">
-                  4 модуля — <span className="text-gold">полная система</span>
+                <h2 className="text-3xl md:text-5xl lg:text-6xl font-heading font-black uppercase leading-[0.9] tracking-[-0.01em]">
+                  Четыре ступени.{" "}
+                  <span
+                    className="font-serif-display italic font-medium normal-case"
+                    style={{
+                      background: "linear-gradient(120deg, #70EFFF 0%, #00CFFF 50%, #FF007A 110%)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      backgroundClip: "text",
+                    }}
+                  >
+                    Одна траектория
+                  </span>
                 </h2>
+                <p className="text-gray-500 text-sm md:text-base mt-4 font-mono uppercase tracking-[0.15em]">
+                  Маршрут собирается в систему — модуль за модулем
+                </p>
               </div>
             </ScrollReveal>
 

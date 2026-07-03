@@ -65,8 +65,22 @@ export default function LiveDemo() {
     }
   };
 
+  // Карточки «готовые команды» шлют событие demo:ask с текстом задачи → демо
+  // автозаполняется и отправляет. Держим ссылку на актуальный send через ref,
+  // чтобы слушатель не захватывал устаревшее замыкание (thread/loading).
+  const sendRef = useRef(send);
+  sendRef.current = send;
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<string>).detail;
+      if (typeof detail === "string") sendRef.current(detail);
+    };
+    window.addEventListener("demo:ask", handler);
+    return () => window.removeEventListener("demo:ask", handler);
+  }, []);
+
   return (
-    <section className="py-14 sm:py-20 md:py-28 relative overflow-hidden bg-navy-900">
+    <section id="live-demo" className="py-14 sm:py-20 md:py-28 relative overflow-hidden bg-navy-900">
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
       <div className="absolute top-1/3 right-0 w-[500px] h-[500px] bg-cyber-purple/[0.06] rounded-full blur-[150px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gold/[0.05] rounded-full blur-[140px] pointer-events-none" />
@@ -110,7 +124,7 @@ export default function LiveDemo() {
             <div ref={scrollRef} className="max-h-[340px] min-h-[180px] overflow-y-auto p-5 space-y-4">
               {thread.length === 0 && !loading && (
                 <div className="text-center py-8">
-                  <p className="text-gray-500 text-sm mb-5">
+                  <p className="text-gray-400 text-sm mb-5">
                     Выберите пример или введите свою задачу 👇
                   </p>
                   <div className="flex flex-wrap justify-center gap-2">
@@ -153,7 +167,15 @@ export default function LiveDemo() {
                 </div>
               )}
 
-              {error && <p className="text-center text-cyber-purple text-sm">{error}</p>}
+              {error && (
+                <p role="alert" className="flex items-center justify-center gap-1.5 text-center text-cyber-purple text-sm">
+                  <span aria-hidden>⚠</span>
+                  <span>
+                    <span className="font-semibold">Ошибка: </span>
+                    {error}
+                  </span>
+                </p>
+              )}
             </div>
 
             {/* Ввод */}
@@ -165,7 +187,11 @@ export default function LiveDemo() {
                 }}
                 className="flex items-end gap-2"
               >
+                <label htmlFor="demo-task-input" className="sr-only">
+                  Юридическая задача
+                </label>
                 <textarea
+                  id="demo-task-input"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => {
@@ -176,7 +202,7 @@ export default function LiveDemo() {
                   }}
                   rows={1}
                   placeholder="Введите юридическую задачу…"
-                  className="flex-1 resize-none bg-navy-900 border border-white/10 focus:border-gold/40 rounded-lg px-4 py-3 text-sm text-white placeholder:text-gray-600 outline-none max-h-32"
+                  className="flex-1 resize-none bg-navy-900 border border-white/10 focus:border-gold/40 rounded-lg px-4 py-3 text-sm text-white placeholder:text-gray-400 outline-none max-h-32"
                 />
                 <button
                   type="submit"
@@ -186,7 +212,7 @@ export default function LiveDemo() {
                   Спросить
                 </button>
               </form>
-              <p className="text-[10px] text-gray-600 mt-2 px-1 leading-snug">
+              <p className="text-[11px] text-gray-400 mt-2 px-1 leading-snug">
                 Сообщения обрабатываются сторонним AI-сервисом. Не вводите персональные данные и
                 реальные реквизиты дел.
               </p>

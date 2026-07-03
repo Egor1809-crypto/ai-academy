@@ -38,6 +38,16 @@ export default function ManyashaChat() {
   const [dragging, setDragging] = useState(false);
   const [chatSize, setChatSize] = useState(CHAT_DEFAULT);
   const [hydrated, setHydrated] = useState(false);
+  // BUG_FIX_CONTEXT: ширина чата (до 560px, восстанавливается из localStorage без
+  // клампа) на узком мобиле выходила за левый край экрана и была недостижима.
+  // Кламп к ширине вьюпорта; пересчёт при resize/повороте.
+  const [vw, setVw] = useState(0);
+  useEffect(() => {
+    const update = () => setVw(window.innerWidth);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
   // Тот же фолбэк, что и в Hero: если alpha-WebM рендерится чёрным (баг Chrome) —
   // показываем статичный прозрачный кадр маскота.
   const mascotVideoRef = useRef<HTMLVideoElement>(null);
@@ -236,7 +246,11 @@ export default function ManyashaChat() {
       {chatOpen && (
         <div
           className="absolute right-0 bg-gradient-to-b from-navy-800/98 to-navy-900/98 border border-gold/25 backdrop-blur-xl rounded-3xl shadow-2xl shadow-black/50 flex flex-col overflow-hidden animate-fadeIn"
-          style={{ bottom: chatBottom, width: chatSize.w, height: chatSize.h }}
+          style={{
+            bottom: chatBottom,
+            width: vw > 0 ? Math.min(chatSize.w, vw - 32) : chatSize.w,
+            height: chatSize.h,
+          }}
         >
           {/* Resize handle (верхний левый угол) */}
           <div

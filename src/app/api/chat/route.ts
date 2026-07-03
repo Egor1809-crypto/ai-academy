@@ -9,6 +9,17 @@ const MODEL = "gpt-4o-mini";
 
 const SYSTEM_PROMPT = MANYASHA_PROMPT_SITE;
 
+// Демо-режим «попробуй AI-юриста»: в отличие от персоны Маняши (которая ведёт по
+// курсу), здесь AI ДОЛЖЕН реально решить юридическую задачу — показать ценность.
+const DEMO_PROMPT =
+  "Ты — AI-ассистент практикующего юриста в демонстрационном режиме на сайте AI Legal Academy. " +
+  "Задача — наглядно показать, как AI помогает в юридической работе. Дай полезный, конкретный и " +
+  "структурированный ответ: список рисков, структура документа, аргументы со ссылками на нормы права РФ, " +
+  "чек-лист — что уместно. Отвечай по-русски, по делу, профессионально, маркированными списками. НЕ " +
+  "отказывайся и НЕ отправляй «обратитесь к юристу» — это демонстрация возможностей. В самом конце добавь " +
+  "ОДНУ строку курсивом: «⚠️ Демо AI — не юридическая консультация, проверяйте выводы». Никогда не " +
+  "запрашивай персональные данные.";
+
 // 15 messages per minute per IP — generous for chat, blocks abuse
 const limiter = createRateLimiter("chat", { limit: 15, windowSeconds: 60 });
 // Global backstop: hard cap on total chat calls per minute regardless of IP.
@@ -53,6 +64,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { messages } = body;
+    const systemPrompt = body.demo === true ? DEMO_PROMPT : SYSTEM_PROMPT;
 
     if (!Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json(
@@ -98,7 +110,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         model: MODEL,
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: systemPrompt },
           ...trimmedMessages,
         ],
         max_tokens: 300,

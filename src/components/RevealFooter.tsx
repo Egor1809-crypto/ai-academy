@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Footer from "./Footer";
+import HomeFooter from "./HomeFooter";
 
 // FILE: src/components/RevealFooter.tsx
 // VERSION: 2.0.0
@@ -73,8 +73,8 @@ export default function RevealFooter({ children }: { children: React.ReactNode }
         inner.style.opacity = "";
         return;
       }
-      inner.style.transform = `translate3d(0, ${(1 - p) * 64}px, 0)`;
-      inner.style.opacity = String(0.2 + 0.8 * p);
+      inner.style.transform = `translate3d(0, ${(1 - p) * 48}px, 0)`;
+      inner.style.opacity = String(0.55 + 0.45 * p);
     };
 
     const onScroll = () => {
@@ -103,20 +103,12 @@ export default function RevealFooter({ children }: { children: React.ReactNode }
         {children}
       </div>
 
-      {/* Футер зафиксирован внизу за контентом; overflow-hidden клипует параллакс inner. */}
+      {/* Светлый editorial-футер зафиксирован внизу за контентом. Никаких подсветок —
+          «спуск» читается контрастом: тёмный контент уезжает вверх, открывая светлый футер.
+          overflow-hidden клипует параллакс inner. */}
       <div ref={footerRef} className="fixed bottom-0 left-0 w-full z-0 overflow-hidden">
-        {/* Светящийся шов раскрытия: на тёмной теме именно он делает «спуск» заметным —
-            яркая бренд-циан линия + мягкое свечение проявляются на кромке, когда контент
-            приподнимается. Тень navy-на-чёрном не читалась, свет — читается. */}
-        <div className="pointer-events-none absolute top-0 inset-x-0 z-10">
-          <div
-            className="h-[2px] w-full bg-gradient-to-r from-transparent via-gold to-transparent"
-            style={{ boxShadow: "0 0 18px 2px rgba(0,207,255,0.55)" }}
-          />
-          <div className="h-24 w-full bg-gradient-to-b from-gold/20 via-gold/[0.06] to-transparent blur-lg" />
-        </div>
         <div ref={innerRef} className="will-change-transform">
-          <Footer />
+          <HomeFooter />
         </div>
       </div>
     </>

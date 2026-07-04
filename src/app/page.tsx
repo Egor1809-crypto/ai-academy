@@ -18,38 +18,40 @@ import Program from "@/components/Program";
 import FAQ from "@/components/FAQ";
 import Testimonials from "@/components/Testimonials";
 import CTA from "@/components/CTA";
-import Footer from "@/components/Footer";
+import RevealFooter from "@/components/RevealFooter";
 import FloatingTelegram from "@/components/FloatingTelegram";
 
 export default function Home() {
   return (
     <>
       <Navbar />
-      <Hero />
-      <FloatingTelegram />
-      <Ticker />
-      <TrustBadges />
-      <SectionDivider />
-      <WhyNow />
-      <Manifesto />
-      <Audience />
-      <TimeSavingsCalc />
-      <SectionDivider />
-      <UseCases />
-      <Commands />
-      <LiveDemo />
-      <SectionDivider />
-      <Experts />
-      <DataSecurity />
-      <Bonus />
-      <SectionDivider />
-      <Tariffs />
-      <Program />
-      <SectionDivider />
-      <FAQ />
-      <Testimonials />
-      <CTA />
-      <Footer />
+      {/* RevealFooter: секции едут вверх и «открывают» футер (эффект как на malvah.co) */}
+      <RevealFooter>
+        <Hero />
+        <FloatingTelegram />
+        <Ticker />
+        <TrustBadges />
+        <SectionDivider />
+        <WhyNow />
+        <Manifesto />
+        <Audience />
+        <TimeSavingsCalc />
+        <SectionDivider />
+        <UseCases />
+        <Commands />
+        <LiveDemo />
+        <SectionDivider />
+        <Experts />
+        <DataSecurity />
+        <Bonus />
+        <SectionDivider />
+        <Tariffs />
+        <Program />
+        <SectionDivider />
+        <FAQ />
+        <Testimonials />
+        <CTA />
+      </RevealFooter>
     </>
   );
 }

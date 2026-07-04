@@ -6,6 +6,8 @@
     "dev": "next dev -p 3099",
     "build": "next build",
     "start": "next start -p 3099 -H 127.0.0.1",
+    "retention": "node scripts/retention.mjs",
+    "import-bot-users": "node scripts/import-bot-users.mjs",
     "postinstall": "prisma generate"
   },
   "repository": {

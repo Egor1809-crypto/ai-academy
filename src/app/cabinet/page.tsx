@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { COURSE } from "@/data/content";
 import LogoutButton from "@/components/LogoutButton";
 import CabinetBackground from "@/components/CabinetBackground";
+import AccountDataSection from "@/components/AccountDataSection";
 
 export const metadata: Metadata = {
   title: "Личный кабинет",
@@ -51,6 +52,12 @@ export default async function CabinetPage() {
     where: { userId: user.id },
     orderBy: { createdAt: "desc" },
     take: 50,
+  });
+
+  // Текущее состояние маркетингового согласия — для секции «Мои данные» (B2).
+  const account = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { marketingConsent: true },
   });
 
   const hasPaidAccess = PAID_TARIFFS.includes(user.tariff ?? "");
@@ -365,6 +372,11 @@ export default async function CabinetPage() {
                 Написать в Telegram
               </a>
             </section>
+
+            {/* Права субъекта ПДн: доступ, согласие, удаление (152-ФЗ) */}
+            <AccountDataSection
+              initialMarketingConsent={account?.marketingConsent ?? false}
+            />
           </div>
         </div>
       </main>

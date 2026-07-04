@@ -1,5 +1,5 @@
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import FooterCompact from "@/components/FooterCompact";
 import Audience from "@/components/Audience";
 import WhyNow from "@/components/WhyNow";
 import TrustBadges from "@/components/TrustBadges";
@@ -135,7 +135,7 @@ export default function AboutPage() {
         <CTA />
 
       </main>
-      <Footer />
+      <FooterCompact />
     </>
   );
 }

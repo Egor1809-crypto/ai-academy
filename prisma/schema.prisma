@@ -11,6 +11,9 @@ model Lead {
   id        Int      @id @default(autoincrement())
   name      String   @db.VarChar(100)
   phone     String   @db.VarChar(20)
+  // Только цифры — устойчивый ключ дедупликации и связки lead↔user по телефону.
+  // Заполняется на записи; индекс даёт быстрый поиск дублей без выборки «последних 200».
+  phoneNormalized String? @map("phone_normalized") @db.VarChar(20)
   email     String?  @db.VarChar(200)
   tariff    String   @db.VarChar(50)
   comment   String?  @db.VarChar(1000)
@@ -25,10 +28,16 @@ model Lead {
   consentAt        DateTime? @map("consent_at")
   consentIp        String?   @map("consent_ip") @db.VarChar(64)
   policyVersion    String?   @map("policy_version") @db.VarChar(20)
+  // Ретеншн и отзыв согласия (ст.5 п.7 — ограничение срока хранения; ст.21 152-ФЗ).
+  // purgeAfter — момент, после которого лид подлежит удалению/обезличиванию джобой;
+  // revokedAt — факт отзыва согласия субъектом (обработка прекращается по иным основаниям).
+  purgeAfter       DateTime? @map("purge_after")
+  revokedAt        DateTime? @map("revoked_at")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([userId])
+  @@index([phoneNormalized])
   @@map("leads")
 }
 
@@ -47,6 +56,9 @@ model User {
   consentAt        DateTime? @map("consent_at")
   consentVersion   String?   @map("consent_version") @db.VarChar(20)
   marketingConsent Boolean   @default(false) @map("marketing_consent")
+  // Последняя активность пользователя в боте (аудитория Telegram живёт в User, а
+  // не в bot/data/users.json). Питает /stats («активны сегодня») и импорт из users.json.
+  lastSeenAt       DateTime? @map("last_seen_at")
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")
   sessions         Session[]
@@ -78,6 +90,9 @@ model AuthCode {
   expiresAt        DateTime  @map("expires_at")
   createdAt        DateTime  @default(now()) @map("created_at")
 
+  // Дешёвый deleteMany истёкших/использованных кодов в ретеншн-джобе (C8).
+  @@index([expiresAt])
+  @@index([consumedAt])
   @@map("auth_codes")
 }
 
@@ -91,6 +106,45 @@ model Broadcast {
   createdAt   DateTime  @default(now()) @map("created_at")
   sentAt      DateTime? @map("sent_at")
 
+  // Пер-получательный лог доставки (C7, ст.18 149-ФЗ): доказуемость того, что
+  // рассылка ушла только давшим маркетинговое согласие и исключила отозвавших.
+  recipients  BroadcastRecipient[]
+
   @@index([status])
   @@map("broadcasts")
+}
+
+// Лог получателей маркетинговой рассылки (C7 / D1, ст.18 149-ФЗ).
+// Фиксирует, кому и с каким статусом ушло сообщение — бремя доказывания
+// правомерности рекламной рассылки на операторе. telegramId — для аудитории бота
+// (users.json), userId — для веб-канала; заполняется тот, что известен на момент отправки.
+model BroadcastRecipient {
+  id          Int       @id @default(autoincrement())
+  broadcastId Int       @map("broadcast_id")
+  broadcast   Broadcast @relation(fields: [broadcastId], references: [id], onDelete: Cascade)
+  telegramId  String?   @map("telegram_id") @db.VarChar(32)
+  userId      Int?      @map("user_id")
+  status      String    @db.VarChar(20)
+  deliveredAt DateTime? @map("delivered_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@index([broadcastId])
+  @@map("broadcast_recipients")
+}
+
+// Журнал попыток входа как контроль ИБ (152-ФЗ, ст.19 — учёт действий с ПДн).
+// Раньше события жили только в PM2-логах: неконтролируемый из схемы срок хранения,
+// невозможно предъявить аудит-трейл по запросу. Теперь — модель с TTL через
+// ретеншн-джобу. ПДн минимизированы: e-mail только псевдонимным хешем, IP — усечённый.
+model LoginEvent {
+  id        Int      @id @default(autoincrement())
+  userId    Int?     @map("user_id")
+  emailHash String?  @map("email_hash") @db.VarChar(16)
+  ip        String?  @db.VarChar(64)
+  outcome   String   @db.VarChar(10)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("login_events")
 }

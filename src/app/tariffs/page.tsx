@@ -1,5 +1,5 @@
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import FooterCompact from "@/components/FooterCompact";
 import Tariffs from "@/components/Tariffs";
 import FAQ from "@/components/FAQ";
 import CTA from "@/components/CTA";
@@ -20,7 +20,7 @@ export default function TariffsPage() {
         <FAQ />
         <CTA />
       </main>
-      <Footer />
+      <FooterCompact />
     </>
   );
 }

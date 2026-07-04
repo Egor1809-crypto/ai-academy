@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import FooterCompact from "@/components/FooterCompact";
 import ScrollReveal from "@/components/ScrollReveal";
 
 const programBlocks = [
@@ -285,7 +285,7 @@ export default function SeminarPage() {
           </div>
         </section>
       </main>
-      <Footer />
+      <FooterCompact />
     </>
   );
 }

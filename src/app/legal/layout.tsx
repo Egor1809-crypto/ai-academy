@@ -1,5 +1,5 @@
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import FooterCompact from "@/components/FooterCompact";
 
 export default function LegalLayout({
   children,
@@ -10,7 +10,7 @@ export default function LegalLayout({
     <>
       <Navbar />
       <main className="pt-20 min-h-screen">{children}</main>
-      <Footer />
+      <FooterCompact />
     </>
   );
 }

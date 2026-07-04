@@ -39,7 +39,8 @@ export default function LegalDoc({
             <br />
             Адрес: {SITE.address} · {SITE.email} · {SITE.phone}
             <br />
-            Редакция от {SITE.legalRevision}
+            Версия {SITE.legalVersion} от {SITE.legalRevision} · настоящая редакция
+            действует с {SITE.legalRevision}
           </div>
         </div>
       </div>

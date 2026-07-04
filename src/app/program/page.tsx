@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import FooterCompact from "@/components/FooterCompact";
 import CTA from "@/components/CTA";
 import ScrollReveal from "@/components/ScrollReveal";
 
@@ -561,7 +561,7 @@ export default function ProgramPage() {
 
         <CTA />
       </main>
-      <Footer />
+      <FooterCompact />
     </>
   );
 }

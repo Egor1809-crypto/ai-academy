@@ -23,20 +23,47 @@ interface Msg {
   content: string;
 }
 
+// B3 (152-ФЗ, ст.12): общий с виджетом Маняши ключ явного согласия на передачу
+// текста стороннему AI-сервису. Согласие, данное в одном месте, действует и здесь.
+const LS_AI_CONSENT = "ai-chat-consent";
+
 export default function LiveDemo() {
   const [input, setInput] = useState("");
   const [thread, setThread] = useState<Msg[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // B3: факт явного согласия на AI-обработку; персистится в localStorage.
+  const [aiConsent, setAiConsent] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [thread, loading]);
 
+  // B3: восстанавливаем ранее данное согласие (общий ключ с виджетом Маняши).
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(LS_AI_CONSENT) === "1") setAiConsent(true);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  // B3: фиксация явного акта согласия — сохраняем в localStorage и снимаем гейт.
+  const grantAiConsent = () => {
+    setAiConsent(true);
+    try {
+      localStorage.setItem(LS_AI_CONSENT, "1");
+    } catch {
+      /* ignore */
+    }
+  };
+
   const send = async (text: string) => {
     const q = text.trim();
     if (!q || loading) return;
+    // B3: без явного согласия задача не уходит на сторонний AI-сервис.
+    if (!aiConsent) return;
     setError(null);
     setInput("");
     const nextThread: Msg[] = [...thread, { role: "user", content: q }];
@@ -122,7 +149,25 @@ export default function LiveDemo() {
 
             {/* Область диалога */}
             <div ref={scrollRef} className="max-h-[340px] min-h-[180px] overflow-y-auto p-5 space-y-4">
-              {thread.length === 0 && !loading && (
+              {/* B3 (152-ФЗ, ст.12): явное согласие на передачу задачи стороннему
+                  AI-сервису перед первым запросом. До согласия — пресеты скрыты, гейт активен. */}
+              {thread.length === 0 && !loading && !aiConsent && (
+                <div className="text-center py-8">
+                  <p className="text-gray-300 text-xs max-w-[420px] mx-auto leading-relaxed text-left bg-white/[0.03] border border-white/10 rounded-lg p-4">
+                    Сообщения в демо-чате обрабатываются сторонним AI-сервисом, возможна
+                    трансграничная передача данных. Не вводите персональные данные, охраняемую
+                    законом тайну и конфиденциальную информацию.
+                  </p>
+                  <button
+                    onClick={grantAiConsent}
+                    className="mt-4 px-6 py-2.5 bg-gold text-navy-900 font-heading font-bold text-sm uppercase tracking-wide rounded-lg hover:bg-gold-light transition-colors cursor-pointer"
+                  >
+                    Понимаю, продолжить
+                  </button>
+                </div>
+              )}
+
+              {thread.length === 0 && !loading && aiConsent && (
                 <div className="text-center py-8">
                   <p className="text-gray-400 text-sm mb-5">
                     Выберите пример или введите свою задачу 👇
@@ -201,12 +246,14 @@ export default function LiveDemo() {
                     }
                   }}
                   rows={1}
-                  placeholder="Введите юридическую задачу…"
-                  className="flex-1 resize-none bg-navy-900 border border-white/10 focus:border-gold/40 rounded-lg px-4 py-3 text-sm text-white placeholder:text-gray-400 outline-none max-h-32"
+                  placeholder={aiConsent ? "Введите юридическую задачу…" : "Подтвердите согласие выше…"}
+                  // B3: ввод и отправка заблокированы до явного согласия на AI-обработку.
+                  disabled={!aiConsent}
+                  className="flex-1 resize-none bg-navy-900 border border-white/10 focus:border-gold/40 rounded-lg px-4 py-3 text-sm text-white placeholder:text-gray-400 outline-none max-h-32 disabled:opacity-50"
                 />
                 <button
                   type="submit"
-                  disabled={loading || !input.trim()}
+                  disabled={loading || !input.trim() || !aiConsent}
                   className="shrink-0 px-5 py-3 bg-gold text-navy-900 font-heading font-bold text-sm uppercase tracking-wide rounded-lg hover:bg-gold-light transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                 >
                   Спросить

@@ -26,6 +26,9 @@ const CHAT_MAX = { w: 560, h: 680 };
 const LS_POS = "manyasha.pos";
 const LS_SIZE = "manyasha.sizeIdx";
 const LS_CHAT = "manyasha.chat";
+// B3 (152-ФЗ, ст.12): явное согласие на передачу текста стороннему AI-сервису.
+// Общий ключ для сайта (виджет + демо) — согласие даётся один раз.
+const LS_AI_CONSENT = "ai-chat-consent";
 
 export default function ManyashaChat() {
   const pathname = usePathname();
@@ -38,6 +41,9 @@ export default function ManyashaChat() {
   const [dragging, setDragging] = useState(false);
   const [chatSize, setChatSize] = useState(CHAT_DEFAULT);
   const [hydrated, setHydrated] = useState(false);
+  // B3: факт явного согласия на обработку сообщений сторонним AI-сервисом.
+  // Персистится в localStorage, чтобы не спрашивать повторно.
+  const [aiConsent, setAiConsent] = useState(false);
   // BUG_FIX_CONTEXT: ширина чата (до 560px, восстанавливается из localStorage без
   // клампа) на узком мобиле выходила за левый край экрана и была недостижима.
   // Кламп к ширине вьюпорта; пересчёт при resize/повороте.
@@ -91,10 +97,22 @@ export default function ManyashaChat() {
         const parsed = JSON.parse(c);
         if (typeof parsed.w === "number" && typeof parsed.h === "number") setChatSize(parsed);
       }
+      // B3: восстанавливаем ранее данное согласие на AI-обработку.
+      if (localStorage.getItem(LS_AI_CONSENT) === "1") setAiConsent(true);
     } catch {
       /* ignore */
     }
     setHydrated(true);
+  }, []);
+
+  // B3: фиксация явного акта согласия — сохраняем в localStorage и снимаем гейт.
+  const grantAiConsent = useCallback(() => {
+    setAiConsent(true);
+    try {
+      localStorage.setItem(LS_AI_CONSENT, "1");
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   // ── Сохранение состояния ──
@@ -121,6 +139,9 @@ export default function ManyashaChat() {
   const sendChatMessage = useCallback(
     async (text: string, currentMessages: ChatMessage[]) => {
       if (!text || loading) return;
+      // B3: без явного согласия текст не уходит на сторонний AI-сервис.
+      // Гейт в UI не даёт нажать «отправить», это — страховка на уровне логики.
+      if (!aiConsent) return;
 
       const userMsg: ChatMessage = { role: "user", content: text };
       const newMessages = [...currentMessages, userMsg];
@@ -149,7 +170,7 @@ export default function ManyashaChat() {
         setLoading(false);
       }
     },
-    [loading, speak],
+    [loading, speak, aiConsent],
   );
 
   const handleSend = useCallback(() => {
@@ -303,7 +324,33 @@ export default function ManyashaChat() {
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 min-h-0">
-            {messages.length === 0 && (
+            {/* B3 (152-ФЗ, ст.12): явное согласие на передачу текста стороннему AI-сервису
+                перед первым обращением. Пока согласие не дано — чат заблокирован гейтом. */}
+            {messages.length === 0 && !aiConsent && (
+              <div className="text-center py-6">
+                <div className="w-16 h-16 mx-auto mb-3 rounded-full overflow-hidden ring-2 ring-gold/30 bg-navy-900">
+                  <img
+                    src="/mascot/manyasha-avatar.jpg"
+                    alt="Маняша"
+                    className="w-full h-full object-cover object-center"
+                  />
+                </div>
+                <p className="text-white text-sm font-semibold">Перед началом диалога</p>
+                <p className="text-gray-300 text-[11px] mt-2 max-w-[260px] mx-auto leading-relaxed text-left bg-white/[0.04] border border-white/10 rounded-lg p-3">
+                  Сообщения в чате обрабатываются сторонним AI-сервисом, возможна трансграничная
+                  передача данных. Не вводите персональные данные, охраняемую законом тайну и
+                  конфиденциальную информацию.
+                </p>
+                <button
+                  onClick={grantAiConsent}
+                  className="mt-4 px-5 py-2.5 text-xs font-semibold bg-gradient-to-br from-gold/30 to-gold/15 border border-gold/40 text-gold rounded-full hover:from-gold/40 hover:to-gold/20 transition-all cursor-pointer"
+                >
+                  Понимаю, продолжить
+                </button>
+              </div>
+            )}
+
+            {messages.length === 0 && aiConsent && (
               <div className="text-center py-6">
                 <div className="w-16 h-16 mx-auto mb-3 rounded-full overflow-hidden ring-2 ring-gold/30 bg-navy-900">
                   <img
@@ -391,13 +438,14 @@ export default function ManyashaChat() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Напишите сообщение..."
-                disabled={loading}
+                placeholder={aiConsent ? "Напишите сообщение..." : "Подтвердите согласие выше…"}
+                // B3: ввод и отправка заблокированы до явного согласия на AI-обработку.
+                disabled={loading || !aiConsent}
                 className="flex-1 bg-white/5 border border-white/10 rounded-full px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gold/50 focus:bg-white/[0.08] transition-colors disabled:opacity-50"
               />
               <button
                 onClick={handleSend}
-                disabled={loading || !input.trim()}
+                disabled={loading || !input.trim() || !aiConsent}
                 className="w-10 h-10 flex items-center justify-center bg-gradient-to-br from-gold to-cyber-purple text-white rounded-full hover:shadow-[0_0_18px_rgba(245,197,24,0.5)] transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shrink-0"
                 aria-label="Отправить"
               >

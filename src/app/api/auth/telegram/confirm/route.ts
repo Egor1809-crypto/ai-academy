@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Code expired" }, { status: 410 });
     }
 
-    // Upsert user by Telegram id. Inherit latest tariff from matching leads.
+    // Upsert user by Telegram id. Тариф здесь НЕ проставляется автоматически.
     const existing = await prisma.user.findUnique({ where: { telegramId } });
     if (existing) {
       await prisma.user.update({
@@ -51,16 +51,18 @@ export async function POST(req: NextRequest) {
         },
       });
     } else {
-      const matchingLead = await prisma.lead.findFirst({
-        where: { source: { contains: "telegram" } },
-        orderBy: { createdAt: "desc" },
-      });
+      // BUG_FIX_CONTEXT: раньше новому TG-пользователю присваивался тариф из
+      // «последнего telegram-лида глобально» (findFirst source~telegram orderBy
+      // createdAt desc) — без сопоставления по личности. Любой новый пользователь
+      // наследовал тариф случайного человека — тот же класс кросс-присвоения, что
+      // уже давал утечку чужих заявок (C2). Тариф выдаёт куратор вручную после
+      // сверки оплаты; автоматическая привязка требует verified-контакта (follow-up).
       await prisma.user.create({
         data: {
           name: firstName || "Пользователь",
           telegramId,
           telegramUsername,
-          tariff: matchingLead?.tariff ?? null,
+          tariff: null,
         },
       });
     }

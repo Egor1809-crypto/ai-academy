@@ -1,11 +1,16 @@
 // FILE: bot/index.js
-// VERSION: 2.0.0
+// VERSION: 2.1.0
 // AI Legal Academy Telegram Bot — Enterprise Edition
+// CHANGE (v2.1.0): аудитория бота перенесена с bot/data/users.json на БД (таблица User,
+//   ключ telegramId). Маркетинговое согласие живёт в ОДНОМ месте — /stop в боте и веб-отзыв
+//   (/api/account/consent) пишут одну строку User.marketingConsent. Рассылки логируются
+//   пер-получательно в BroadcastRecipient (C7, ст.18 149-ФЗ). users.json больше не стор.
 
 import { Bot, Keyboard, InlineKeyboard, session } from "grammy";
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
+import { readFileSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
+import { PrismaClient } from "@prisma/client";
 
 // ─────────────────────────────────────────────────────────────
 // ENV & CONFIG
@@ -46,6 +51,10 @@ const NAVI_API_KEY = env.NAVI_API_KEY || "";
 const NAVI_BASE_URL = "https://api.navy/v1";
 const AI_MODEL = "deepseek-chat";
 const MAX_AI_INPUT = 1000; // cap user text forwarded to the paid LLM
+// Аудитория бота теперь живёт в БД (таблица User), а не в bot/data/users.json.
+// Бот парсит bot/.env в локальный объект env (НЕ в process.env), поэтому Prisma
+// инстанцируется с явным datasources.db.url = env.DATABASE_URL (см. блок PRISMA ниже).
+const DATABASE_URL = env.DATABASE_URL || "";
 
 // Fail fast on missing critical config rather than running with broken buttons.
 const __missing = [];
@@ -63,6 +72,14 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const CONSENT_NOTICE =
   `<i>Продолжая, вы подтверждаете, что вам есть 18 лет, и даёте согласие на обработку ` +
   `персональных данных. Политика: ${SITE_URL}/legal/privacy</i>`;
+
+// B4 (152-ФЗ, ст.12) / D2: предупреждение о трансграничной передаче ПДн в сторонний
+// AI-сервис. Показывается перед входом в AI-чат бота — паритет с сайтом (ManyashaChat,
+// LiveDemo). ТОЧНЫЙ текст согласован с ТЗ (раздел B4); не менять формулировку.
+const AI_NOTICE =
+  `⚠️ Сообщения в AI-чате обрабатываются сторонним AI-сервисом, возможна ` +
+  `трансграничная передача данных. Не вводите персональные данные доверителей, ` +
+  `охраняемую законом тайну и конфиденциальную информацию.`;
 
 // Per-user sliding-window rate limit for PAID LLM calls — protects the API
 // budget from a single user/bot spamming the free-form chat fallback.
@@ -97,76 +114,223 @@ function esc(s) {
     .replace(/>/g, "&gt;");
 }
 
-const DATA_DIR = resolve(__dirname, "data");
-const USERS_FILE = resolve(DATA_DIR, "users.json");
+// ─────────────────────────────────────────────────────────────
+// PRISMA — единый источник аудитории бота (таблица User)
+// ─────────────────────────────────────────────────────────────
+//
+// START_RATIONALE:
+// Q: Почему new PrismaClient({ datasources: { db: { url: env.DATABASE_URL } } }),
+//    а не дефолтный конструктор как в src/lib/prisma.ts?
+// A: Бот парсит bot/.env в локальный объект env, НЕ в process.env. Prisma по умолчанию
+//    читает DATABASE_URL из process.env(...) (см. schema datasource url = env("DATABASE_URL")),
+//    которого здесь нет. Явно прокидываем url из env, иначе клиент упадёт «Environment
+//    variable not found: DATABASE_URL» уже на первом запросе.
+// Q: Почему единый источник, а не users.json?
+// A: Маркетинговое согласие обязано жить в ОДНОМ месте: веб-отзыв (User.marketingConsent
+//    через /api/account/consent) и /stop в боте должны писать одну и ту же строку, иначе
+//    отписка на сайте не исключала бы пользователя из рассылки бота (нарушение ст.18 149-ФЗ).
+// END_RATIONALE
+
+// BUG_FIX_CONTEXT: отсутствие DATABASE_URL раньше уронило бы бота опаковым «Environment
+// variable not found» на первом же запросе к БД. Проверяем заранее и даём внятную ошибку
+// (на проде — добавить DATABASE_URL в bot/.env), не давая PM2 крутить crash-loop без причины.
+if (!DATABASE_URL) {
+  console.error("[FATAL] Отсутствует DATABASE_URL в bot/.env — аудитория бота хранится в БД (таблица User).");
+  console.error("Добавьте DATABASE_URL=postgresql://... в bot/.env (та же БД, что и у сайта).");
+  process.exit(1);
+}
+
+const prisma = new PrismaClient({
+  datasources: { db: { url: DATABASE_URL } },
+});
 
 // ─────────────────────────────────────────────────────────────
-// USER TRACKING
+// USER TRACKING (persisted in User table, keyed by telegramId)
 // ─────────────────────────────────────────────────────────────
 
-if (!existsSync(DATA_DIR)) {
-  mkdirSync(DATA_DIR, { recursive: true });
+// START_FUNCTION_startOfToday
+// START_CONTRACT:
+// PURPOSE: Полночь текущих суток (локальное время сервера) — граница для getActiveToday.
+// INPUTS: Нет.
+// OUTPUTS: Date - начало сегодняшнего дня (00:00:00.000).
+// SIDE_EFFECTS: Нет.
+// COMPLEXITY_SCORE: 1 [Тривиальный расчёт границы суток]
+// END_CONTRACT
+function startOfToday() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
 }
+// END_FUNCTION_startOfToday
 
-function loadUsers() {
-  try {
-    if (existsSync(USERS_FILE)) {
-      return JSON.parse(readFileSync(USERS_FILE, "utf-8"));
-    }
-  } catch (e) {
-    console.error("[UserStore] Failed to load users.json:", e.message);
-  }
-  return {};
-}
-
-function saveUsers(users) {
-  try {
-    // mode 0o600 — readable/writable by the bot's user only (contains PII)
-    writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), { encoding: "utf-8", mode: 0o600 });
-  } catch (e) {
-    console.error("[UserStore] Failed to save users.json:", e.message);
-  }
-}
-
-function trackUser(ctx) {
+// START_FUNCTION_trackUser
+// START_CONTRACT:
+// PURPOSE: Регистрирует/обновляет пользователя бота в таблице User по telegramId.
+// INPUTS:
+//   - grammy-контекст обновления => ctx
+// OUTPUTS: Promise<void>.
+// SIDE_EFFECTS: upsert строки User; при сбое — только лог (обработка сообщения не падает).
+// KEYWORDS: PATTERN(7): Upsert; CONCEPT(8): AudienceTracking; TECH(8): Prisma
+// COMPLEXITY_SCORE: 4 [Upsert с раздельной семантикой create/update]
+// END_CONTRACT
+async function trackUser(ctx) {
   const from = ctx.from;
   if (!from) return;
-  const users = loadUsers();
-  const id = String(from.id);
-  const now = new Date().toISOString();
-  if (!users[id]) {
-    users[id] = {
-      telegram_id: from.id,
-      first_name: from.first_name || "",
-      username: from.username || "",
-      first_seen: now,
-      last_interaction: now,
-    };
-  } else {
-    users[id].last_interaction = now;
-    if (from.first_name) users[id].first_name = from.first_name;
-    if (from.username) users[id].username = from.username;
+
+  // START_BLOCK_UPSERT: Мягкий upsert — create заводит нового, update лишь освежает активность
+  try {
+    const telegramId = String(from.id);
+    const now = new Date();
+    const username = from.username || null;
+    // BUG_FIX_CONTEXT: на update НЕЛЬЗЯ перезаписывать name/tariff/email/marketingConsent/
+    // passwordHash существующего юзера — иначе трекинг бота затирал бы данные, выставленные
+    // в веб-кабинете (напр. отписку через /api/account/consent или тариф куратора). Обновляем
+    // только lastSeenAt и telegramUsername (если он пришёл). marketingConsent НЕ трогаем.
+    const updateData = { lastSeenAt: now };
+    if (username) updateData.telegramUsername = username;
+
+    await prisma.user.upsert({
+      where: { telegramId },
+      create: {
+        telegramId,
+        name: from.first_name || "Пользователь",
+        telegramUsername: username,
+        lastSeenAt: now,
+      },
+      update: updateData,
+    });
+  } catch (e) {
+    // Сбой трекинга НЕ должен ронять обработку сообщения — только фиксируем в лог.
+    console.error("[UserStore][IMP:8][trackUser][UPSERT] сбой трекинга пользователя [FAIL]", e.message);
   }
-  saveUsers(users);
+  // END_BLOCK_UPSERT
 }
+// END_FUNCTION_trackUser
 
-function getUserCount() {
-  const users = loadUsers();
-  return Object.keys(users).length;
+// START_FUNCTION_getUserCount
+// START_CONTRACT:
+// PURPOSE: Число известных боту пользователей (у кого заполнен telegramId).
+// INPUTS: Нет.
+// OUTPUTS: Promise<number>.
+// SIDE_EFFECTS: SELECT count. При сбое → 0 (для админ-панели, не критично).
+// COMPLEXITY_SCORE: 2
+// END_CONTRACT
+async function getUserCount() {
+  try {
+    return await prisma.user.count({ where: { telegramId: { not: null } } });
+  } catch (e) {
+    console.error("[UserStore][IMP:8][getUserCount] сбой подсчёта [FAIL]", e.message);
+    return 0;
+  }
 }
+// END_FUNCTION_getUserCount
 
-function getActiveToday() {
-  const users = loadUsers();
-  const today = new Date().toISOString().slice(0, 10);
-  return Object.values(users).filter(
-    (u) => u.last_interaction && u.last_interaction.slice(0, 10) === today
-  ).length;
+// START_FUNCTION_getActiveToday
+// START_CONTRACT:
+// PURPOSE: Число пользователей, активных в боте с начала текущих суток.
+// INPUTS: Нет.
+// OUTPUTS: Promise<number>.
+// SIDE_EFFECTS: SELECT count по lastSeenAt >= startOfToday(). При сбое → 0.
+// COMPLEXITY_SCORE: 2
+// END_CONTRACT
+async function getActiveToday() {
+  try {
+    return await prisma.user.count({
+      where: { telegramId: { not: null }, lastSeenAt: { gte: startOfToday() } },
+    });
+  } catch (e) {
+    console.error("[UserStore][IMP:8][getActiveToday] сбой подсчёта [FAIL]", e.message);
+    return 0;
+  }
 }
+// END_FUNCTION_getActiveToday
 
-function getAllChatIds() {
-  const users = loadUsers();
-  return Object.values(users).map((u) => u.telegram_id);
+// START_FUNCTION_getAllChatIds
+// START_CONTRACT:
+// PURPOSE: Все telegramId известной боту аудитории (для метрики «всего»).
+// INPUTS: Нет.
+// OUTPUTS: Promise<string[]> - массив telegramId.
+// SIDE_EFFECTS: SELECT. При сбое → [].
+// COMPLEXITY_SCORE: 2
+// END_CONTRACT
+async function getAllChatIds() {
+  try {
+    const rows = await prisma.user.findMany({
+      where: { telegramId: { not: null } },
+      select: { telegramId: true },
+    });
+    return rows.map((r) => r.telegramId);
+  } catch (e) {
+    console.error("[UserStore][IMP:8][getAllChatIds] сбой выборки [FAIL]", e.message);
+    return [];
+  }
 }
+// END_FUNCTION_getAllChatIds
+
+// START_FUNCTION_getMarketingChatIds
+// START_CONTRACT:
+// PURPOSE: Аудитория рекламной рассылки — только давшие маркетинговое согласие.
+// INPUTS: Нет.
+// OUTPUTS: Promise<Array<{id:number, telegramId:string}>>.
+// SIDE_EFFECTS: SELECT. При сбое → [] (рассылка не уходит — безопасный дефолт).
+// KEYWORDS: CONCEPT(9): ConsentedAudience; TECH(8): Prisma
+// COMPLEXITY_SCORE: 3
+// END_CONTRACT
+// D1 (ст.18 149-ФЗ): реклама по сетям связи допустима только по предварительному
+// согласию адресата. Аудитория рассылки — строго пользователи с marketingConsent===true.
+// Отсутствие согласия трактуется как отсутствие согласия (не рассылаем). Веб-отзыв через
+// /api/account/consent гасит User.marketingConsent → пользователь автоматически выпадает.
+// Возвращаем {id, telegramId}: id нужен для лога BroadcastRecipient.userId.
+async function getMarketingChatIds() {
+  try {
+    return await prisma.user.findMany({
+      where: { telegramId: { not: null }, marketingConsent: true },
+      select: { id: true, telegramId: true },
+    });
+  } catch (e) {
+    console.error("[UserStore][IMP:8][getMarketingChatIds] сбой выборки [FAIL]", e.message);
+    return [];
+  }
+}
+// END_FUNCTION_getMarketingChatIds
+
+// START_FUNCTION_setMarketingConsent
+// START_CONTRACT:
+// PURPOSE: Переключение маркетингового согласия (команды /reklama, /stop) в User.
+// INPUTS:
+//   - grammy-контекст => ctx
+//   - целевое значение согласия => value: boolean
+// OUTPUTS: Promise<boolean> - true при успешной записи.
+// SIDE_EFFECTS: upsert строки User по telegramId (create при отсутствии).
+// KEYWORDS: CONCEPT(9): ConsentWithdrawal; TECH(8): Prisma
+// COMPLEXITY_SCORE: 3
+// END_CONTRACT
+// D1: /stop (отписка) обязателен по ст.18 149-ФЗ. Пишем в ту же строку User, что и
+// веб-отзыв — единый источник согласия.
+async function setMarketingConsent(ctx, value) {
+  const from = ctx.from;
+  if (!from) return false;
+  try {
+    const telegramId = String(from.id);
+    const consent = value === true;
+    await prisma.user.upsert({
+      where: { telegramId },
+      create: {
+        telegramId,
+        name: from.first_name || "Пользователь",
+        telegramUsername: from.username || null,
+        marketingConsent: consent,
+        lastSeenAt: new Date(),
+      },
+      update: { marketingConsent: consent },
+    });
+    return true;
+  } catch (e) {
+    console.error("[UserStore][IMP:9][setMarketingConsent] сбой записи согласия [FAIL]", e.message);
+    return false;
+  }
+}
+// END_FUNCTION_setMarketingConsent
 
 // ─────────────────────────────────────────────────────────────
 // BOT INIT
@@ -176,13 +340,17 @@ const bot = new Bot(BOT_TOKEN);
 
 bot.use(
   session({
-    initial: () => ({ step: null, data: {}, tariffPage: 0, chatHistory: [] }),
+    // aiNoticeShown — B4: показывали ли уже предупреждение о трансграничной передаче
+    // (152-ФЗ ст.12) перед AI-чатом в текущей сессии; чтобы не дублировать на каждое сообщение.
+    initial: () => ({ step: null, data: {}, tariffPage: 0, chatHistory: [], aiNoticeShown: false }),
   })
 );
 
-// Track every user interaction
+// Track every user interaction. trackUser сам глушит свои ошибки (сбой трекинга не
+// должен блокировать обработку сообщения), но всё равно await-им, чтобы lastSeenAt
+// успел записаться до следующего обработчика (например /stats в той же сессии).
 bot.use(async (ctx, next) => {
-  trackUser(ctx);
+  await trackUser(ctx);
   return next();
 });
 
@@ -654,6 +822,8 @@ async function setBotCommands() {
       { command: "experts", description: "Эксперты курса" },
       { command: "faq", description: "Частые вопросы" },
       { command: "apply", description: "Оставить заявку" },
+      { command: "reklama", description: "Подписаться на рассылку" },
+      { command: "stop", description: "Отписаться от рассылки" },
       { command: "help", description: "Справка по командам" },
     ]);
     console.log("[Commands] Bot commands set successfully");
@@ -673,6 +843,11 @@ bot.command("start", async (ctx) => {
     await handleTelegramAuth(ctx, payload.slice(5));
     return;
   }
+
+  // BUG_FIX_CONTEXT: раньше /start не сбрасывал step, поэтому обещанный в режиме AI-чата
+  // выход «нажми /start» не работал — следующее сообщение снова уходило в AI. /start
+  // всегда возвращает в главное меню, значит сбрасываем активный шаг диалога.
+  ctx.session.step = null;
 
   const name = esc(ctx.from?.first_name) || "друг";
 
@@ -1054,10 +1229,39 @@ bot.command("help", async (ctx) => {
       `/experts — Эксперты курса\n` +
       `/faq — Частые вопросы\n` +
       `/apply — Оставить заявку\n` +
+      `/reklama — Подписаться на рассылку\n` +
+      `/stop — Отписаться от рассылки\n` +
       `/help — Эта справка\n\n` +
       `──────────────────────────\n\n` +
       `Также вы можете использовать кнопки меню внизу экрана.`,
     { parse_mode: "HTML", reply_markup: mainKeyboard() }
+  );
+});
+
+// ─────────────────────────────────────────────────────────────
+// D1 (ст.18 149-ФЗ): управление маркетинговым согласием
+// /reklama — подписка на рекламные сообщения; /stop — отписка (ОБЯЗАТЕЛЬНА по 149-ФЗ)
+// ─────────────────────────────────────────────────────────────
+
+bot.command("reklama", async (ctx) => {
+  // Предварительное согласие адресата на рекламу по сетям связи (ст.18 149-ФЗ).
+  await setMarketingConsent(ctx, true);
+  await ctx.reply(
+    `✅ <b>Вы подписались на рассылку</b>\n\n` +
+      `Теперь вы будете получать новости о курсе, акциях и полезных материалах.\n\n` +
+      `Отписаться в любой момент можно командой /stop.`,
+    { parse_mode: "HTML" }
+  );
+});
+
+bot.command("stop", async (ctx) => {
+  // Обязательный механизм отзыва согласия на рекламу (ст.18 149-ФЗ).
+  await setMarketingConsent(ctx, false);
+  await ctx.reply(
+    `🔕 <b>Вы отписались от рассылки</b>\n\n` +
+      `Больше не будем присылать рекламные сообщения.\n\n` +
+      `Снова подписаться можно командой /reklama.`,
+    { parse_mode: "HTML" }
   );
 });
 
@@ -1068,10 +1272,15 @@ bot.command("help", async (ctx) => {
 bot.hears("🪆 Спросить Маняшу", async (ctx) => {
   ctx.session.step = "manyasha_chat";
   ctx.session.chatHistory = [];
+  // B4: предупреждение AI_NOTICE показываем прямо в этом приветствии (ниже), поэтому
+  // помечаем aiNoticeShown=true — чтобы не продублировать его в свободном AI-фолбэке.
+  ctx.session.aiNoticeShown = true;
   await ctx.reply(
     `🪆 <b>Маняша слушает!</b>\n\n` +
       `Привет! Я Маняша — твой AI-помощник по курсу "Нейросети для юристов" 🎓\n\n` +
       `Задай мне любой вопрос о курсе, программе, тарифах или экспертах.\n\n` +
+      // B4 (152-ФЗ, ст.12): предупреждение о трансграничной передаче ПДн в AI-сервис.
+      `${esc(AI_NOTICE)}\n\n` +
       `<i>Чтобы выйти из чата, нажми</i> /start`,
     { parse_mode: "HTML" }
   );
@@ -1121,8 +1330,8 @@ bot.command("admin", async (ctx) => {
     // API unavailable, show what we can
   }
 
-  const userCount = getUserCount();
-  const activeToday = getActiveToday();
+  const userCount = await getUserCount();
+  const activeToday = await getActiveToday();
 
   await ctx.reply(
     `🔐 <b>Панель администратора</b>\n\n` +
@@ -1144,8 +1353,8 @@ bot.command("stats", async (ctx) => {
     return;
   }
 
-  const userCount = getUserCount();
-  const activeToday = getActiveToday();
+  const userCount = await getUserCount();
+  const activeToday = await getActiveToday();
 
   let totalLeads = 0;
   try {
@@ -1202,17 +1411,43 @@ async function sendBroadcastMessage(chatId, message) {
 }
 
 /**
- * Deliver a message to many chats with throttling (~25 msg/s, under Telegram's
- * ~30/s limit) and per-message retries. Shared by manual /broadcast and the
- * web-admin broadcast queue so both behave identically.
+ * Deliver a message to a marketing-consented audience with throttling (~25 msg/s,
+ * under Telegram's ~30/s limit) and per-message retries. Shared by manual
+ * /broadcast and the web-admin broadcast queue so both behave identically.
+ *
+ * За каждого получателя после отправки пишем строку BroadcastRecipient (C7,
+ * ст.18 149-ФЗ — доказуемость того, что рассылка ушла только давшим согласие,
+ * и с каким статусом доставки). telegramId — адрес; userId — связка с User.
+ *
+ * @param {Array<{id:number, telegramId:string}>} recipients — согласившаяся аудитория
+ * @param {string} message — текст рассылки
+ * @param {number} broadcastId — id строки Broadcast, к которой привязывать логи
+ * @returns {Promise<{sent:number, failed:number}>}
  */
-async function deliverToAll(chatIds, message) {
+async function deliverToAll(recipients, message, broadcastId) {
   let sent = 0;
   let failed = 0;
-  for (const chatId of chatIds) {
-    const ok = await sendBroadcastMessage(chatId, message);
+  for (const r of recipients) {
+    const ok = await sendBroadcastMessage(r.telegramId, message);
     if (ok) sent++;
     else failed++;
+
+    // Пер-получательный лог доставки. Сбой записи лога НЕ должен ронять рассылку —
+    // глушим ошибку, доставка уже произошла.
+    try {
+      await prisma.broadcastRecipient.create({
+        data: {
+          broadcastId,
+          telegramId: r.telegramId,
+          userId: r.id ?? null,
+          status: ok ? "sent" : "failed",
+          deliveredAt: ok ? new Date() : null,
+        },
+      });
+    } catch (e) {
+      console.error("[Broadcast][IMP:8][deliverToAll][RECIPIENT_LOG] сбой записи BroadcastRecipient [FAIL]", e.message);
+    }
+
     await sleep(40);
   }
   return { sent, failed };
@@ -1231,14 +1466,49 @@ bot.command("broadcast", async (ctx) => {
     return;
   }
 
-  const chatIds = getAllChatIds();
-  const { sent, failed } = await deliverToAll(chatIds, text);
+  // D1 (ст.18 149-ФЗ): рассылаем только тем, кто дал маркетинговое согласие.
+  // Раньше уходило getAllChatIds() — ВСЕМ, что нарушало 149-ФЗ.
+  // BUG_FIX_CONTEXT: broadcast всем адресатам без проверки согласия — прямое
+  // нарушение ст.18 149-ФЗ (реклама по сетям связи только с предварительного согласия).
+  const recipients = await getMarketingChatIds();
+  const totalUsers = (await getAllChatIds()).length;
+  const filteredOut = totalUsers - recipients.length;
+
+  if (recipients.length === 0) {
+    // Нет согласий — корректная ситуация: рассылка не уходит (не ошибка).
+    console.info(`[Broadcast] Отфильтровано без согласия: ${filteredOut}/${totalUsers}. Получателей нет — рассылка не отправлена.`);
+    await ctx.reply(
+      `📭 <b>Рассылка не отправлена</b>\n\n` +
+        `Ни один пользователь не дал согласие на рекламные сообщения (ст.18 149-ФЗ).\n` +
+        `Отфильтровано без согласия: ${filteredOut} из ${totalUsers}.`,
+      { parse_mode: "HTML" }
+    );
+    return;
+  }
+
+  console.info(`[Broadcast] Получателей с согласием: ${recipients.length}, отфильтровано: ${filteredOut}/${totalUsers}.`);
+
+  // C7 (ст.18 149-ФЗ): фиксируем факт рассылки в Broadcast, затем на каждого получателя —
+  // BroadcastRecipient (внутри deliverToAll). Ручной /broadcast не проходит через веб-очередь,
+  // поэтому создаём строку Broadcast здесь сами.
+  const broadcast = await prisma.broadcast.create({
+    data: { message: text.slice(0, 4000), status: "sent", sentAt: new Date() },
+  });
+
+  const { sent, failed } = await deliverToAll(recipients, text, broadcast.id);
+
+  // Итоговые счётчики доставки на строке Broadcast.
+  await prisma.broadcast.update({
+    where: { id: broadcast.id },
+    data: { sentCount: sent, failedCount: failed },
+  });
 
   await ctx.reply(
     `📤 <b>Рассылка завершена</b>\n\n` +
       `✅ Доставлено: ${sent}\n` +
       `❌ Ошибки: ${failed}\n` +
-      `📊 Всего: ${chatIds.length}`,
+      `📊 Получателей с согласием: ${recipients.length}\n` +
+      `🔕 Отфильтровано без согласия: ${filteredOut}`,
     { parse_mode: "HTML" }
   );
 });
@@ -1287,6 +1557,13 @@ bot.on("message:text", async (ctx) => {
     if (NAVI_API_KEY && text.length > 1) {
       if (!aiRateLimitOk(ctx.from?.id ?? "anon")) {
         return; // silently ignore over-limit free-form spam
+      }
+      // B4 (152-ФЗ, ст.12): текст пользователя уходит в сторонний AI-сервис. Один раз
+      // за сессию, перед первым свободным AI-ответом, показываем предупреждение о
+      // трансграничной передаче — не дублируем на каждое сообщение.
+      if (!ctx.session.aiNoticeShown) {
+        ctx.session.aiNoticeShown = true;
+        await ctx.reply(esc(AI_NOTICE), { parse_mode: "HTML" });
       }
       await ctx.replyWithChatAction("typing");
       const reply = await askManyashaAI(text, []);
@@ -1505,9 +1782,35 @@ async function pollBroadcastQueue() {
     const b = data.broadcast;
     if (!b || !b.message) return;
 
-    const chatIds = getAllChatIds();
-    // Throttled delivery with per-message retries (shared with /broadcast).
-    const { sent, failed } = await deliverToAll(chatIds, b.message);
+    // D1 (ст.18 149-ФЗ): и рассылка с сайта уходит только по маркетинговому согласию.
+    // BUG_FIX_CONTEXT: раньше веб-рассылка шла getAllChatIds() — всем подряд, минуя
+    // проверку согласия; фильтруем так же, как ручной /broadcast.
+    const recipients = await getMarketingChatIds();
+    const totalUsers = (await getAllChatIds()).length;
+    const filteredOut = totalUsers - recipients.length;
+
+    if (recipients.length === 0) {
+      // Нет согласий — подтверждаем задачу сайту с нулевой доставкой (не зависаем в pending).
+      console.info(`[BroadcastPoll] Отфильтровано без согласия: ${filteredOut}/${totalUsers}. Получателей нет — рассылка не отправлена.`);
+      await fetch(`${API_URL}/api/bot/broadcasts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-bot-secret": BOT_SHARED_SECRET,
+        },
+        body: JSON.stringify({ id: b.id, sentCount: 0, failedCount: 0 }),
+      });
+      await notifyAdmin(
+        `📭 <b>Рассылка с сайта не отправлена</b>\n\nНет пользователей с согласием на рекламу (ст.18 149-ФЗ).\nОтфильтровано без согласия: ${filteredOut} из ${totalUsers}.`,
+      );
+      return;
+    }
+
+    console.info(`[BroadcastPoll] Получателей с согласием: ${recipients.length}, отфильтровано: ${filteredOut}/${totalUsers}.`);
+    // Throttled delivery with per-message retries + per-recipient BroadcastRecipient
+    // log (shared with /broadcast). У веб-рассылки строка Broadcast уже создана сайтом —
+    // используем её b.id как broadcastId для логов получателей (C7, ст.18 149-ФЗ).
+    const { sent, failed } = await deliverToAll(recipients, b.message, b.id);
 
     await fetch(`${API_URL}/api/bot/broadcasts`, {
       method: "POST",
@@ -1519,7 +1822,7 @@ async function pollBroadcastQueue() {
     });
 
     await notifyAdmin(
-      `📤 <b>Рассылка с сайта доставлена</b>\n\n✅ Доставлено: ${sent}\n❌ Ошибки: ${failed}`,
+      `📤 <b>Рассылка с сайта доставлена</b>\n\n✅ Доставлено: ${sent}\n❌ Ошибки: ${failed}\n🔕 Отфильтровано без согласия: ${filteredOut}`,
     );
   } catch (e) {
     console.error("[BroadcastPoll] Failed:", e.message);
@@ -1529,6 +1832,34 @@ async function pollBroadcastQueue() {
 }
 
 setInterval(pollBroadcastQueue, 15000);
+
+// ─────────────────────────────────────────────────────────────
+// GRACEFUL SHUTDOWN — закрываем grammy long-polling и пул соединений Prisma
+// ─────────────────────────────────────────────────────────────
+//
+// BUG_FIX_CONTEXT: без явного prisma.$disconnect() при остановке под PM2 висящие
+// соединения к Postgres не освобождались сразу — при частых рестартах бота пул БД
+// мог упереться в лимит подключений. Закрываем и long-polling, и клиента Prisma.
+let shuttingDown = false;
+async function gracefulShutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(`\n[Shutdown] Получен ${signal} — останавливаю бота...`);
+  try {
+    await bot.stop();
+  } catch (e) {
+    console.error("[Shutdown] Ошибка остановки бота:", e.message);
+  }
+  try {
+    await prisma.$disconnect();
+    console.log("[Shutdown] Prisma отключена.");
+  } catch (e) {
+    console.error("[Shutdown] Ошибка prisma.$disconnect:", e.message);
+  }
+  process.exit(0);
+}
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
 
 await setBotCommands();
 

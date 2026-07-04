@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { SITE } from "@/data/content";
 
 /**
  * Cookie-баннер по требованиям РКН (152-ФЗ/149-ФЗ): cookies + IP + поведенческие
@@ -16,7 +17,9 @@ import Link from "next/link";
  * Дизайн: фирменный язык «Досье» — HUD-уголки, serif-заголовок, иконка-щит.
  */
 const STORAGE_KEY = "cookie-consent";
-const POLICY_VERSION = "1.0";
+// A7: версия документов — из единого источника SITE, а не хардкод. Так
+// зафиксированная в согласии версия однозначно соответствует опубликованному тексту.
+const POLICY_VERSION = SITE.legalVersion;
 
 export interface CookieConsentValue {
   necessary: true;
@@ -116,7 +119,9 @@ export default function CookieConsent() {
             <>
               <p className="text-gray-400 text-[13px] leading-relaxed mb-4">
                 Используем cookies и технические данные (IP, посещения) для работы сайта.
-                Без передачи третьим лицам. Подробнее —{" "}
+                Для отдельных функций — вход через Telegram и AI-ассистент — данные
+                могут передаваться привлечённым лицам и иностранному поставщику ИИ.
+                Подробнее —{" "}
                 <Link href="/legal/cookies" className="text-gold/90 hover:text-gold underline underline-offset-2 decoration-gold/40 transition-colors">
                   Политика cookies
                 </Link>{" "}

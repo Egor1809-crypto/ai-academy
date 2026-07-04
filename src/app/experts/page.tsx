@@ -1,5 +1,5 @@
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import FooterCompact from "@/components/FooterCompact";
 import Experts from "@/components/Experts";
 import Testimonials from "@/components/Testimonials";
 import CTA from "@/components/CTA";
@@ -115,7 +115,7 @@ export default function ExpertsPage() {
         <Testimonials />
         <CTA />
       </main>
-      <Footer />
+      <FooterCompact />
     </>
   );
 }

@@ -8,8 +8,14 @@ import {
   isValidEmail,
   bodyTooLarge,
   normalizePhone,
+  truncateIp,
 } from "@/lib/security";
+import { getCurrentUser } from "@/lib/auth";
 import { SITE } from "@/data/content";
+
+// Срок хранения лида по умолчанию (ст.5 п.7 152-ФЗ — ограничение срока хранения).
+// Отсчитывается от момента согласия; по истечении лид удаляется ретеншн-джобой.
+const LEAD_RETENTION_MS = 3 * 365 * 24 * 60 * 60 * 1000; // ~3 года
 
 // 5 submissions per 10 minutes per IP — very strict, prevents spam
 const submitLimiter = createRateLimiter("leads-submit", { limit: 5, windowSeconds: 600 });
@@ -72,7 +78,10 @@ export async function POST(req: NextRequest) {
     // Sanitize all inputs
     const cleanName = sanitizeInput(String(name), 100);
     const cleanPhone = sanitizeInput(String(phone), 20);
-    const cleanEmail = email ? sanitizeInput(String(email), 200) : null;
+    // Единая нормализация e-mail (trim делает sanitizeInput) + lower-case, как в
+    // /api/auth/login: иначе один адрес в лиде и у пользователя разошёлся бы по
+    // регистру и будущая связка lead↔user промахнулась бы (C4).
+    const cleanEmail = email ? sanitizeInput(String(email), 200).toLowerCase() : null;
     const cleanTariff = sanitizeInput(String(tariff), 50);
     const cleanComment = comment ? sanitizeInput(String(comment), 1000) : null;
 
@@ -93,16 +102,28 @@ export async function POST(req: NextRequest) {
 
     // Dedup by normalized phone within a 30-day window: if the same person
     // re-submits, refresh their existing lead instead of creating a duplicate.
-    // Keeps the spots counter honest and the admin list clean.
+    // BUG_FIX_CONTEXT: раньше грузили «последние 200» лидов за 30 дней и
+    // фильтровали в JS — при >200 заявок дубли за окном не ловились, а счётчик
+    // мест занижался. Теперь запрос по индексированному phone_normalized (C3).
     const phoneDigits = normalizePhone(cleanPhone);
     const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    const recent = await prisma.lead.findMany({
-      where: { createdAt: { gte: since } },
-      select: { id: true, phone: true },
+    const dup = await prisma.lead.findFirst({
+      where: { phoneNormalized: phoneDigits, createdAt: { gte: since } },
       orderBy: { createdAt: "desc" },
-      take: 200,
+      select: { id: true },
     });
-    const dup = recent.find((l) => normalizePhone(l.phone) === phoneDigits);
+
+    // Общие поля согласия/ретеншна — один источник истины для create и update.
+    const now = new Date();
+    const consentFields = {
+      phoneNormalized: phoneDigits,
+      consent: true,
+      marketingConsent,
+      consentAt: now,
+      consentIp: truncateIp(ip),
+      policyVersion: SITE.legalVersion,
+      purgeAfter: new Date(now.getTime() + LEAD_RETENTION_MS),
+    };
 
     if (dup) {
       const lead = await prisma.lead.update({
@@ -112,15 +133,18 @@ export async function POST(req: NextRequest) {
           email: cleanEmail,
           tariff: cleanTariff,
           ...(cleanComment !== null ? { comment: cleanComment } : {}),
-          consent: true,
-          marketingConsent,
-          consentAt: new Date(),
-          consentIp: ip,
-          policyVersion: SITE.legalRevision,
+          // Повторная заявка = свежее согласие: снимаем прежний отзыв, если был.
+          revokedAt: null,
+          ...consentFields,
         },
       });
       return NextResponse.json({ success: true, id: lead.id });
     }
+
+    // Если заявку оставляет уже залогиненный пользователь — сразу связываем лид с
+    // его аккаунтом (populates Lead.userId для кабинета/выгрузки/удаления/отзыва).
+    // Только на create: на dedup-update не переприсваиваем чужой лид другому userId.
+    const currentUser = await getCurrentUser();
 
     const lead = await prisma.lead.create({
       data: {
@@ -129,11 +153,8 @@ export async function POST(req: NextRequest) {
         email: cleanEmail,
         tariff: cleanTariff,
         ...(cleanComment !== null ? { comment: cleanComment } : {}),
-        consent: true,
-        marketingConsent,
-        consentAt: new Date(),
-        consentIp: ip,
-        policyVersion: SITE.legalRevision,
+        ...(currentUser ? { userId: currentUser.id } : {}),
+        ...consentFields,
       },
     });
 

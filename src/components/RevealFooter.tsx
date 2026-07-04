@@ -70,11 +70,12 @@ export default function RevealFooter({ children }: { children: React.ReactNode }
       const p = revealed / h; // прогресс раскрытия 0..1
       if (reduce) {
         inner.style.transform = "";
-        inner.style.opacity = "";
         return;
       }
-      inner.style.transform = `translate3d(0, ${(1 - p) * 48}px, 0)`;
-      inner.style.opacity = String(0.55 + 0.45 * p);
+      // Только лёгкий параллакс-сдвиг, БЕЗ opacity-фейда. Фейд (0.55→1) давал ощущение
+      // «всплытия/материализации» футера при скролле — это и была жалоба «картинка всплывает».
+      // На тёмном футере фейд не нужен: «спуск» читается контрастом. Меньше перерисовок = плавнее.
+      inner.style.transform = `translate3d(0, ${(1 - p) * 28}px, 0)`;
     };
 
     const onScroll = () => {
@@ -97,15 +98,15 @@ export default function RevealFooter({ children }: { children: React.ReactNode }
           will-change — чтобы fixed-элементы внутри (Telegram-кнопка) держались за вьюпорт. */}
       <div
         ref={contentRef}
-        className="relative z-10 bg-navy-900 rounded-b-[24px] md:rounded-b-[40px] overflow-hidden shadow-[0_40px_90px_-20px_rgba(0,0,0,0.9)]"
+        className="relative z-10 bg-navy-900 rounded-b-[24px] md:rounded-b-[40px] overflow-hidden shadow-[0_18px_44px_-20px_rgba(0,0,0,0.85)]"
         style={{ marginBottom: footerHeight }}
       >
         {children}
       </div>
 
-      {/* Светлый editorial-футер зафиксирован внизу за контентом. Никаких подсветок —
-          «спуск» читается контрастом: тёмный контент уезжает вверх, открывая светлый футер.
-          overflow-hidden клипует параллакс inner. */}
+      {/* Тёмный editorial-футер (malvah-стиль) зафиксирован внизу за контентом. Никаких
+          подсветок и opacity-фейда — «спуск» читается мягким контрастом: тёмный контент
+          уезжает вверх, открывая near-black футер. overflow-hidden клипует параллакс inner. */}
       <div ref={footerRef} className="fixed bottom-0 left-0 w-full z-0 overflow-hidden">
         <div ref={innerRef} className="will-change-transform">
           <HomeFooter />

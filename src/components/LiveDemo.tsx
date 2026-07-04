@@ -1,21 +1,37 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type ReactNode, type CSSProperties } from "react";
 import ScrollReveal from "./ScrollReveal";
 
-/**
- * Живое демо AI-юриста на главной. Дифференциатор: вместо обещаний — реальный
- * запрос к нашему же `/api/chat` (тот, что питает чат Маняши). Посетитель вводит
- * задачу (или берёт пресет-боль) и сразу видит ответ AI. Паттерн Spellbook/Legora
- * («покажи продукт»), но живьём, а не скриншотом.
- *
- * Безопасность: демо гоняет тот же rate-limit (15/мин) и предупреждение о ПДн.
- */
+// FILE: src/components/LiveDemo.tsx
+// VERSION: 3.0.0
+// START_MODULE_CONTRACT:
+// PURPOSE: Живое демо AI-юриста — механика «Реформулировка» (идея reframed.online:
+//   вход → выход). Человек описывает ситуацию своими словами («ситуация»), а AI на
+//   глазах превращает её в структуру («разбор»: суть, риски, нормы, план). Сам переход
+//   и есть демонстрация обещания курса — AI превращает юридический хаос в ясность.
+// LANGUAGE: эстетика malvah.co/reframed.online — Helvetica Neue, near-black фон,
+//   off-white текст #e6e6e6, БЕЗ капса/разрядки/неона. Ответ типографски свёрстан
+//   (markdown → JSX), «звёздочки» больше не показываются.
+// SCOPE: секция #live-demo на главной. Дёргает тот же /api/chat (demo:true).
+// KEYWORDS: DOMAIN(7): UX; CONCEPT(9): Reframe+EditorialTypeset; TECH(8): React, md→JSX
+// END_MODULE_CONTRACT
+//
+// START_CHANGE_SUMMARY:
+// LAST_CHANGE: [v3.0.0 - Переписано под механику «Реформулировка» + malvah-язык +
+//   безопасный md→JSX рендер (убраны звёздочки) + поэтапное проявление разбора]
+// PREV_CHANGE_SUMMARY: [v2.x - HUD-консоль «досье» с сырым текстом (звёздочки) и gold-кнопкой]
+// END_CHANGE_SUMMARY
+
+// Нейтральный гротеск как на malvah/reframed (не Space Grotesk).
+const HELV = '"Helvetica Neue", Helvetica, Arial, sans-serif';
+
+// Реальные «боли» так, как их формулирует живой человек — вход в реформулировку.
 const PRESETS = [
-  "Проанализируй договор аренды: какие риски для арендатора?",
-  "Составь структуру ответа на претензию по качеству товара",
-  "Подбери аргументы для взыскания неустойки по 395 ГК РФ",
-  "Сделай чек-лист проверки контрагента перед сделкой",
+  "Пришла претензия на 500 000 ₽ за качество товара — что делать?",
+  "Контрагент не платит уже три месяца — как взыскать долг?",
+  "Прислали договор аренды на подпись — какие риски для меня?",
+  "Хочу проверить контрагента перед сделкой — с чего начать?",
 ];
 
 interface Msg {
@@ -23,15 +39,155 @@ interface Msg {
   content: string;
 }
 
-// B3 (152-ФЗ, ст.12): общий с виджетом Маняши ключ явного согласия на передачу
-// текста стороннему AI-сервису. Согласие, данное в одном месте, действует и здесь.
+// B3 (152-ФЗ, ст.12): общий с виджетом Маняши ключ явного согласия на передачу текста
+// стороннему AI-сервису. Согласие, данное в одном месте, действует и здесь.
 const LS_AI_CONSENT = "ai-chat-consent";
+
+// ── Мини-рендер markdown → JSX (без зависимостей) ───────────────────────────────
+// Убирает «звёздочки»: заголовки, списки, **жирный**, ссылки на нормы РФ. Строим JSX
+// (не innerHTML) — безопасно по XSS. Ссылки на нормы деликатно подчёркиваются одним
+// сдержанным акцентом (единственный цвет на весь блок).
+const NORM_SPLIT =
+  /((?:ст\.?|Стать[а-я]+)\s?\d+(?:\.\d+)?\s?(?:ГК|ГПК|АПК|УК|КоАП|НК|ТК|ЖК|СК)\s?РФ|\d+-ФЗ)/g;
+const NORM_TEST =
+  /^(?:(?:ст\.?|Стать[а-я]+)\s?\d+(?:\.\d+)?\s?(?:ГК|ГПК|АПК|УК|КоАП|НК|ТК|ЖК|СК)\s?РФ|\d+-ФЗ)$/;
+
+function withNorms(text: string, kp: string): ReactNode[] {
+  return text.split(NORM_SPLIT).map((p, i) =>
+    NORM_TEST.test(p) ? (
+      <span
+        key={kp + "n" + i}
+        className="text-[#f4f2ec] underline decoration-cyber-blue/45 decoration-1 underline-offset-2 whitespace-nowrap"
+      >
+        {p}
+      </span>
+    ) : (
+      <span key={kp + "t" + i}>{p}</span>
+    ),
+  );
+}
+
+function renderInline(text: string, kp: string): ReactNode[] {
+  const out: ReactNode[] = [];
+  text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g).forEach((seg, i) => {
+    if (/^\*\*[^*]+\*\*$/.test(seg)) {
+      out.push(
+        <strong key={kp + "b" + i} style={{ fontWeight: 500 }} className="text-[#f4f2ec]">
+          {withNorms(seg.slice(2, -2), kp + "b" + i)}
+        </strong>,
+      );
+    } else if (/^\*[^*]+\*$/.test(seg)) {
+      out.push(
+        <span key={kp + "i" + i} className="text-[#e6e6e6]/50">
+          {seg.slice(1, -1)}
+        </span>,
+      );
+    } else if (seg) {
+      out.push(...withNorms(seg, kp + "s" + i));
+    }
+  });
+  return out;
+}
+
+function renderAnswer(md: string, animate: boolean): ReactNode[] {
+  const lines = md.split("\n");
+  const blocks: ReactNode[] = [];
+  let list: { t: string; ord: boolean; n: number }[] = [];
+  let ordN = 0; // сквозная нумерация пунктов внутри раздела (сброс на каждом заголовке)
+  let b = 0;
+
+  const anim = (i: number): { className: string; style: CSSProperties } =>
+    animate
+      ? { className: "animate-module-item", style: { animationDelay: `${i * 70}ms` } }
+      : { className: "", style: {} };
+
+  const flush = () => {
+    if (!list.length) return;
+    const items = list;
+    const idx = b++;
+    const a = anim(idx);
+    blocks.push(
+      <ul key={"l" + idx} className={`space-y-2.5 my-3 ${a.className || ""}`} style={a.style}>
+        {items.map((it, i) => (
+          <li key={i} className="flex gap-3">
+            <span className="shrink-0 select-none pt-[3px] text-[13px] tabular-nums text-[#e6e6e6]/30">
+              {it.ord ? String(it.n).padStart(2, "0") : "—"}
+            </span>
+            <span className="flex-1 text-[15px] leading-[1.65] text-[#e6e6e6]/85">
+              {renderInline(it.t, `l${idx}i${i}`)}
+            </span>
+          </li>
+        ))}
+      </ul>,
+    );
+    list = [];
+  };
+
+  lines.forEach((raw) => {
+    const ln = raw.trim();
+    if (!ln) {
+      flush();
+      return;
+    }
+    const num = ln.match(/^(\d+)[.)]\s+(.*)$/);
+    const bul = ln.match(/^[-–—•]\s+(.*)$/);
+    if (num) {
+      ordN += 1;
+      list.push({ t: num[2], ord: true, n: ordN });
+      return;
+    }
+    if (bul) {
+      list.push({ t: bul[1], ord: false, n: 0 });
+      return;
+    }
+    flush();
+    const idx = b++;
+    const a = anim(idx);
+    if (ln.startsWith("### ") || ln.startsWith("## ") || ln.startsWith("# ")) {
+      ordN = 0;
+      const t = ln.replace(/^#{1,3}\s+/, "");
+      blocks.push(
+        <div
+          key={"h" + idx}
+          className={`text-[#f4f2ec] text-[17px] md:text-[18px] leading-snug mt-5 mb-1 ${a.className || ""}`}
+          style={a.style}
+        >
+          {renderInline(t, "h" + idx)}
+        </div>,
+      );
+    } else if (/^\*[^*].*\*$/.test(ln)) {
+      // Строка целиком курсивом → дисклеймер-сноска.
+      blocks.push(
+        <p
+          key={"f" + idx}
+          className={`text-[13px] leading-relaxed text-[#e6e6e6]/40 border-l border-white/15 pl-3 mt-5 ${a.className || ""}`}
+          style={a.style}
+        >
+          {ln.replace(/^\*|\*$/g, "")}
+        </p>,
+      );
+    } else {
+      blocks.push(
+        <p
+          key={"p" + idx}
+          className={`text-[15px] leading-[1.7] text-[#e6e6e6]/85 max-w-[64ch] my-2 ${a.className || ""}`}
+          style={a.style}
+        >
+          {renderInline(ln, "p" + idx)}
+        </p>,
+      );
+    }
+  });
+  flush();
+  return blocks;
+}
 
 export default function LiveDemo() {
   const [input, setInput] = useState("");
   const [thread, setThread] = useState<Msg[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
   // B3: факт явного согласия на AI-обработку; персистится в localStorage.
   const [aiConsent, setAiConsent] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -49,7 +205,6 @@ export default function LiveDemo() {
     }
   }, []);
 
-  // B3: фиксация явного акта согласия — сохраняем в localStorage и снимаем гейт.
   const grantAiConsent = () => {
     setAiConsent(true);
     try {
@@ -92,9 +247,7 @@ export default function LiveDemo() {
     }
   };
 
-  // Карточки «готовые команды» шлют событие demo:ask с текстом задачи → демо
-  // автозаполняется и отправляет. Держим ссылку на актуальный send через ref,
-  // чтобы слушатель не захватывал устаревшее замыкание (thread/loading).
+  // Карточки «готовые команды» шлют событие demo:ask → демо автозаполняется и отправляет.
   const sendRef = useRef(send);
   sendRef.current = send;
   useEffect(() => {
@@ -106,79 +259,84 @@ export default function LiveDemo() {
     return () => window.removeEventListener("demo:ask", handler);
   }, []);
 
-  return (
-    <section id="live-demo" className="py-14 sm:py-20 md:py-28 relative overflow-hidden bg-navy-900">
-      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
-      <div className="absolute top-1/3 right-0 w-[500px] h-[500px] bg-cyber-purple/[0.06] rounded-full blur-[150px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gold/[0.05] rounded-full blur-[140px] pointer-events-none" />
+  const lastAssistant = thread.map((m) => m.role).lastIndexOf("assistant");
 
-      <div className="max-w-4xl mx-auto px-6 relative z-10">
+  return (
+    <section
+      id="live-demo"
+      className="py-16 sm:py-24 md:py-32 bg-[#070a10] text-[#e6e6e6]"
+      style={{ fontFamily: HELV }}
+    >
+      <div className="max-w-3xl mx-auto px-6">
         <ScrollReveal direction="up">
-          <div className="text-center mb-10">
-            <div className="flex items-center justify-center gap-4 mb-6">
-              <div className="w-10 h-px bg-gradient-to-r from-transparent to-gold/60" />
-              <span className="text-base md:text-xl font-heading font-bold uppercase tracking-[0.18em] text-gold">
-                Живое демо
-              </span>
-              <div className="w-10 h-px bg-gradient-to-l from-transparent to-gold/60" />
-            </div>
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">
-              Не верьте на слово — <span className="text-gradient-gold">спросите сами</span>
+          <div className="mb-9">
+            <p className="text-[13px] text-[#e6e6e6]/40 mb-5">живое демо</p>
+            <h2
+              className="font-normal text-[30px] md:text-[42px] leading-[1.05] tracking-[-0.02em] text-[#f4f2ec] mb-4"
+              style={{ fontFamily: HELV, textTransform: "none" }}
+            >
+              Не верьте на слово — спросите сами
             </h2>
-            <p className="text-gray-400 max-w-xl mx-auto text-lg leading-relaxed">
-              Задайте юридическую задачу прямо сейчас. Это тот же AI, которого вы научитесь
-              применять на курсе.
+            <p className="text-[16px] md:text-[17px] leading-relaxed text-[#e6e6e6]/55 max-w-xl">
+              Опишите ситуацию своими словами — а AI на ваших глазах превратит хаос в
+              структуру: суть, риски, нормы, план действий. Тот же AI, которого вы освоите
+              на курсе.
             </p>
           </div>
         </ScrollReveal>
 
         <ScrollReveal direction="up" delay={100}>
-          <div className="relative dossier-card border border-gold/25 rounded-xl overflow-hidden shadow-[0_18px_60px_-15px_rgba(0,0,0,0.7)]">
-            <span className="hud-corner-tl" />
-            <span className="hud-corner-br" />
-
-            {/* Строка-заголовок «консоли» */}
-            <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/10 bg-white/[0.02]">
-              <span className="w-2.5 h-2.5 rounded-full bg-cyber-purple/60" />
-              <span className="w-2.5 h-2.5 rounded-full bg-gold/60" />
-              <span className="w-2.5 h-2.5 rounded-full bg-white/20" />
-              <span className="ml-2 text-[11px] font-mono uppercase tracking-widest text-gray-500">
-                AI Legal · демо-консоль
-              </span>
+          <div className="border border-white/[0.08] rounded-2xl bg-[#0b0f16] overflow-hidden">
+            {/* Тихая строка-заголовок: без «окошек» и REC — только подпись и разворот. */}
+            <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.07]">
+              <span className="text-[13px] text-[#e6e6e6]/40">AI-юрист · демо</span>
+              {thread.length > 0 && (
+                <button
+                  onClick={() => setExpanded((v) => !v)}
+                  className="text-[13px] text-[#e6e6e6]/45 hover:text-[#e6e6e6] transition-colors cursor-pointer"
+                >
+                  {expanded ? "свернуть" : "развернуть"}
+                </button>
+              )}
             </div>
 
             {/* Область диалога */}
-            <div ref={scrollRef} className="max-h-[340px] min-h-[180px] overflow-y-auto p-5 space-y-4">
-              {/* B3 (152-ФЗ, ст.12): явное согласие на передачу задачи стороннему
-                  AI-сервису перед первым запросом. До согласия — пресеты скрыты, гейт активен. */}
+            <div
+              ref={scrollRef}
+              className={`overflow-y-auto px-5 md:px-7 py-6 transition-[max-height] duration-500 ${
+                expanded ? "max-h-[72vh]" : "max-h-[400px]"
+              } ${thread.length === 0 && !loading ? "min-h-0" : "min-h-[200px]"}`}
+            >
+              {/* B3 (152-ФЗ, ст.12): явное согласие перед первым запросом. */}
               {thread.length === 0 && !loading && !aiConsent && (
-                <div className="text-center py-8">
-                  <p className="text-gray-300 text-xs max-w-[420px] mx-auto leading-relaxed text-left bg-white/[0.03] border border-white/10 rounded-lg p-4">
-                    Сообщения в демо-чате обрабатываются сторонним AI-сервисом, возможна
+                <div className="py-4">
+                  <p className="text-[14px] leading-relaxed text-[#e6e6e6]/55 max-w-[440px]">
+                    Сообщения в демо обрабатываются сторонним AI-сервисом, возможна
                     трансграничная передача данных. Не вводите персональные данные, охраняемую
                     законом тайну и конфиденциальную информацию.
                   </p>
                   <button
                     onClick={grantAiConsent}
-                    className="mt-4 px-6 py-2.5 bg-gold text-navy-900 font-heading font-bold text-sm uppercase tracking-wide rounded-lg hover:bg-gold-light transition-colors cursor-pointer"
+                    className="mt-4 text-[15px] text-[#e6e6e6] underline underline-offset-4 decoration-[#e6e6e6]/30 hover:decoration-[#e6e6e6] transition-all cursor-pointer"
                   >
-                    Понимаю, продолжить
+                    Понимаю, продолжить →
                   </button>
                 </div>
               )}
 
               {thread.length === 0 && !loading && aiConsent && (
-                <div className="text-center py-8">
-                  <p className="text-gray-400 text-sm mb-5">
-                    Выберите пример или введите свою задачу 👇
+                <div className="py-2">
+                  <p className="text-[14px] text-[#e6e6e6]/45 mb-4">
+                    С чего начнём? Возьмите пример или опишите свою ситуацию 👇
                   </p>
-                  <div className="flex flex-wrap justify-center gap-2">
+                  <div className="flex flex-col gap-2 items-start">
                     {PRESETS.map((p) => (
                       <button
                         key={p}
                         onClick={() => send(p)}
-                        className="text-left text-xs text-gray-300 bg-white/[0.03] border border-white/10 hover:border-gold/40 hover:text-gold px-3 py-2 rounded-lg transition-colors max-w-[260px] cursor-pointer"
+                        className="text-left text-[15px] leading-snug text-[#e6e6e6]/70 hover:text-[#e6e6e6] transition-colors cursor-pointer"
                       >
+                        <span className="text-[#e6e6e6]/30 mr-2">→</span>
                         {p}
                       </button>
                     ))}
@@ -186,54 +344,55 @@ export default function LiveDemo() {
                 </div>
               )}
 
-              {thread.map((m, i) => (
-                <div key={i} className={m.role === "user" ? "flex justify-end" : "flex justify-start"}>
-                  <div
-                    className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
-                      m.role === "user"
-                        ? "bg-gold/15 border border-gold/25 text-white rounded-br-sm"
-                        : "bg-navy-800 border border-white/10 text-gray-200 rounded-bl-sm"
-                    }`}
-                  >
-                    {m.content}
-                  </div>
-                </div>
-              ))}
+              {/* Пары «ситуация → разбор»: сам переход и есть реформулировка. */}
+              <div className="space-y-7">
+                {thread.map((m, i) =>
+                  m.role === "user" ? (
+                    <div key={i}>
+                      <p className="text-[12px] text-[#e6e6e6]/35 mb-1.5">ситуация</p>
+                      <p className="text-[16px] leading-relaxed text-[#e6e6e6]/60">{m.content}</p>
+                    </div>
+                  ) : (
+                    <div key={i}>
+                      <p className="text-[12px] text-[#e6e6e6]/35 mb-2.5">разбор</p>
+                      <div>{renderAnswer(m.content, i === lastAssistant)}</div>
+                    </div>
+                  ),
+                )}
+              </div>
 
               {loading && (
-                <div className="flex justify-start">
-                  <div className="bg-navy-800 border border-white/10 px-4 py-3 rounded-2xl rounded-bl-sm">
-                    <span className="flex gap-1">
-                      <span className="w-1.5 h-1.5 bg-gold rounded-full animate-bounce [animation-delay:-0.3s]" />
-                      <span className="w-1.5 h-1.5 bg-gold rounded-full animate-bounce [animation-delay:-0.15s]" />
-                      <span className="w-1.5 h-1.5 bg-gold rounded-full animate-bounce" />
+                <div className="mt-6">
+                  <p className="text-[12px] text-[#e6e6e6]/35 mb-2">разбор</p>
+                  <p className="flex items-center gap-1 text-[14px] text-[#e6e6e6]/45">
+                    AI структурирует ответ
+                    <span className="inline-flex gap-1 ml-1">
+                      <span className="w-1 h-1 rounded-full bg-[#e6e6e6]/60 animate-bounce [animation-delay:-0.3s]" />
+                      <span className="w-1 h-1 rounded-full bg-[#e6e6e6]/60 animate-bounce [animation-delay:-0.15s]" />
+                      <span className="w-1 h-1 rounded-full bg-[#e6e6e6]/60 animate-bounce" />
                     </span>
-                  </div>
+                  </p>
                 </div>
               )}
 
               {error && (
-                <p role="alert" className="flex items-center justify-center gap-1.5 text-center text-cyber-purple text-sm">
-                  <span aria-hidden>⚠</span>
-                  <span>
-                    <span className="font-semibold">Ошибка: </span>
-                    {error}
-                  </span>
+                <p role="alert" className="mt-4 text-[14px] text-cyber-purple">
+                  {error}
                 </p>
               )}
             </div>
 
-            {/* Ввод */}
-            <div className="border-t border-white/10 p-3 bg-white/[0.02]">
+            {/* Ввод «как есть» */}
+            <div className="border-t border-white/[0.07] px-4 py-3">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
                   send(input);
                 }}
-                className="flex items-end gap-2"
+                className="flex items-end gap-3"
               >
                 <label htmlFor="demo-task-input" className="sr-only">
-                  Юридическая задача
+                  Ваша ситуация
                 </label>
                 <textarea
                   id="demo-task-input"
@@ -246,26 +405,31 @@ export default function LiveDemo() {
                     }
                   }}
                   rows={1}
-                  placeholder={aiConsent ? "Введите юридическую задачу…" : "Подтвердите согласие выше…"}
-                  // B3: ввод и отправка заблокированы до явного согласия на AI-обработку.
+                  placeholder={
+                    aiConsent
+                      ? "Опишите ситуацию своими словами…"
+                      : "Подтвердите согласие выше…"
+                  }
                   disabled={!aiConsent}
-                  className="flex-1 resize-none bg-navy-900 border border-white/10 focus:border-gold/40 rounded-lg px-4 py-3 text-sm text-white placeholder:text-gray-400 outline-none max-h-32 disabled:opacity-50"
+                  className="flex-1 resize-none bg-transparent border-0 px-1 py-2.5 text-[15px] text-[#e6e6e6] placeholder:text-[#e6e6e6]/30 outline-none max-h-32 disabled:opacity-40"
+                  style={{ fontFamily: HELV }}
                 />
                 <button
                   type="submit"
                   disabled={loading || !input.trim() || !aiConsent}
-                  className="shrink-0 px-5 py-3 bg-gold text-navy-900 font-heading font-bold text-sm uppercase tracking-wide rounded-lg hover:bg-gold-light transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                  className="shrink-0 text-[15px] text-[#e6e6e6] border-b border-[#e6e6e6]/30 hover:border-[#e6e6e6] pb-1 transition-all disabled:opacity-25 disabled:cursor-not-allowed cursor-pointer"
                 >
-                  Спросить
+                  Разобрать →
                 </button>
               </form>
-              <p className="text-[11px] text-gray-400 mt-2 px-1 leading-snug">
-                Сообщения обрабатываются сторонним AI-сервисом. Не вводите персональные данные и
-                реальные реквизиты дел.
-              </p>
             </div>
           </div>
         </ScrollReveal>
+
+        <p className="text-[12px] text-[#e6e6e6]/30 mt-3 px-1">
+          Сообщения обрабатываются сторонним AI-сервисом. Не вводите персональные данные и
+          реальные реквизиты дел.
+        </p>
       </div>
     </section>
   );

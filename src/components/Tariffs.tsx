@@ -93,7 +93,7 @@ function CornerBR() {
   );
 }
 
-export default function Tariffs() {
+export default function Tariffs({ showComparison = true }: { showComparison?: boolean }) {
   const [modal, setModal] = useState<string | null>(null);
 
   return (
@@ -237,7 +237,8 @@ export default function Tariffs() {
             })}
           </div>
 
-          {/* ── Comparison matrix ── */}
+          {/* ── Comparison matrix — только на /tariffs (не на главной) ── */}
+          {showComparison && (
           <ScrollReveal direction="up">
             <div className="mt-24 max-w-5xl mx-auto">
               <div className="text-center mb-10">
@@ -296,6 +297,7 @@ export default function Tariffs() {
               </div>
             </div>
           </ScrollReveal>
+          )}
 
           {/* ── Corporate strip ── */}
           <div className="mt-16 max-w-5xl mx-auto text-center">

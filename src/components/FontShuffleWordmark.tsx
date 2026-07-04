@@ -1,19 +1,19 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { SHUFFLE_FONTS } from "@/lib/shuffleFonts";
 
 // FILE: src/components/FontShuffleWordmark.tsx
 // PURPOSE: Живой типографический вордмарк «AI. LEGAL» слева в чат-панели.
-//   «AI.» — жирный белый, статичный. «LEGAL» — перебирает шрифты (~17) и СВЕТИТСЯ циан
-//   (наш фирменный голубой свет). Рядом слоган, меняющий шрифт И РАЗМЕР весомо.
-//   Перебор идёт ВСЕГДА, пока вордмарк на экране (не только при печати) — быстрее при
-//   вводе в чате. Наведение/клик — стоп-кадр. Пауза, когда вне экрана (IntersectionObserver).
-// LANGUAGE: reframed.online (живая типографика) × наш циан-свет платформы.
+//   «AI.» — жирный белый, статичный. «LEGAL» — перебор шрифтов (~17), светится циан.
+//   Слоган меняет шрифт И размер весомо. Перебор идёт всегда, пока вордмарк на экране.
+//   Наведение/клик — стоп-кадр.
+//   ВАЖНО: measure-fit — LEGAL и слоган масштабируются под ширину колонки (любой шрифт/
+//   размер вписывается, НЕ наезжает на чат). Буквы pointer-events:none, чтобы невидимый
+//   layout-бокс не перехватывал клики по чату; клик/hover ловит корневой div.
 
 const HELV = '"Helvetica Neue", Helvetica, Arial, sans-serif';
 
-// Вдохновляющие слоганы — по числу шрифтов. Про рост юриста, скорость, преимущество.
 const SLOGANS = [
   "юрист будущего",
   "твоё преимущество",
@@ -34,25 +34,30 @@ const SLOGANS = [
   "думай стратегически",
 ];
 
-// Весомо разные размеры (px) — от мелкого до крупного.
 const SIZES = [20, 32, 48, 64, 82, 28, 42, 60, 74];
 
 const rnd = (n: number) => Math.floor(Math.random() * n);
 
+// useLayoutEffect на клиенте, useEffect на сервере — без SSR-варнинга.
+const useIsoLayout = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
 export default function FontShuffleWordmark({ active }: { active: boolean }) {
-  const [legalFont, setLegalFont] = useState(12); // старт: Unbounded
-  const [slogan, setSlogan] = useState({ i: 11, font: 3, size: 4 });
+  const [legalFont, setLegalFont] = useState(12);
+  const [slogan, setSlogan] = useState({ i: 0, font: 3, size: 4 });
   const [hovering, setHovering] = useState(false);
   const [locked, setLocked] = useState(false);
   const [reduce, setReduce] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [legalScale, setLegalScale] = useState(1);
+  const [sloganScale, setSloganScale] = useState(1);
   const rootRef = useRef<HTMLDivElement>(null);
+  const legalRef = useRef<HTMLSpanElement>(null);
+  const sloganRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     setReduce(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   }, []);
 
-  // Пауза перебора, когда вордмарк вне экрана — не крутим таймеры зря.
   useEffect(() => {
     const el = rootRef.current;
     if (!el) return;
@@ -66,26 +71,44 @@ export default function FontShuffleWordmark({ active }: { active: boolean }) {
 
   useEffect(() => {
     if (!running) return;
-    // Живёт всегда, но при вводе в чате — заметно энергичнее.
     const legalMs = active ? 110 : 360;
     const slogMs = active ? 620 : 1300;
-    const legal = window.setInterval(() => setLegalFont(rnd(SHUFFLE_FONTS.length)), legalMs);
-    const slog = window.setInterval(
+    const l = window.setInterval(() => setLegalFont(rnd(SHUFFLE_FONTS.length)), legalMs);
+    const s = window.setInterval(
       () => setSlogan({ i: rnd(SLOGANS.length), font: rnd(SHUFFLE_FONTS.length), size: rnd(SIZES.length) }),
       slogMs,
     );
     return () => {
-      window.clearInterval(legal);
-      window.clearInterval(slog);
+      window.clearInterval(l);
+      window.clearInterval(s);
     };
   }, [running, active]);
+
+  // Measure-fit: вписать текст в ширину колонки (offsetWidth не зависит от transform).
+  useIsoLayout(() => {
+    const el = legalRef.current;
+    const cont = el?.parentElement;
+    if (!el || !cont) return;
+    const avail = cont.clientWidth;
+    const w = el.offsetWidth;
+    setLegalScale(avail > 0 && w > avail ? avail / w : 1);
+  }, [legalFont]);
+
+  useIsoLayout(() => {
+    const el = sloganRef.current;
+    const cont = el?.parentElement;
+    if (!el || !cont) return;
+    const avail = cont.clientWidth;
+    const w = el.offsetWidth;
+    setSloganScale(avail > 0 && w > avail ? avail / w : 1);
+  }, [slogan]);
 
   return (
     <div
       ref={rootRef}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
-      onClick={() => setLocked((l) => !l)}
+      onClick={() => setLocked((v) => !v)}
       className="relative select-none cursor-pointer"
       title={locked ? "клик — снять стоп-кадр" : "наведи или кликни — замрёт"}
     >
@@ -96,34 +119,42 @@ export default function FontShuffleWordmark({ active }: { active: boolean }) {
       />
 
       <div className="relative tracking-[-0.02em]">
-        {/* AI. — статичный, белый, среднего кегля */}
+        {/* AI. — статичный, белый */}
         <div
           className="text-white leading-none"
           style={{ fontFamily: HELV, fontWeight: 900, fontSize: "clamp(30px, 3.2vw, 52px)" }}
         >
           AI.
         </div>
-        {/* LEGAL — огромный, перебор шрифтов, светится циан */}
-        <div
-          className="text-white leading-[0.95] mt-1"
+        {/* LEGAL — перебор шрифтов, светится циан, вписан в колонку */}
+        <span
+          ref={legalRef}
+          className="block w-fit mt-1 text-white leading-[0.95] pointer-events-none"
           style={{
             fontFamily: SHUFFLE_FONTS[legalFont],
-            fontSize: "clamp(58px, 7.4vw, 116px)",
+            fontSize: "clamp(56px, 7vw, 104px)",
             textShadow: "0 0 48px rgba(0,207,255,0.55), 0 0 14px rgba(0,207,255,0.35)",
+            whiteSpace: "nowrap",
+            transform: `scale(${legalScale})`,
+            transformOrigin: "left center",
           }}
         >
           LEGAL
-        </div>
+        </span>
       </div>
 
-      {/* Слоган — шрифт и РАЗМЕР меняются весомо, циан-свет */}
-      <div className="relative mt-7 min-h-[96px] flex items-center overflow-visible">
+      {/* Слоган — шрифт и размер меняются весомо, тоже вписан в колонку */}
+      <div className="relative mt-7 min-h-[92px] flex items-center">
         <span
-          className="text-cyber-blue leading-none"
+          ref={sloganRef}
+          className="inline-block text-cyber-blue leading-none pointer-events-none"
           style={{
             fontFamily: SHUFFLE_FONTS[slogan.font],
             fontSize: `${SIZES[slogan.size]}px`,
             textShadow: "0 0 30px rgba(0,207,255,0.4)",
+            whiteSpace: "nowrap",
+            transform: `scale(${sloganScale})`,
+            transformOrigin: "left center",
           }}
         >
           {SLOGANS[slogan.i]}

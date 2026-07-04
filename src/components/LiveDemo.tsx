@@ -322,7 +322,13 @@ export default function LiveDemo({ embedded = false }: { embedded?: boolean }) {
             <div
               ref={scrollRef}
               className={`overflow-y-auto px-5 md:px-7 py-6 transition-[max-height] duration-500 ${
-                expanded ? "max-h-[72vh]" : "max-h-[400px]"
+                expanded
+                  ? embedded
+                    ? "max-h-[56vh]" // embedded: помещается в панель, не режется навбаром
+                    : "max-h-[72vh]"
+                  : embedded
+                    ? "max-h-[38vh]"
+                    : "max-h-[400px]"
               } ${thread.length === 0 && !loading ? "min-h-0" : "min-h-[200px]"}`}
             >
               {/* B3 (152-ФЗ, ст.12): явное согласие перед первым запросом. */}

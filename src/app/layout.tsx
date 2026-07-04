@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Inter, Lora } from "next/font/google";
+import { shuffleFontVars } from "@/lib/shuffleFonts";
 import ScrollProgress from "@/components/ScrollProgress";
 import ManyashaChat from "@/components/ManyashaChat";
 import ParticlesInit from "@/components/ParticlesInit";
@@ -101,7 +102,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ru" className={`${spaceGrotesk.variable} ${inter.variable} ${lora.variable}`}>
+    <html lang="ru" className={`${spaceGrotesk.variable} ${inter.variable} ${lora.variable} ${shuffleFontVars}`}>
       <head>
         <link rel="icon" href="/favicon.jpg" type="image/jpeg" />
         <JsonLd />

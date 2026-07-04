@@ -8,8 +8,7 @@ import Manifesto from "@/components/Manifesto";
 import Audience from "@/components/Audience";
 import TimeSavingsCalc from "@/components/TimeSavingsCalc";
 import UseCases from "@/components/UseCases";
-import Commands from "@/components/Commands";
-import LiveDemo from "@/components/LiveDemo";
+import CommandDeck from "@/components/CommandDeck";
 import Experts from "@/components/Experts";
 import DataSecurity from "@/components/DataSecurity";
 import Bonus from "@/components/Bonus";
@@ -38,8 +37,7 @@ export default function Home() {
         <TimeSavingsCalc />
         <SectionDivider />
         <UseCases />
-        <Commands />
-        <LiveDemo />
+        <CommandDeck />
         <SectionDivider />
         <Experts />
         <DataSecurity />

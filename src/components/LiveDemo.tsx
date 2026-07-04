@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, type ReactNode, type CSSProperties } from "react";
 import ScrollReveal from "./ScrollReveal";
+import FontShuffleWordmark from "./FontShuffleWordmark";
 
 // FILE: src/components/LiveDemo.tsx
 // VERSION: 3.0.0
@@ -182,12 +183,14 @@ function renderAnswer(md: string, animate: boolean): ReactNode[] {
   return blocks;
 }
 
-export default function LiveDemo() {
+export default function LiveDemo({ embedded = false }: { embedded?: boolean }) {
   const [input, setInput] = useState("");
   const [thread, setThread] = useState<Msg[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
+  // Пользователь печатает в чате → драйвит перебор шрифтов в вордмарке (только здесь).
+  const [typing, setTyping] = useState(false);
   // B3: факт явного согласия на AI-обработку; персистится в localStorage.
   const [aiConsent, setAiConsent] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -261,32 +264,47 @@ export default function LiveDemo() {
 
   const lastAssistant = thread.map((m) => m.role).lastIndexOf("assistant");
 
-  return (
-    <section
-      id="live-demo"
-      className="py-16 sm:py-24 md:py-32 bg-[#070a10] text-[#e6e6e6]"
-      style={{ fontFamily: HELV }}
-    >
-      <div className="max-w-3xl mx-auto px-6">
-        <ScrollReveal direction="up">
-          <div className="mb-9">
-            <p className="text-[13px] text-[#e6e6e6]/40 mb-5">живое демо</p>
-            <h2
-              className="font-normal text-[30px] md:text-[42px] leading-[1.05] tracking-[-0.02em] text-[#f4f2ec] mb-4"
-              style={{ fontFamily: HELV, textTransform: "none" }}
-            >
-              Не верьте на слово — спросите сами
-            </h2>
-            <p className="text-[16px] md:text-[17px] leading-relaxed text-[#e6e6e6]/55 max-w-xl">
-              Опишите ситуацию своими словами — а AI на ваших глазах превратит хаос в
-              структуру: суть, риски, нормы, план действий. Тот же AI, которого вы освоите
-              на курсе.
+  // В embedded-режиме (горизонтальная секция) ScrollReveal отключаем: панель «въезжает»
+  // трансформом, а не вертикальным скроллом, и IntersectionObserver ненадёжно триггерит —
+  // контент рисковал остаться скрытым (opacity:0). Показываем сразу.
+  const Reveal = ({
+    children,
+    direction,
+    delay,
+  }: {
+    children: ReactNode;
+    direction?: "up" | "left" | "right" | "fade";
+    delay?: number;
+  }) =>
+    embedded ? (
+      <>{children}</>
+    ) : (
+      <ScrollReveal direction={direction} delay={delay}>
+        {children}
+      </ScrollReveal>
+    );
+
+  const content = (
+    <div className="max-w-6xl mx-auto w-full px-6 grid gap-8 lg:grid-cols-[42%_1fr] lg:gap-14 items-center">
+      {/* ЛЕВО: живой типографический вордмарк AI. LEGAL (десктоп) — оживает при вводе */}
+      <div className="hidden lg:block">
+        <FontShuffleWordmark active={typing} />
+      </div>
+
+      {/* ПРАВО: чат */}
+      <div className="w-full min-w-0">
+        <Reveal direction="up">
+          <div className="mb-5">
+            <p className="text-[13px] text-[#e6e6e6]/40 mb-2">живое демо · не верьте на слово</p>
+            <p className="text-[15px] md:text-[16px] leading-relaxed text-[#e6e6e6]/55 max-w-md">
+              Опишите ситуацию своими словами — AI на глазах превратит хаос в структуру:
+              суть, риски, нормы, план.
             </p>
           </div>
-        </ScrollReveal>
+        </Reveal>
 
-        <ScrollReveal direction="up" delay={100}>
-          <div className="border border-white/[0.08] rounded-2xl bg-[#0b0f16] overflow-hidden">
+        <Reveal direction="up" delay={100}>
+          <div className="border border-cyber-blue/15 rounded-2xl bg-[#0b0f16] overflow-hidden shadow-[0_0_50px_-18px_rgba(0,207,255,0.18)]">
             {/* Тихая строка-заголовок: без «окошек» и REC — только подпись и разворот. */}
             <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.07]">
               <span className="text-[13px] text-[#e6e6e6]/40">AI-юрист · демо</span>
@@ -397,8 +415,14 @@ export default function LiveDemo() {
                 <textarea
                   id="demo-task-input"
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
+                  onChange={(e) => {
+                    setInput(e.target.value);
+                    setTyping(true); // печатает → оживить перебор шрифтов в вордмарке
+                  }}
+                  onFocus={() => setTyping(true)}
+                  onBlur={() => setTyping(false)}
                   onKeyDown={(e) => {
+                    setTyping(true);
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
                       send(input);
@@ -424,13 +448,37 @@ export default function LiveDemo() {
               </form>
             </div>
           </div>
-        </ScrollReveal>
+        </Reveal>
 
         <p className="text-[12px] text-[#e6e6e6]/30 mt-3 px-1">
           Сообщения обрабатываются сторонним AI-сервисом. Не вводите персональные данные и
           реальные реквизиты дел.
         </p>
       </div>
+    </div>
+  );
+
+  // Встраиваемый режим (внутри горизонтальной секции «Готовые команды → чат»):
+  // без внешней <section> и вертикальных отступов — заполняет панель по центру.
+  if (embedded) {
+    return (
+      <div
+        id="live-demo"
+        className="flex h-full w-full flex-col justify-center text-[#e6e6e6]"
+        style={{ fontFamily: HELV }}
+      >
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <section
+      id="live-demo"
+      className="py-16 sm:py-24 md:py-32 bg-[#070a10] text-[#e6e6e6]"
+      style={{ fontFamily: HELV }}
+    >
+      {content}
     </section>
   );
 }

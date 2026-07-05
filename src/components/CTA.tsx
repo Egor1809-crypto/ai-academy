@@ -36,15 +36,7 @@ export default function CTA() {
 
       <div className="max-w-4xl mx-auto px-6 relative z-10 text-center">
         <ScrollReveal direction="up">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 border border-cyber-blue/25 rounded-full mb-10">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber-blue opacity-40" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyber-blue" />
-            </span>
-            <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-cyber-blue/90">набор открыт</span>
-          </div>
-
-          <h2 className="leading-[0.9] mb-8" style={{ fontFamily: HELV, textTransform: "none", letterSpacing: "-0.035em" }}>
+          <h2 className="leading-[0.9] mb-8 pt-4" style={{ fontFamily: HELV, textTransform: "none", letterSpacing: "-0.035em" }}>
             <span className="block text-white" style={{ fontFamily: HELV, fontWeight: 800, fontSize: "clamp(48px, 9vw, 130px)" }}>
               из хаоса —
             </span>
@@ -68,7 +60,7 @@ export default function CTA() {
           </Link>
 
           <p className="mt-6 text-sm text-[#e6e6e6]/45 font-mono uppercase tracking-wider">
-            {spotsLeft !== null ? `Осталось ${spotsLeft} мест на ближайший поток` : "Места ограничены — набор открыт"}
+            {spotsLeft !== null ? `Осталось ${spotsLeft} мест на ближайший поток` : "Места ограничены на ближайший поток"}
           </p>
 
           <div className="mt-12 flex flex-wrap justify-center gap-x-8 gap-y-4 text-xs text-[#e6e6e6]/50">

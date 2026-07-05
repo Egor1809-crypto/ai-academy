@@ -13,6 +13,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+const HELV = '"Helvetica Neue", Helvetica, Arial, sans-serif';
+
 const BOT_USERNAME = process.env.TELEGRAM_BOT_USERNAME || "ailegal_academy_bot";
 
 // Course modules shown in the cabinet. Unlocked once the user has a paid tariff.
@@ -70,7 +72,7 @@ export default async function CabinetPage() {
   const initials = (user.name || "?").trim().slice(0, 1).toUpperCase();
 
   return (
-    <div className="min-h-screen bg-navy-900 text-white relative font-heading">
+    <div className="min-h-screen bg-navy-900 text-white relative" style={{ fontFamily: HELV }}>
       {/* фон */}
       <CabinetBackground />
       <div className="absolute inset-0 bg-tech-grid opacity-[0.4] pointer-events-none" />
@@ -112,7 +114,7 @@ export default async function CabinetPage() {
               {initials}
             </div>
             <div className="flex-1 min-w-[200px]">
-              <h1 className="font-heading font-bold text-3xl mb-1">
+              <h1 className="text-3xl mb-1" style={{ fontFamily: HELV, fontWeight: 800, textTransform: "none", letterSpacing: "-0.02em" }}>
                 Привет, {user.name || "друг"}!
               </h1>
               <p className="text-gray-400">
@@ -138,7 +140,7 @@ export default async function CabinetPage() {
             <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">
               Тариф
             </p>
-            <p className="font-heading font-bold text-xl text-gold truncate">
+            <p className="text-xl text-cyber-blue truncate" style={{ fontFamily: HELV, fontWeight: 700, textTransform: "none" }}>
               {user.tariff || "Не выбран"}
             </p>
             <p className="text-xs text-gray-500 mt-1">
@@ -185,7 +187,7 @@ export default async function CabinetPage() {
             {/* Materials */}
             <section className="bg-navy-800 border border-white/10 rounded-xl p-6">
               <div className="flex items-center justify-between mb-5">
-                <h2 className="font-heading font-bold text-lg">Программа курса</h2>
+                <h2 className="text-lg" style={{ fontFamily: HELV, fontWeight: 700, textTransform: "none" }}>Программа курса</h2>
                 {hasPaidAccess ? (
                   <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded bg-green-500/10 text-green-400 border border-green-500/20">
                     Доступ открыт
@@ -260,7 +262,7 @@ export default async function CabinetPage() {
 
             {/* My applications */}
             <section className="bg-navy-800 border border-white/10 rounded-xl p-6">
-              <h2 className="font-heading font-bold text-lg mb-4">Мои заявки</h2>
+              <h2 className="text-lg mb-4" style={{ fontFamily: HELV, fontWeight: 700, textTransform: "none" }}>Мои заявки</h2>
               {leads.length === 0 ? (
                 <div className="text-center py-8">
                   <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/5 mb-3">
@@ -315,7 +317,7 @@ export default async function CabinetPage() {
             {/* Profile */}
             <section className="bg-navy-800 border border-white/10 rounded-xl p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-heading font-bold text-lg">Профиль</h2>
+                <h2 className="text-lg" style={{ fontFamily: HELV, fontWeight: 700, textTransform: "none" }}>Профиль</h2>
                 <span className="px-2 py-0.5 text-[10px] uppercase tracking-wider font-bold rounded bg-white/5 text-gray-400">
                   {user.role === "admin" ? "Админ" : "Студент"}
                 </span>
@@ -359,7 +361,7 @@ export default async function CabinetPage() {
 
             {/* Curator */}
             <section className="bg-gradient-to-br from-navy-800 to-navy-900 border border-white/10 rounded-xl p-6">
-              <h2 className="font-heading font-bold text-lg mb-2">Связь с куратором</h2>
+              <h2 className="text-lg mb-2" style={{ fontFamily: HELV, fontWeight: 700, textTransform: "none" }}>Связь с куратором</h2>
               <p className="text-gray-400 text-sm mb-4">
                 Вопросы по курсу, оплате или доступу — напишите нам в Telegram, ответим
                 быстро.

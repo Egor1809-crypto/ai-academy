@@ -75,7 +75,7 @@ export default function AccountDataSection({
 
   return (
     <section className="bg-navy-800 border border-white/10 rounded-xl p-6">
-      <h2 className="font-heading font-bold text-lg mb-1">Мои данные</h2>
+      <h2 className="text-lg mb-1" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontWeight: 700, textTransform: "none" }}>Мои данные</h2>
       <p className="text-gray-500 text-xs mb-5">
         Управление персональными данными по 152-ФЗ: доступ, согласие, удаление.
       </p>

@@ -6,7 +6,7 @@ import CTA from "@/components/CTA";
 import ScrollReveal from "@/components/ScrollReveal";
 
 export const metadata = {
-  title: "Эксперты | AI Legal — Нейросети для юристов",
+  title: "Эксперты | ИИ для юриста по банкротству",
   description:
     "Познакомьтесь с преподавателями курса AI Legal. Практикующие юристы с реальным опытом внедрения AI.",
 };

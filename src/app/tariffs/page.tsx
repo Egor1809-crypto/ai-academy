@@ -6,7 +6,7 @@ import CTA from "@/components/CTA";
 import TariffsHero from "./TariffsHero";
 
 export const metadata = {
-  title: "Тарифы | AI Legal — Нейросети для юристов",
+  title: "Тарифы | ИИ для юриста по банкротству",
   description: "Выберите подходящий тариф обучения AI Legal. Рассрочка 0%, возврат 13% через налоговый вычет, гарантия возврата 7 дней.",
 };
 

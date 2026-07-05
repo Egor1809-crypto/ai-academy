@@ -44,7 +44,7 @@ export const SITE = {
 // ── Курс ─────────────────────────────────────────────────────
 
 export const COURSE = {
-  title: "Нейросети для юристов",
+  title: "ИИ для юриста по банкротству (БФЛ)",
   startDate: "15 Июля 2026",
   startDateISO: "2026-07-15T00:00:00",
   offerDeadline: "2026-08-15T00:00:00",
@@ -231,7 +231,7 @@ export interface Product {
 export const PRODUCTS: Product[] = [
   {
     id: "course",
-    name: 'AI-Курс "Нейросети для юристов"',
+    name: 'ИИ для юриста по банкротству (БФЛ)',
     shortName: "AI-Курс для юристов",
     tag: "ОНЛАЙН",
     tagColor: "bg-gold/20 text-gold border-gold/30",

@@ -1,115 +1,109 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import AnimatedCounter from "./AnimatedCounter";
-import { HERO_COUNTERS, COURSE } from "@/data/content";
 
-const ParticleBackground = dynamic(() => import("./ParticleBackground"), {
-  ssr: false,
-});
+// FILE: src/components/Hero.tsx
+// VERSION: 2.0.0
+// Редизайн первого экрана в editorial-язык (гротеск + serif-курсив + циан-крещендо,
+// сломанная иерархия, воздух). СОХРАНЕНЫ бренд-маскот Маняша и эффекты линий
+// (ParticleBackground + ManyashaOrbit) — по требованию. Убраны gold/purple-градиенты HUD.
 
-const Manyasha = dynamic(() => import("./Manyasha"), {
-  ssr: false,
-});
+const HELV = '"Helvetica Neue", Helvetica, Arial, sans-serif';
 
-const ManyashaEffects = dynamic(() => import("./ManyashaEffects"), {
-  ssr: false,
-});
-
-const ManyashaOrbit = dynamic(() => import("./ManyashaOrbit"), {
-  ssr: false,
-});
+const ParticleBackground = dynamic(() => import("./ParticleBackground"), { ssr: false });
+const Manyasha = dynamic(() => import("./Manyasha"), { ssr: false });
+const ManyashaEffects = dynamic(() => import("./ManyashaEffects"), { ssr: false });
+const ManyashaOrbit = dynamic(() => import("./ManyashaOrbit"), { ssr: false });
 
 export default function Hero() {
-  const [spotsLeft, setSpotsLeft] = useState<number | null>(null);
-
-  useEffect(() => {
-    fetch("/api/spots")
-      .then((r) => r.json())
-      .then((d) => {
-        if (typeof d.spotsLeft === "number") setSpotsLeft(d.spotsLeft);
-      })
-      .catch(() => {});
-  }, []);
-
-  const spotsText =
-    spotsLeft !== null
-      ? spotsLeft > 0
-        ? `Набор открыт — осталось ${spotsLeft} мест`
-        : "Набор закрыт — мест нет"
-      : "Набор открыт — загрузка...";
-
   return (
-    <section className="relative pt-32 lg:pt-40 pb-20 overflow-x-clip">
+    <section className="relative pt-32 lg:pt-40 pb-20 overflow-x-clip" style={{ fontFamily: HELV }}>
       <div className="absolute inset-0 bg-navy-900 z-0" />
       <div className="absolute inset-0 bg-tech-grid z-0" />
+      {/* СОХРАНЕНО: частицы-линии (сеть платформы) */}
       <ParticleBackground />
 
-      <div className="absolute top-1/3 left-0 w-[500px] h-[500px] bg-gold/5 rounded-full blur-[150px] pointer-events-none z-0" />
-      <div className="absolute top-1/4 right-1/4 w-[400px] h-[400px] bg-cyber-purple/8 rounded-full blur-[120px] pointer-events-none z-0" />
-      <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent z-10" />
+      {/* Ambient-свет унифицирован в циан (было gold/purple) */}
+      <div className="absolute top-1/3 left-0 w-[520px] h-[520px] bg-cyber-blue/[0.06] rounded-full blur-[150px] pointer-events-none z-0" />
+      <div className="absolute top-1/4 right-1/4 w-[420px] h-[420px] bg-cyber-blue/[0.05] rounded-full blur-[130px] pointer-events-none z-0" />
+      <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-cyber-blue/25 to-transparent z-10" />
 
       <div className="max-w-[1440px] mx-auto px-6 relative z-10 w-full">
-        <div className="grid lg:grid-cols-[1fr_1.4fr] gap-12 lg:gap-0 items-center">
+        <div className="grid lg:grid-cols-[1.3fr_0.85fr] gap-10 lg:gap-4 items-center">
           <div className="text-left">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-[3.75rem] font-bold leading-[1.1] mb-8 tracking-tight">
-              <span className="block text-white">Нейросети</span>
-              <span className="block text-white">для юристов:</span>
-              <span className="block text-gradient-gold mt-2">работайте быстрее</span>
-              <span className="block text-gradient-gold">конкурентов</span>
-            </h1>
-
-            <p className="text-lg md:text-xl text-gray-300 mb-4 max-w-xl font-light leading-relaxed">
-              Практический курс от экспертов-юристов. Промпты, инструменты и методики,
-              разработанные специально для юридической практики.{" "}
-              <Link
-                href="/about"
-                className="inline-flex items-center gap-2 text-gold hover:text-cyan-300 transition-colors font-medium"
-              >
-                <span className="relative flex h-2 w-2 shrink-0">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-gold" />
-                </span>
-                {spotsText}
-              </Link>
+            <p className="font-mono text-[11px] tracking-[0.22em] uppercase text-cyber-blue/60 mb-7">
+              первая в России · ИИ для юриста по банкротству
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 items-start mb-8 mt-10">
+            {/* Editorial-заголовок: только текст с фото, огромный кегль, три голоса */}
+            <h1
+              className="mb-6 leading-[0.9]"
+              style={{ fontFamily: HELV, textTransform: "none", letterSpacing: "-0.035em" }}
+            >
+              <span
+                className="font-serif-display italic block text-[#e6e6e6]/50 mb-2"
+                style={{ fontSize: "clamp(24px, 3.2vw, 46px)" }}
+              >
+                нейросети для юристов
+              </span>
+              <span
+                className="block text-white"
+                style={{ fontFamily: HELV, fontWeight: 800, fontSize: "clamp(52px, 8.4vw, 118px)" }}
+              >
+                работайте
+              </span>
+              <span
+                className="block text-cyber-blue"
+                style={{
+                  fontFamily: HELV,
+                  fontWeight: 800,
+                  fontSize: "clamp(54px, 8.6vw, 120px)",
+                  lineHeight: 0.84,
+                  textShadow: "0 0 70px rgba(0,207,255,0.45)",
+                }}
+              >
+                быстрее всех
+              </span>
+            </h1>
+
+            {/* Слоган из реальной кампании — главный триггер «Хаос → Система» */}
+            <p
+              className="font-serif-display italic mb-9"
+              style={{ fontSize: "clamp(22px, 3vw, 40px)", letterSpacing: "-0.01em" }}
+            >
+              <span className="text-[#e6e6e6]/85">хаос</span>
+              <span className="text-cyber-blue mx-3" style={{ fontFamily: HELV, fontStyle: "normal" }}>→</span>
+              <span className="text-white">система</span>
+            </p>
+
+            <div className="flex flex-wrap gap-x-6 gap-y-4 items-center">
               <a
                 href="#tariffs"
-                className="relative group px-10 py-4 bg-linear-to-r from-cyber-purple to-gold text-white font-heading font-bold uppercase tracking-widest text-base rounded-full overflow-hidden glow-purple transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,0,122,0.6)] hover:-translate-y-0.5"
+                className="group inline-flex items-center gap-2.5 bg-cyber-blue text-navy-900 rounded-full px-8 py-4 text-[15px] font-semibold transition-all duration-300 hover:shadow-[0_0_44px_-6px_rgba(0,207,255,0.65)] hover:-translate-y-0.5"
+                style={{ fontFamily: HELV }}
               >
-                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                <span className="relative z-10 flex items-center gap-3">
-                  Получить доступ
-                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                </span>
+                Получить доступ
+                <span aria-hidden className="group-hover:translate-x-1 transition-transform">→</span>
               </a>
               <Link
                 href="/program"
-                className="px-10 py-4 border border-white/20 text-white font-heading font-bold uppercase tracking-widest text-base rounded-full hover:border-gold hover:text-gold transition-all duration-300 backdrop-blur-sm"
+                className="text-[15px] text-[#e6e6e6]/70 hover:text-white border-b border-[#e6e6e6]/25 hover:border-white pb-1 transition-all"
+                style={{ fontFamily: HELV }}
               >
                 Программа курса
               </Link>
             </div>
-
-            <p className="text-sm text-gray-500 font-mono">
-              Старт ближайшего потока: <span className="text-gold font-bold">{COURSE.startDate}</span>
-            </p>
           </div>
 
+          {/* СОХРАНЕНО: маскот Маняша + орбита-линии + эффекты */}
           <div className="relative flex justify-center lg:justify-end lg:-mr-12">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gold/10 rounded-full blur-[150px] pointer-events-none animate-pulse" />
-            <div className="absolute top-1/3 left-1/3 w-[400px] h-[400px] bg-cyber-purple/8 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyber-blue/[0.10] rounded-full blur-[150px] pointer-events-none animate-pulse" />
+            <div className="absolute top-1/3 left-1/3 w-[400px] h-[400px] bg-cyber-blue/[0.07] rounded-full blur-[120px] pointer-events-none" />
 
-            {/* Visual effects around Manyasha */}
             <ManyashaEffects />
 
-            <div className="mascot-float relative z-10 w-full scale-110 lg:scale-125 translate-y-10 lg:translate-y-16 origin-center">
+            <div className="mascot-float relative z-10 w-full scale-125 lg:scale-[1.8] translate-y-10 lg:translate-y-16 origin-center">
               <ManyashaOrbit />
 
               <div className="relative z-10">
@@ -128,13 +122,25 @@ export default function Hero() {
           </div>
         </div>
 
-        <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl">
-          {HERO_COUNTERS.map((c) => (
-            <AnimatedCounter key={c.label} end={c.end} suffix={c.suffix} label={c.label} />
-          ))}
+        {/* Манифест вместо счётчиков — продолжение «хаос → система»: про построение нового.
+            Без тире, без повтора «система», перенос сбалансирован (text-balance). */}
+        <div className="mt-16 md:mt-24 max-w-3xl">
+          <p
+            className="font-serif-display italic text-[#e6e6e6]/75 text-balance"
+            style={{ fontSize: "clamp(22px, 2.9vw, 40px)", lineHeight: 1.4, letterSpacing: "-0.01em" }}
+          >
+            Секрет перемен в том, чтобы сосредоточить всю энергию не на борьбе со старой
+            системой, а на построении{" "}
+            <span
+              className="not-italic text-cyber-blue"
+              style={{ fontFamily: HELV, fontWeight: 700, textShadow: "0 0 44px rgba(0,207,255,0.35)" }}
+            >
+              нового
+            </span>
+            .
+          </p>
         </div>
       </div>
-
     </section>
   );
 }

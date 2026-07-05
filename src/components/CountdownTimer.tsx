@@ -42,12 +42,12 @@ export default function CountdownTimer({ targetDate }: { targetDate: string }) {
         <div key={b.label} className="flex items-center gap-1.5 sm:gap-3">
           {i > 0 && <span className="text-base sm:text-2xl font-heading text-white/20">:</span>}
           <div className="text-center">
-            <div className="w-11 h-11 sm:w-16 sm:h-16 bg-navy-900 border border-white/10 flex items-center justify-center">
-              <span className="text-lg sm:text-2xl font-heading font-bold text-white tabular-nums">
+            <div className="w-11 h-11 sm:w-16 sm:h-16 bg-navy-900 border border-cyber-blue/15 rounded-lg flex items-center justify-center">
+              <span className="text-lg sm:text-2xl font-heading font-bold text-cyber-blue tabular-nums">
                 {String(b.val).padStart(2, "0")}
               </span>
             </div>
-            <span className="text-[9px] sm:text-[10px] text-gold uppercase mt-1.5 block font-mono tracking-wider">{b.label}</span>
+            <span className="text-[9px] sm:text-[10px] text-cyber-blue/70 uppercase mt-1.5 block font-mono tracking-wider">{b.label}</span>
           </div>
         </div>
       ))}

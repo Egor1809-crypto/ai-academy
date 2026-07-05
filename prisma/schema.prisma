@@ -7,6 +7,60 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ── Enums: нормализация статусов/ролей до целостности на уровне БД ──
+// Значения совпадают с тем, что уже пишет код (иначе сломались бы вставки).
+enum LeadStatus {
+  new
+  contacted
+  qualified
+  paid
+  rejected
+  lost
+}
+
+enum UserRole {
+  user
+  admin
+}
+
+enum BroadcastStatus {
+  pending
+  sending
+  sent
+  failed
+}
+
+enum RecipientStatus {
+  pending
+  sent
+  failed
+  skipped
+}
+
+enum LoginOutcome {
+  ok
+  fail
+}
+
+// Справочник тарифов как enum (реальные ступени БФЛ).
+enum TariffTier {
+  start
+  praktik
+  vnedrenie
+}
+
+enum OrderStatus {
+  pending
+  paid
+  cancelled
+  refunded
+}
+
+enum ConsentType {
+  pdn
+  marketing
+}
+
 model Lead {
   id        Int      @id @default(autoincrement())
   name      String   @db.VarChar(100)
@@ -15,9 +69,10 @@ model Lead {
   // Заполняется на записи; индекс даёт быстрый поиск дублей без выборки «последних 200».
   phoneNormalized String? @map("phone_normalized") @db.VarChar(20)
   email     String?  @db.VarChar(200)
+  // Свободная строка: интерес лида (включает не-тарифы вроде «Lead Magnet»).
   tariff    String   @db.VarChar(50)
   comment   String?  @db.VarChar(1000)
-  status    String   @default("new") @db.VarChar(20)
+  status    LeadStatus @default(new)
   source    String?  @db.VarChar(40)
   userId    Int?     @map("user_id")
   user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -36,8 +91,11 @@ model Lead {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  consents  ConsentRecord[]
+
   @@index([userId])
   @@index([phoneNormalized])
+  @@index([status])
   @@map("leads")
 }
 
@@ -51,7 +109,7 @@ model User {
   telegramId       String?   @unique @map("telegram_id") @db.VarChar(32)
   telegramUsername String?   @map("telegram_username") @db.VarChar(64)
   tariff           String?   @db.VarChar(50)
-  role             String    @default("user") @db.VarChar(20)
+  role             UserRole  @default(user)
   // Согласие на обработку ПДн, зафиксированное при регистрации.
   consentAt        DateTime? @map("consent_at")
   consentVersion   String?   @map("consent_version") @db.VarChar(20)
@@ -63,6 +121,8 @@ model User {
   updatedAt        DateTime  @updatedAt @map("updated_at")
   sessions         Session[]
   leads            Lead[]
+  orders           Order[]
+  consents         ConsentRecord[]
 
   @@map("users")
 }
@@ -98,13 +158,13 @@ model AuthCode {
 
 // Broadcast queue: web admin enqueues, the bot polls + delivers to all users.
 model Broadcast {
-  id          Int       @id @default(autoincrement())
-  message     String    @db.VarChar(4000)
-  status      String    @default("pending") @db.VarChar(20)
-  sentCount   Int       @default(0) @map("sent_count")
-  failedCount Int       @default(0) @map("failed_count")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  sentAt      DateTime? @map("sent_at")
+  id          Int             @id @default(autoincrement())
+  message     String          @db.VarChar(4000)
+  status      BroadcastStatus @default(pending)
+  sentCount   Int             @default(0) @map("sent_count")
+  failedCount Int             @default(0) @map("failed_count")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  sentAt      DateTime?       @map("sent_at")
 
   // Пер-получательный лог доставки (C7, ст.18 149-ФЗ): доказуемость того, что
   // рассылка ушла только давшим маркетинговое согласие и исключила отозвавших.
@@ -119,14 +179,14 @@ model Broadcast {
 // правомерности рекламной рассылки на операторе. telegramId — для аудитории бота
 // (users.json), userId — для веб-канала; заполняется тот, что известен на момент отправки.
 model BroadcastRecipient {
-  id          Int       @id @default(autoincrement())
-  broadcastId Int       @map("broadcast_id")
-  broadcast   Broadcast @relation(fields: [broadcastId], references: [id], onDelete: Cascade)
-  telegramId  String?   @map("telegram_id") @db.VarChar(32)
-  userId      Int?      @map("user_id")
-  status      String    @db.VarChar(20)
-  deliveredAt DateTime? @map("delivered_at")
-  createdAt   DateTime  @default(now()) @map("created_at")
+  id          Int             @id @default(autoincrement())
+  broadcastId Int             @map("broadcast_id")
+  broadcast   Broadcast       @relation(fields: [broadcastId], references: [id], onDelete: Cascade)
+  telegramId  String?         @map("telegram_id") @db.VarChar(32)
+  userId      Int?            @map("user_id")
+  status      RecipientStatus
+  deliveredAt DateTime?       @map("delivered_at")
+  createdAt   DateTime        @default(now()) @map("created_at")
 
   @@index([broadcastId])
   @@map("broadcast_recipients")
@@ -137,14 +197,51 @@ model BroadcastRecipient {
 // невозможно предъявить аудит-трейл по запросу. Теперь — модель с TTL через
 // ретеншн-джобу. ПДн минимизированы: e-mail только псевдонимным хешем, IP — усечённый.
 model LoginEvent {
-  id        Int      @id @default(autoincrement())
-  userId    Int?     @map("user_id")
-  emailHash String?  @map("email_hash") @db.VarChar(16)
-  ip        String?  @db.VarChar(64)
-  outcome   String   @db.VarChar(10)
-  createdAt DateTime @default(now()) @map("created_at")
+  id        Int          @id @default(autoincrement())
+  userId    Int?         @map("user_id")
+  emailHash String?      @map("email_hash") @db.VarChar(16)
+  ip        String?      @db.VarChar(64)
+  outcome   LoginOutcome
+  createdAt DateTime     @default(now()) @map("created_at")
 
   @@index([userId])
   @@index([createdAt])
   @@map("login_events")
+}
+
+// Покупка тарифа. Отдельная модель под факт оплаты (раньше нигде не фиксировалась):
+// связь с пользователем, ступень тарифа (enum), сумма, статус и момент оплаты.
+model Order {
+  id        Int         @id @default(autoincrement())
+  userId    Int         @map("user_id")
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tariff    TariffTier
+  amount    Int
+  status    OrderStatus @default(pending)
+  paidAt    DateTime?   @map("paid_at")
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([status])
+  @@map("orders")
+}
+
+// Единый реестр согласий (DRY + аудит): раньше consent*-поля дублировались в Lead и User.
+// Каждая запись — факт выдачи/отзыва согласия конкретного типа, с версией документа и IP.
+model ConsentRecord {
+  id        Int         @id @default(autoincrement())
+  userId    Int?        @map("user_id")
+  user      User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  leadId    Int?        @map("lead_id")
+  lead      Lead?       @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  type      ConsentType
+  granted   Boolean     @default(true)
+  version   String?     @db.VarChar(20)
+  ip        String?     @db.VarChar(64)
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([leadId])
+  @@map("consent_records")
 }

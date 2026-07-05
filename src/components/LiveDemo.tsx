@@ -400,7 +400,7 @@ export default function LiveDemo({ embedded = false }: { embedded?: boolean }) {
               )}
 
               {error && (
-                <p role="alert" className="mt-4 text-[14px] text-cyber-purple">
+                <p role="alert" className="mt-4 text-[14px] text-cyber-blue">
                   {error}
                 </p>
               )}

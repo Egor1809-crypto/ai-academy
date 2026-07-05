@@ -292,7 +292,7 @@ export default function ManyashaChat() {
           </div>
 
           {/* Header */}
-          <div className="relative flex items-center gap-3 px-4 py-3.5 bg-gradient-to-r from-blue-600/30 via-cyber-purple/20 to-gold/15 border-b border-white/10 shrink-0">
+          <div className="relative flex items-center gap-3 px-4 py-3.5 bg-gradient-to-r from-blue-600/30 via-cyber-blue/20 to-gold/15 border-b border-white/10 shrink-0">
             <div className="absolute inset-0 bg-tech-grid opacity-30 pointer-events-none" />
             <div className="relative w-11 h-11 rounded-full overflow-hidden ring-2 ring-gold/40 shadow-lg shrink-0 bg-navy-900 ml-3">
               <img
@@ -446,7 +446,7 @@ export default function ManyashaChat() {
               <button
                 onClick={handleSend}
                 disabled={loading || !input.trim() || !aiConsent}
-                className="w-10 h-10 flex items-center justify-center bg-gradient-to-br from-gold to-cyber-purple text-white rounded-full hover:shadow-[0_0_18px_rgba(245,197,24,0.5)] transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shrink-0"
+                className="w-10 h-10 flex items-center justify-center bg-gradient-to-br from-gold to-cyber-blue text-white rounded-full hover:shadow-[0_0_18px_rgba(245,197,24,0.5)] transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shrink-0"
                 aria-label="Отправить"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -17,7 +17,7 @@ export default function LegalDoc({
   return (
     <section className="py-14 sm:py-20 md:py-28 bg-navy-900 relative overflow-hidden">
       <div className="absolute inset-0 bg-tech-grid opacity-30" />
-      <div className="absolute top-1/3 left-1/2 w-[600px] h-[400px] bg-cyber-purple/5 rounded-full blur-[200px] pointer-events-none -translate-x-1/2" />
+      <div className="absolute top-1/3 left-1/2 w-[600px] h-[400px] bg-cyber-blue/5 rounded-full blur-[200px] pointer-events-none -translate-x-1/2" />
 
       <div className="max-w-3xl mx-auto px-6 relative z-10">
         <div className="mb-12">

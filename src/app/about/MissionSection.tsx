@@ -37,7 +37,7 @@ export default function MissionSection() {
     <section className="py-28 bg-navy-900 relative overflow-hidden">
       <div className="absolute inset-0 bg-tech-grid opacity-30" />
       <div className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-gold/5 rounded-full blur-[200px] pointer-events-none -translate-y-1/2" />
-      <div className="absolute bottom-0 right-0 w-[300px] h-[300px] bg-cyber-purple/5 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-[300px] h-[300px] bg-cyber-blue/[0.04] rounded-full blur-[150px] pointer-events-none" />
 
       <div className="max-w-5xl mx-auto px-6 relative z-10">
         <ScrollReveal direction="up">
@@ -56,8 +56,8 @@ export default function MissionSection() {
 
         {/* Quote block */}
         <ScrollReveal direction="up" delay={200}>
-          <div className="relative p-[1px] bg-linear-to-r from-gold via-cyber-purple to-gold mb-16">
-            <div className="bg-navy-900 p-8 md:p-12">
+          <div className="relative p-[1px] rounded-2xl bg-gradient-to-r from-cyber-blue/50 via-cyber-blue/15 to-cyber-blue/50 mb-16">
+            <div className="bg-navy-900 rounded-2xl p-8 md:p-12">
               {/* Decorative quotes */}
               <svg
                 className="absolute top-8 left-8 w-10 h-10 text-gold/10"

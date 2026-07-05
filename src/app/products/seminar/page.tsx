@@ -58,7 +58,7 @@ export default function SeminarPage() {
         {/* Hero */}
         <section className="py-28 bg-navy-900 relative overflow-hidden">
           <div className="absolute inset-0 bg-tech-grid opacity-50" />
-          <div className="absolute top-1/4 left-1/2 w-[600px] h-[400px] bg-cyber-purple/10 rounded-full blur-[180px] pointer-events-none -translate-x-1/2" />
+          <div className="absolute top-1/4 left-1/2 w-[600px] h-[400px] bg-cyber-blue/10 rounded-full blur-[180px] pointer-events-none -translate-x-1/2" />
 
           <div className="max-w-5xl mx-auto px-6 relative z-10">
             <ScrollReveal direction="up">
@@ -83,9 +83,9 @@ export default function SeminarPage() {
                   Все продукты
                 </Link>
 
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-cyber-purple/10 border border-cyber-purple/20 mb-8">
-                  <span className="w-1.5 h-1.5 bg-cyber-purple rounded-full animate-pulse" />
-                  <span className="text-cyber-purple text-xs font-mono uppercase tracking-widest">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-cyber-blue/10 border border-cyber-blue/20 mb-8">
+                  <span className="w-1.5 h-1.5 bg-cyber-blue rounded-full animate-pulse" />
+                  <span className="text-cyber-blue text-xs font-mono uppercase tracking-widest">
                     Оффлайн
                   </span>
                 </div>

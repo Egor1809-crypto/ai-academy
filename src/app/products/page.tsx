@@ -9,13 +9,13 @@ import ScrollReveal from "@/components/ScrollReveal";
 
 const products = [
   {
-    title: 'AI-Курс "Нейросети для юристов"',
+    title: "ИИ для юриста по банкротству (БФЛ)",
     href: "/tariffs",
     tag: "ОНЛАЙН",
     tagColor: "bg-gold/20 text-gold border-gold/30",
     description:
-      "8 недель интенсива. От промптинга до полной автоматизации юридической практики.",
-    price: "от 45 000 ₽",
+      "8 уроков под задачи банкротства — от реестра до своего ИИ-конвейера. Урок 6 — практикум БФЛ.",
+    price: "от 9 900 ₽",
     icon: (
       <svg
         className="w-8 h-8"

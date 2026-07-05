@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Программа курса | AI Legal — Нейросети для юристов",
+  title: "Программа курса | AI Legal — ИИ для юриста по банкротству",
   description:
-    "Подробная программа курса AI Legal: 4 модуля, 8 недель, 50+ часов практики. ChatGPT, Claude, Midjourney для юристов.",
+    "Программа курса AI Legal: 8 уроков БФЛ — от физики LLM до своего ИИ-конвейера. Урок 6 — практикум по банкротству: реестр, отзывы, оспаривание сделок 61.2–61.9.",
 };
 
 export default function ProgramLayout({ children }: { children: React.ReactNode }) {

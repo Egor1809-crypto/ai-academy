@@ -7,7 +7,7 @@ import AnimatedCounter from "@/components/AnimatedCounter";
 const timeline = [
   { year: "2024", label: "Early Adopters", color: "bg-gold" },
   { year: "2025", label: "Массовое внедрение", color: "bg-gold" },
-  { year: "2026", label: "Новый стандарт", color: "bg-cyber-purple" },
+  { year: "2026", label: "Новый стандарт", color: "bg-cyber-blue" },
   { year: "2027", label: "Отставшие теряют клиентов", color: "bg-red-500" },
 ];
 
@@ -15,7 +15,7 @@ export default function FomoSection() {
   return (
     <section className="py-28 relative overflow-hidden">
       <div className="absolute inset-0 bg-linear-to-b from-navy-900 via-black to-navy-900" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyber-purple/5 rounded-full blur-[200px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyber-blue/5 rounded-full blur-[200px] pointer-events-none" />
 
       <div className="max-w-5xl mx-auto px-6 relative z-10">
         <ScrollReveal direction="up">
@@ -63,7 +63,7 @@ export default function FomoSection() {
         <ScrollReveal direction="up" delay={400}>
           <div className="relative mb-20">
             {/* Connecting line */}
-            <div className="absolute top-8 left-0 right-0 h-px bg-linear-to-r from-gold via-cyber-purple to-red-500 hidden md:block" />
+            <div className="absolute top-8 left-0 right-0 h-px bg-linear-to-r from-gold via-cyber-blue to-red-500 hidden md:block" />
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {timeline.map((t, i) => (

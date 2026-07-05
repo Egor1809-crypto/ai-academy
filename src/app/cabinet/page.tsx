@@ -75,7 +75,7 @@ export default async function CabinetPage() {
       <CabinetBackground />
       <div className="absolute inset-0 bg-tech-grid opacity-[0.4] pointer-events-none" />
       <div className="absolute top-0 left-1/4 w-[500px] h-[400px] bg-gold/5 rounded-full blur-[160px] pointer-events-none" />
-      <div className="absolute top-40 right-1/4 w-[420px] h-[420px] bg-cyber-purple/8 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute top-40 right-1/4 w-[420px] h-[420px] bg-cyber-blue/8 rounded-full blur-[150px] pointer-events-none" />
 
       {/* Header */}
       <header className="border-b border-white/10 sticky top-0 z-30 bg-navy-900/80 backdrop-blur-md">
@@ -108,7 +108,7 @@ export default async function CabinetPage() {
         <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-navy-800 to-navy-900 p-7 mb-8">
           <div className="absolute -top-10 -right-10 w-48 h-48 bg-gold/10 rounded-full blur-[80px] pointer-events-none" />
           <div className="relative flex items-center gap-5 flex-wrap">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gold to-cyber-purple flex items-center justify-center font-heading font-bold text-2xl text-navy-900 shrink-0 shadow-lg">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gold to-cyber-blue flex items-center justify-center font-heading font-bold text-2xl text-navy-900 shrink-0 shadow-lg">
               {initials}
             </div>
             <div className="flex-1 min-w-[200px]">
@@ -156,7 +156,7 @@ export default async function CabinetPage() {
             <p className="font-heading font-bold text-xl">{progressPct}%</p>
             <div className="mt-2 h-1.5 bg-navy-900 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-gold to-cyber-purple rounded-full transition-all"
+                className="h-full bg-gradient-to-r from-gold to-cyber-blue rounded-full transition-all"
                 style={{ width: `${progressPct}%` }}
               />
             </div>

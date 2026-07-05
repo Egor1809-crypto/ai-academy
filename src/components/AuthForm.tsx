@@ -112,7 +112,7 @@ export default function AuthForm() {
       <AuthDecor />
       {/* фоновые блики */}
       <div className="absolute top-1/4 left-1/3 w-[400px] h-[400px] bg-gold/5 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/3 w-[360px] h-[360px] bg-cyber-purple/8 rounded-full blur-[130px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/3 w-[360px] h-[360px] bg-cyber-blue/8 rounded-full blur-[130px] pointer-events-none" />
 
       <div className="w-full max-w-sm relative z-10">
         <Link href="/" className="flex items-center justify-center gap-2 mb-8">
@@ -166,7 +166,7 @@ export default function AuthForm() {
               onClick={() => setMethod("phone")}
               className={`${tabBase} ${
                 method === "phone"
-                  ? "bg-cyber-purple text-white"
+                  ? "bg-cyber-blue text-white"
                   : "text-gray-400 hover:text-white"
               }`}
             >
@@ -256,8 +256,8 @@ export default function AuthForm() {
           {/* — Телефон (SMS) — пока в разработке — */}
           {method === "phone" && (
             <div className="text-center py-2">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-cyber-purple/15 mb-3">
-                <svg className="w-6 h-6 text-cyber-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-cyber-blue/15 mb-3">
+                <svg className="w-6 h-6 text-cyber-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
               </div>

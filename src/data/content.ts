@@ -253,7 +253,7 @@ export const PRODUCTS: Product[] = [
     name: 'Живой семинар "AI-революция"',
     shortName: "Живой семинар",
     tag: "ОФФЛАЙН",
-    tagColor: "bg-cyber-purple/20 text-cyber-purple border-cyber-purple/30",
+    tagColor: "bg-cyber-blue/20 text-cyber-blue border-cyber-blue/30",
     shortDesc: "Однодневный семинар-погружение для юристов",
     fullDesc:
       "Живой семинар с демонстрацией AI-инструментов в реальном времени.\n\n" +

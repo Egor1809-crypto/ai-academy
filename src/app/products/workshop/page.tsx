@@ -169,8 +169,8 @@ export default function WorkshopPage() {
                   </ul>
                 </div>
                 <div className="bg-white/[0.03] border border-white/10 p-8">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-cyber-purple/10 border border-cyber-purple/20 mb-6">
-                    <span className="text-cyber-purple text-xs font-mono font-bold">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-cyber-blue/10 border border-cyber-blue/20 mb-6">
+                    <span className="text-cyber-blue text-xs font-mono font-bold">
                       ДЕНЬ 2
                     </span>
                   </div>

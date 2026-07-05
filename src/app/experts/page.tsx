@@ -25,8 +25,8 @@ export default function ExpertsPage() {
         <section className="relative overflow-hidden bg-navy-900 pt-14 pb-16 md:pt-20 md:pb-24 lg:min-h-[88vh] flex flex-col justify-center">
           {/* фактуры и свечения */}
           <div className="absolute inset-0 bg-tech-grid opacity-40 pointer-events-none" />
-          <div className="absolute -top-24 -right-24 w-[620px] h-[620px] bg-cyber-purple/[0.07] rounded-full blur-[170px] pointer-events-none" />
-          <div className="absolute bottom-0 -left-20 w-[520px] h-[380px] bg-gold/[0.06] rounded-full blur-[150px] pointer-events-none" />
+          <div className="absolute -top-24 -right-24 w-[620px] h-[620px] bg-cyber-blue/[0.06] rounded-full blur-[170px] pointer-events-none" />
+          <div className="absolute bottom-0 -left-20 w-[520px] h-[380px] bg-cyber-blue/[0.04] rounded-full blur-[150px] pointer-events-none" />
           <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
           <div className="max-w-7xl mx-auto px-6 w-full relative z-10">
@@ -45,14 +45,14 @@ export default function ExpertsPage() {
               <p className="font-mono text-[11px] md:text-xs uppercase tracking-[0.3em] text-gray-500 mb-4">
                 Теорию вы уже читали.
               </p>
-              <h1 className="relative font-heading font-black uppercase leading-[0.82] tracking-[-0.02em] text-white">
+              <h1 className="relative font-heading font-black leading-[0.82] tracking-[-0.02em] text-white" style={{ textTransform: "none" }}>
                 <span className="block text-5xl sm:text-7xl md:text-8xl lg:text-[8.5rem]">
                   Практика,
                 </span>
                 <span
                   className="block font-serif-display italic font-medium text-5xl sm:text-7xl md:text-8xl lg:text-[8.5rem] mt-1 w-fit"
                   style={{
-                    background: "linear-gradient(120deg, #70EFFF 0%, #00CFFF 45%, #FF007A 105%)",
+                    background: "linear-gradient(120deg, #70EFFF 0%, #00CFFF 100%)",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
                     backgroundClip: "text",
@@ -71,13 +71,13 @@ export default function ExpertsPage() {
             {/* Оглавление тома — редакторская строка с нумерацией */}
             <div className="mt-9 md:mt-12 border-t border-white/10 pt-5">
               <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[10px] md:text-[11px] font-mono uppercase tracking-[0.22em] text-gray-500">
-                <span><span className="text-gold/40 mr-1.5">01</span>AI-внедрение</span>
+                <span><span className="text-gold/40 mr-1.5">01</span>Банкротство (БФЛ)</span>
                 <span className="text-gold/30">·</span>
-                <span><span className="text-gold/40 mr-1.5">02</span>Судебная практика</span>
+                <span><span className="text-gold/40 mr-1.5">02</span>Арбитражное управление</span>
                 <span className="text-gold/30">·</span>
-                <span><span className="text-gold/40 mr-1.5">03</span>Договоры</span>
+                <span><span className="text-gold/40 mr-1.5">03</span>Судебная практика</span>
                 <span className="text-gold/30">·</span>
-                <span><span className="text-gold/40 mr-1.5">04</span>Legal Design</span>
+                <span><span className="text-gold/40 mr-1.5">04</span>Внедрение ИИ</span>
               </div>
             </div>
 

@@ -48,7 +48,7 @@ const products = [
     title: 'Живой семинар "AI-революция"',
     href: "/products/seminar",
     tag: "ОФФЛАЙН",
-    tagColor: "bg-cyber-purple/20 text-cyber-purple border-cyber-purple/30",
+    tagColor: "bg-cyber-blue/20 text-cyber-blue border-cyber-blue/30",
     description:
       "Однодневный семинар-погружение. Первый в России живой формат для юристов.",
     price: "от 15 000 ₽",

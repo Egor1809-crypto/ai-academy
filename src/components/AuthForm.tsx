@@ -103,7 +103,7 @@ export default function AuthForm() {
   }, [router]);
 
   const tabBase =
-    "flex-1 py-2.5 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors cursor-pointer";
+    "flex-1 py-2.5 text-sm font-semibold tracking-wide rounded-lg transition-colors cursor-pointer";
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-navy-900 px-4 py-12 relative overflow-hidden">
@@ -124,13 +124,11 @@ export default function AuthForm() {
           </span>
         </Link>
 
-        <div className="relative bg-navy-800 border border-white/10 p-5 md:p-8 rounded-xl shadow-[0_8px_40px_rgba(0,0,0,0.35)]">
-          <span className="hud-corner-tl" />
-          <span className="hud-corner-br" />
-          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-gray-500 text-center mb-2">
-            Личное дело
+        <div className="relative bg-navy-800 border border-white/10 p-5 md:p-8 rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.35)]">
+          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-cyber-blue/60 text-center mb-2">
+            личный кабинет
           </p>
-          <h1 className="font-heading font-bold text-2xl mb-1 text-white text-center">
+          <h1 className="text-2xl mb-1 text-white text-center" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontWeight: 800, textTransform: "none", letterSpacing: "-0.02em" }}>
             Вход в кабинет
           </h1>
           <p className="text-gray-400 text-sm text-center mb-6">

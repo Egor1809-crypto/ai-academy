@@ -66,7 +66,8 @@ CREATE INDEX "orders_status_idx" ON "orders"("status");
 CREATE INDEX "consent_records_user_id_idx" ON "consent_records"("user_id");
 CREATE INDEX "consent_records_lead_id_idx" ON "consent_records"("lead_id");
 CREATE INDEX "leads_status_idx" ON "leads"("status");
-CREATE INDEX "broadcasts_status_idx" ON "broadcasts"("status");
+-- broadcasts_status_idx уже существует (Broadcast @@index([status]) был в исходной схеме),
+-- а ALTER COLUMN USING сохраняет индекс — поэтому CREATE тут не нужен.
 
 -- AddForeignKey
 ALTER TABLE "orders" ADD CONSTRAINT "orders_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

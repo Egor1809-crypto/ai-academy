@@ -29,7 +29,7 @@ export default function ParticleBackground() {
         },
       },
       particles: {
-        color: { value: ["#00CFFF", "#FF007A", "#7B61FF", "#00CFFF"] },
+        color: { value: ["#00CFFF", "#00CFFF", "#70EFFF", "#00CFFF"] },
         links: {
           color: "#00CFFF",
           distance: 180,

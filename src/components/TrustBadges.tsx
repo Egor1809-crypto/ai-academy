@@ -1,7 +1,14 @@
 "use client";
 
 import ScrollReveal from "./ScrollReveal";
-import { TRUST_METRICS, AI_TOOLS } from "@/data/content";
+import { TRUST_METRICS } from "@/data/content";
+
+// FILE: src/components/TrustBadges.tsx — VERSION 2.0.0
+// Editorial+циан. Метрики оставлены, дублирующий ряд инструментов (был и в UseCases)
+// заменён на реальные документы/гарантии курса (Expertum × АСПБ, удостоверение о ПК,
+// вычет 13%, 152-ФЗ). Токен gold=#00CFFF (циан).
+
+const HELV = '"Helvetica Neue", Helvetica, Arial, sans-serif';
 
 const BADGE_ICONS: Record<string, string> = {
   "Выпускников": "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z",
@@ -16,11 +23,16 @@ const badges = TRUST_METRICS.map((m) => ({
   icon: BADGE_ICONS[m.label] ?? BADGE_ICONS["Выпускников"],
 }));
 
-const partners = AI_TOOLS;
+const credentials = [
+  "Сертификат Expertum × АСПБ",
+  "Удостоверение о ПК + вычет 13%",
+  "Работа по 152-ФЗ",
+  "Комьюнити сети АСПБ",
+];
 
 export default function TrustBadges() {
   return (
-    <section className="py-16 bg-navy-800 relative overflow-hidden">
+    <section className="py-16 bg-navy-800 relative overflow-hidden" style={{ fontFamily: HELV }}>
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
@@ -29,30 +41,30 @@ export default function TrustBadges() {
           {badges.map((b, i) => (
             <ScrollReveal key={b.label} direction="up" delay={i * 100}>
               <div className="text-center group">
-                <div className="w-12 h-12 mx-auto mb-3 bg-white/[0.03] border border-white/10 flex items-center justify-center group-hover:border-gold/30 group-hover:shadow-[0_0_15px_rgba(0,207,255,0.1)] transition-all duration-500">
-                  <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center group-hover:border-cyber-blue/30 group-hover:shadow-[0_0_15px_rgba(0,207,255,0.12)] transition-all duration-500">
+                  <svg className="w-6 h-6 text-cyber-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={b.icon} />
                   </svg>
                 </div>
-                <div className="text-2xl md:text-3xl font-heading font-bold text-white mb-1">{b.value}</div>
-                <div className="text-xs text-gray-500 uppercase tracking-wider font-mono">{b.label}</div>
+                <div className="text-3xl md:text-4xl font-black text-white mb-1 tabular-nums" style={{ fontFamily: HELV, letterSpacing: "-0.02em" }}>
+                  {b.value}
+                </div>
+                <div className="text-xs text-[#e6e6e6]/45 tracking-wider font-mono">{b.label}</div>
               </div>
             </ScrollReveal>
           ))}
         </div>
 
         <ScrollReveal direction="fade" delay={300}>
-          <div className="pt-8 border-t border-white/5">
-            <p className="text-center text-base md:text-xl font-heading font-bold uppercase tracking-[0.18em] text-gold mb-10">
-              Инструменты, которые вы освоите
-            </p>
-            <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4 md:gap-x-14 md:py-4">
-              {partners.map((p) => (
-                <span
-                  key={p}
-                  className="font-heading font-bold text-3xl md:text-5xl tracking-widest text-white/70 hover:text-gold transition-colors duration-500 cursor-default uppercase"
-                >
-                  {p}
+          <div className="pt-8 border-t border-white/[0.08]">
+            <p className="font-mono text-[12px] tracking-[0.2em] uppercase text-cyber-blue/60 mb-6 text-center">документы и гарантии</p>
+            <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-3">
+              {credentials.map((c) => (
+                <span key={c} className="inline-flex items-center gap-2 text-[15px] text-[#e6e6e6]/70">
+                  <svg className="w-4 h-4 text-cyber-blue shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  {c}
                 </span>
               ))}
             </div>

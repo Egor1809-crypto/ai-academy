@@ -17,13 +17,17 @@ const BOT_USERNAME = process.env.TELEGRAM_BOT_USERNAME || "ailegal_academy_bot";
 
 // Course modules shown in the cabinet. Unlocked once the user has a paid tariff.
 const COURSE_MODULES = [
-  { num: "01", title: "Введение в нейросети для юристов", lessons: 6 },
-  { num: "02", title: "AI в судебно-претензионной работе", lessons: 8 },
-  { num: "03", title: "Договорная работа и комплаенс", lessons: 7 },
-  { num: "04", title: "Маркетинг и визуал для юриста", lessons: 5 },
+  { num: "01", title: "Новый Мир", lessons: 4 },
+  { num: "02", title: "Язык Машины", lessons: 4 },
+  { num: "03", title: "Инструментарий", lessons: 3 },
+  { num: "04", title: "Российский стек", lessons: 4 },
+  { num: "05", title: "Безопасность и этика", lessons: 4 },
+  { num: "06", title: "Практикум: банкротство", lessons: 5 },
+  { num: "07", title: "Практикум: судебка и договоры", lessons: 3 },
+  { num: "08", title: "Агенты и автоматизация", lessons: 4 },
 ];
 
-const PAID_TARIFFS = ["Базовый", "Премиум", "VIP"];
+const PAID_TARIFFS = ["Старт", "Практик", "Внедрение"];
 
 function statusLabel(status: string): { text: string; cls: string } {
   switch (status) {

@@ -33,14 +33,14 @@ const PRESETS: Record<ParticlePreset, () => ISourceOptions> = {
       modes: { connect: { distance: 200, radius: 200, links: { opacity: 0.3 } } },
     },
     particles: {
-      color: { value: ["#00CFFF", "#7B61FF"] },
+      color: { value: ["#00CFFF", "#70EFFF"] },
       links: {
         color: "#00CFFF",
         distance: 220,
         enable: true,
         opacity: 0.12,
         width: 1,
-        triangles: { enable: true, color: "#7B61FF", opacity: 0.015 },
+        triangles: { enable: true, color: "#70EFFF", opacity: 0.015 },
       },
       move: { enable: true, speed: 0.3, direction: "none" as const, outModes: { default: "bounce" as const } },
       number: { value: 35, density: { enable: true } },
@@ -57,7 +57,7 @@ const PRESETS: Record<ParticlePreset, () => ISourceOptions> = {
     background: { color: { value: "transparent" } },
     fpsLimit: 30,
     particles: {
-      color: { value: ["#00CFFF", "#FFD700", "#FF007A"] },
+      color: { value: ["#00CFFF", "#00CFFF", "#00CFFF"] },
       links: { enable: false },
       move: {
         enable: true,
@@ -85,7 +85,7 @@ const PRESETS: Record<ParticlePreset, () => ISourceOptions> = {
     background: { color: { value: "transparent" } },
     fpsLimit: 30,
     particles: {
-      color: { value: ["#00CFFF", "#00CFFF", "#7B61FF"] },
+      color: { value: ["#00CFFF", "#00CFFF", "#70EFFF"] },
       links: { enable: false },
       move: {
         enable: true,
@@ -111,7 +111,7 @@ const PRESETS: Record<ParticlePreset, () => ISourceOptions> = {
     background: { color: { value: "transparent" } },
     fpsLimit: 30,
     particles: {
-      color: { value: ["#00CFFF", "#7B61FF", "#FF007A"] },
+      color: { value: ["#00CFFF", "#70EFFF", "#00CFFF"] },
       links: { enable: false },
       move: {
         enable: true,
@@ -144,7 +144,7 @@ const PRESETS: Record<ParticlePreset, () => ISourceOptions> = {
       modes: { repulse: { distance: 100, speed: 0.5 } },
     },
     particles: {
-      color: { value: ["#00CFFF", "#FFD700"] },
+      color: { value: ["#00CFFF", "#00CFFF"] },
       links: {
         color: "#00CFFF",
         distance: 100,
@@ -172,9 +172,9 @@ const PRESETS: Record<ParticlePreset, () => ISourceOptions> = {
     background: { color: { value: "transparent" } },
     fpsLimit: 30,
     particles: {
-      color: { value: ["#00CFFF", "#7B61FF", "#FF007A", "#FFD700"] },
+      color: { value: ["#00CFFF", "#70EFFF", "#00CFFF", "#00CFFF"] },
       links: {
-        color: "#7B61FF",
+        color: "#70EFFF",
         distance: 300,
         enable: true,
         opacity: 0.06,

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { LeadStatus } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { createRateLimiter, getClientIP } from "@/lib/rate-limit";
 import {
@@ -194,7 +195,7 @@ export async function PATCH(req: NextRequest) {
     if (!Number.isInteger(id) || !ALLOWED_STATUSES.includes(status)) {
       return NextResponse.json({ error: "Invalid id or status" }, { status: 400 });
     }
-    const lead = await prisma.lead.update({ where: { id }, data: { status } });
+    const lead = await prisma.lead.update({ where: { id }, data: { status: status as LeadStatus } });
     return NextResponse.json({ success: true, id: lead.id, status: lead.status });
   } catch (error) {
     console.error("Lead update error:", error);

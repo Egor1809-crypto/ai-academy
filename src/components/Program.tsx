@@ -3,165 +3,207 @@
 import { useState } from "react";
 import ScrollReveal from "./ScrollReveal";
 
-const modules = [
+// FILE: src/components/Program.tsx — VERSION 2.0.0
+// Редизайн editorial+циан. Реальные 8 уроков БФЛ (из кампании), логика «как работает →
+// потребности → практика → платформы → агенты». Урок 6 «Практикум: банкротство» —
+// дифференциатор (подсвечен, открыт по умолчанию). Убраны gold и dossier-тема.
+
+const HELV = '"Helvetica Neue", Helvetica, Arial, sans-serif';
+
+const LESSONS = [
   {
-    title: "Введение в нейросети для юристов",
-    duration: "2 недели",
-    tools: ["ChatGPT", "Claude", "YandexGPT"],
+    title: "Новый Мир",
+    tariff: "Лид-магнит",
+    tags: ["LLM", "доступ из РФ"],
     items: [
-      "Что такое LLM и как они работают (просто о сложном)",
-      "Обзор основных инструментов: ChatGPT, Claude, GigaChat, YandexGPT",
-      "Безопасность данных и адвокатская тайна при работе с AI",
-      "Базовые принципы Prompt Engineering для юристов",
+      "Физика LLM: как модель «думает» и почему галлюцинирует",
+      "Доктрина моделей: какая под какую задачу (Claude-first)",
+      "Среды и интерфейсы работы с ИИ",
+      "Экономика доступа из РФ: оплата, VPN, лимиты",
     ],
   },
   {
-    title: "AI в судебно-претензионной работе",
-    duration: "2 недели",
-    tools: ["ChatGPT", "Claude", "Perplexity"],
+    title: "Язык Машины",
+    tariff: "Старт",
+    tags: ["промптинг", "GRACE"],
     items: [
-      "Анализ судебной практики: поиск скрытых закономерностей",
-      "Генерация черновиков исковых заявлений и отзывов",
-      "Подготовка правовых позиций на основе загруженных документов",
-      "Суммаризация многотомных дел за минуты",
+      "Структура промпта, которая реально работает",
+      "XML-якоря для точности и предсказуемости вывода",
+      "Авторская методология GRACE",
+      "Подготовка данных под запрос",
     ],
   },
   {
-    title: "Договорная работа и комплаенс",
-    duration: "2 недели",
-    tools: ["ChatGPT", "Claude", "Gemini"],
+    title: "Инструментарий",
+    tariff: "Старт",
+    tags: ["инструменты", "Windows"],
     items: [
-      "Автоматизированная проверка контрагентов",
-      "Поиск рисков и несоответствий в договорах (Due Diligence)",
-      "Генерация типовых договоров и дополнительных соглашений",
-      "Сравнение версий документов и выявление изменений",
+      "Уровни инструментов: от чата до агентов",
+      "Где экономия реальна, а где — иллюзия",
+      "Доступы из РФ и Windows-версия (без «только Mac»)",
     ],
   },
   {
-    title: "Маркетинг и визуал для юриста",
-    duration: "2 недели",
-    tools: ["Midjourney", "Runway", "Suno"],
+    title: "Российский стек",
+    tariff: "Старт / Практик",
+    tags: ["Консультант", "Гарант", "GigaChat"],
     items: [
-      "Создание контент-плана для соцсетей (Telegram, VK)",
-      "Генерация постов, статей и кейсов с помощью AI",
-      "Midjourney: обложки для статей и презентаций без дизайнера",
-      "Основы Legal Design с помощью нейросетей",
+      "Консультант ИИ, Гарант ИСКРА",
+      "Нейроюрист, GigaChat",
+      "Casebook / XSUD для банкротных дел",
+      "Когда РФ-обёртка вместо фронтира — и наоборот",
+    ],
+  },
+  {
+    title: "Безопасность и этика",
+    tariff: "Практик",
+    tags: ["152-ФЗ", "тайна"],
+    items: [
+      "Адвокатская тайна и позиции ФПА",
+      "Работа по 152-ФЗ, обезличивание ПДн",
+      "Локальные модели для чувствительных данных",
+      "Проверка галлюцинаций перед подачей в суд",
+    ],
+  },
+  {
+    title: "Практикум: банкротство",
+    tariff: "Практик",
+    differentiator: true,
+    tags: ["реестр", "оспаривание 61.2", "Федресурс"],
+    items: [
+      "Реестр требований кредиторов — за минуты, а не за вечер",
+      "Отзывы и возражения на требования",
+      "Жалобы, ходатайства, заявления",
+      "Анализ сделок должника: оспаривание по ст. 61.2–61.9",
+      "Мониторинг сроков через Федресурс и КАД",
+    ],
+  },
+  {
+    title: "Практикум: судебка и договоры",
+    tariff: "Практик",
+    tags: ["процессуалка", "практика"],
+    items: [
+      "Процессуальные документы под конкретное дело",
+      "Анализ судебной практики и формирование позиции",
+      "Разбор реальных дел слушателей",
+    ],
+  },
+  {
+    title: "Агенты и автоматизация",
+    tariff: "Внедрение",
+    tags: ["MCP", "RAG", "боты"],
+    items: [
+      "MCP и сборка агентов под свои задачи",
+      "Парсер КАД и Telegram-бот под рутину",
+      "RAG-база по вашим делам",
+      "Автоматизация конвейера БФЛ",
     ],
   },
 ];
 
 export default function Program() {
-  const [open, setOpen] = useState<number | null>(0);
+  const [open, setOpen] = useState<number | null>(5); // по умолчанию открыт дифференциатор (Урок 6)
 
   return (
-    <section id="program" className="py-14 sm:py-20 md:py-28 bg-navy-900 relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+    <section id="program" className="py-14 sm:py-20 md:py-28 bg-navy-900 relative overflow-hidden" style={{ fontFamily: HELV }}>
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-cyber-blue/20 to-transparent" />
+      <div aria-hidden className="absolute top-1/3 left-0 w-[440px] h-[440px] bg-cyber-blue/[0.04] blur-[150px] rounded-full pointer-events-none" />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">
-        {/* ── Шапка «дела» ── */}
+        {/* ── Header ── */}
         <ScrollReveal direction="up">
-          <div className="mb-14">
-            <div className="flex items-center gap-3 mb-5">
-              <span className="dossier-margin">Дело № AI&middot;2026</span>
-              <span className="h-px flex-1 bg-white/10" />
-              <span className="dossier-margin">Учебная программа</span>
-            </div>
-
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <h2 className="font-serif-display text-4xl md:text-6xl font-semibold leading-[1.05] text-white">
-                Программа{" "}
-                <span className="italic dossier-marker text-white">курса</span>
-              </h2>
-              <span className="dossier-stamp text-gold text-xs mb-2">8 недель</span>
-            </div>
-
-            <p className="dossier-margin mt-4 normal-case tracking-normal text-[0.8rem]">
-              4 модуля &nbsp;·&nbsp; 40+ практических заданий &nbsp;·&nbsp; разбор кейсов
+          <div className="mb-12 md:mb-16">
+            <p className="font-mono text-[12px] tracking-[0.2em] uppercase text-cyber-blue/60 mb-6">программа · 8 уроков</p>
+            <h2 className="leading-[0.9]" style={{ fontFamily: HELV, textTransform: "none", letterSpacing: "-0.03em" }}>
+              <span className="font-serif-display italic block text-[#e6e6e6]/50 mb-2" style={{ fontSize: "clamp(20px, 2.8vw, 38px)" }}>
+                восемь уроков —
+              </span>
+              <span className="block text-white" style={{ fontFamily: HELV, fontWeight: 800, fontSize: "clamp(36px, 5.6vw, 82px)" }}>
+                от физики LLM
+              </span>
+              <span className="block text-cyber-blue" style={{ fontFamily: HELV, fontWeight: 800, fontSize: "clamp(38px, 5.8vw, 84px)", lineHeight: 0.86, textShadow: "0 0 60px rgba(0,207,255,0.4)" }}>
+                до своего конвейера
+              </span>
+            </h2>
+            <p className="mt-8 text-[16px] md:text-[18px] text-[#e6e6e6]/55 max-w-xl leading-relaxed">
+              Как работает → базовые потребности → практика БФЛ → российские платформы → свои ИИ-агенты. Урок 6 — практикум по банкротству, которого нет ни у кого.
             </p>
           </div>
         </ScrollReveal>
 
-        {/* ── Подшивка модулей ── */}
-        <div className="space-y-4">
-          {modules.map((m, i) => {
+        {/* ── Уроки-аккордеон ── */}
+        <div className="space-y-3">
+          {LESSONS.map((m, i) => {
             const isOpen = open === i;
+            const diff = m.differentiator;
             return (
-              <ScrollReveal key={i} direction="up" delay={i * 80}>
+              <ScrollReveal key={i} direction="up" delay={i * 50}>
                 <div
-                  className={`group dossier-card relative border transition-all duration-300 ${
-                    isOpen
-                      ? "dossier-open border-gold/40"
-                      : "border-white/10 hover:border-gold/30"
+                  className={`group relative rounded-2xl border transition-all duration-300 ${
+                    diff
+                      ? isOpen
+                        ? "border-cyber-blue/60 bg-cyber-blue/[0.05]"
+                        : "border-cyber-blue/35 bg-cyber-blue/[0.03] hover:border-cyber-blue/60"
+                      : isOpen
+                        ? "border-cyber-blue/40 bg-white/[0.02]"
+                        : "border-white/10 hover:border-cyber-blue/30"
                   }`}
                 >
-                  {/* Вертикальная «вкладка-корешок» дела слева */}
-                  <span
-                    className={`absolute left-0 top-0 h-full w-[3px] transition-colors duration-300 ${
-                      isOpen ? "bg-gold" : "bg-white/10 group-hover:bg-gold/50"
-                    }`}
-                  />
-
                   <button
-                    className="w-full px-6 sm:px-8 py-6 flex items-start sm:items-center justify-between gap-4 text-left focus:outline-none cursor-pointer"
+                    className="w-full px-5 sm:px-7 py-5 flex items-center justify-between gap-4 text-left focus:outline-none cursor-pointer"
                     onClick={() => setOpen(isOpen ? null : i)}
                   >
-                    <div className="flex items-start sm:items-center gap-5 min-w-0">
-                      {/* Параграф-индекс */}
-                      <span className="font-serif-display italic text-3xl sm:text-4xl text-gold/30 shrink-0 select-none leading-none mt-1 sm:mt-0">
-                        §{String(i + 1).padStart(2, "0")}
+                    <div className="flex items-center gap-5 min-w-0">
+                      <span
+                        className={`font-black shrink-0 select-none leading-none tabular-nums ${diff ? "text-cyber-blue/60" : "text-white/[0.12] group-hover:text-cyber-blue/40"} transition-colors`}
+                        style={{ fontFamily: HELV, fontSize: "clamp(30px, 3.4vw, 46px)", letterSpacing: "-0.03em" }}
+                      >
+                        {String(i + 1).padStart(2, "0")}
                       </span>
-
                       <div className="min-w-0">
-                        <span className="dossier-stamp text-gold/70 text-[0.6rem] mb-2 sm:mb-0">
-                          Модуль {i + 1}
-                        </span>
-                        <h3 className="font-serif-display text-xl sm:text-2xl text-white font-medium mt-3 leading-snug">
+                        <div className="flex items-center gap-2.5 flex-wrap mb-1.5">
+                          <span className={`font-mono text-[10px] uppercase tracking-[0.16em] px-2 py-0.5 rounded border ${diff ? "text-cyber-blue border-cyber-blue/40 bg-cyber-blue/[0.08]" : "text-[#e6e6e6]/45 border-white/10"}`}>
+                            {m.tariff}
+                          </span>
+                          {diff && (
+                            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-navy-900 bg-cyber-blue px-2 py-0.5 rounded font-bold">
+                              ★ дифференциатор
+                            </span>
+                          )}
+                        </div>
+                        <h3
+                          className={diff ? "text-cyber-blue" : "text-white"}
+                          style={{ fontFamily: HELV, fontWeight: 700, fontSize: "clamp(18px, 2vw, 24px)", letterSpacing: "-0.01em", textTransform: "none", lineHeight: 1.15 }}
+                        >
                           {m.title}
                         </h3>
                       </div>
                     </div>
-
-                    <div className="flex items-center gap-4 shrink-0">
-                      <span className="dossier-stamp dossier-stamp--alt hidden sm:inline-block text-gray-400 text-[0.6rem]">
-                        {m.duration}
-                      </span>
-                      <svg
-                        className={`w-5 h-5 text-gold transform transition-transform duration-300 ${isOpen ? "rotate-90" : ""}`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
+                    <svg
+                      className={`w-5 h-5 shrink-0 transform transition-transform duration-300 ${isOpen ? "rotate-90" : ""} ${diff ? "text-cyber-blue" : "text-cyber-blue/70"}`}
+                      fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </button>
 
-                  <div className={`accordion-content px-6 sm:px-8 ${isOpen ? "open" : ""}`}>
-                    <div className="pb-7 pt-1 sm:pl-[4.5rem]">
-                      {/* Приложенные инструменты */}
-                      <div className="flex items-center flex-wrap gap-2 mb-5">
-                        <span className="dossier-margin mr-1">Инструменты:</span>
-                        {m.tools.map((tool) => (
-                          <span
-                            key={tool}
-                            className="px-2.5 py-1 border border-gold/25 text-gold/90 text-[0.65rem] font-mono uppercase tracking-wider"
-                          >
-                            {tool}
-                          </span>
-                        ))}
-                      </div>
-
-                      {/* Пункты дела — с моно-нумерацией на полях */}
-                      <ul className="space-y-3.5">
+                  <div className={`accordion-content px-5 sm:px-7 ${isOpen ? "open" : ""}`}>
+                    <div className="pb-6 pt-1 sm:pl-[4.7rem]">
+                      <ul className="space-y-3 mb-5">
                         {m.items.map((item, j) => (
-                          <li key={j} className="flex items-baseline gap-4 text-gray-300 text-[0.95rem] leading-relaxed">
-                            <span className="dossier-margin shrink-0 text-gold/50 w-7">
-                              {String(j + 1).padStart(2, "0")}
-                            </span>
+                          <li key={j} className="flex items-baseline gap-4 text-[#e6e6e6]/70 text-[15px] leading-relaxed">
+                            <span className="font-mono shrink-0 text-cyber-blue/50 w-6 text-[12px]">{String(j + 1).padStart(2, "0")}</span>
                             <span>{item}</span>
                           </li>
                         ))}
                       </ul>
+                      <div className="flex items-center flex-wrap gap-2">
+                        {m.tags.map((tag) => (
+                          <span key={tag} className="px-2.5 py-1 rounded border border-cyber-blue/20 text-cyber-blue/80 text-[0.65rem] font-mono lowercase tracking-wider">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>

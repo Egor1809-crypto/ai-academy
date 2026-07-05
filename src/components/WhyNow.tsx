@@ -1,204 +1,168 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import ScrollReveal from "./ScrollReveal";
+
+// FILE: src/components/WhyNow.tsx — VERSION 2.0.0
+// Редизайн в editorial-язык (гротеск + serif-курсив + циан), копирайт подтянут под
+// реальную БФЛ-кампанию (демпинг рынка, рутина, свободная ниша — «занять первым»).
+// СОХРАНЕНО: constellation-частицы (линии), лесенка-смещение карточек (слом иерархии).
+
+const HELV = '"Helvetica Neue", Helvetica, Arial, sans-serif';
 
 const SectionParticles = dynamic(() => import("./SectionParticles"), { ssr: false });
 
 const steps = [
   {
     num: "01",
-    icon: "M13 10V3L4 14h7v7l9-11h-7z",
-    title: "AI уже здесь",
-    text: "Топовые юристы и фирмы вооружаются AI, чтобы быть вне конкуренции. Те, кто не адаптируется — останутся позади.",
-    color: "gold",
-    glowColor: "rgba(0,207,255,0.08)",
+    title: "Рынок жмёт маржу",
+    text: "БФЛ обесценивается: фикс 80–150 тыс., демпинг до 95, сверху «бесплатное» МФЦ. Доход упирается в то, сколько дел вы тянете руками.",
   },
   {
     num: "02",
-    icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
-    title: "Экономия x10",
-    text: "Задачи, занимавшие часы, решаются за минуты. Анализ договора — 5 минут вместо 3 часов. Иск — 15 минут вместо дня.",
-    color: "cyber-purple",
-    glowColor: "rgba(123,97,255,0.08)",
+    title: "Рутина крадёт время",
+    text: "Каждое дело — недели ручной работы: реестры, отзывы, жалобы, аудит сделок должника, Федресурс и КАД. Больше дел — нужны руки.",
   },
   {
     num: "03",
-    icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
-    title: "Новые правила",
-    text: "Через год те, кто освоил нейросети, будут задавать стандарты рынка. Начните сегодня — будьте впереди завтра.",
-    color: "gold",
-    glowColor: "rgba(0,207,255,0.12)",
+    title: "Окно открыто сейчас",
+    text: "Ниша ИИ для банкротного юриста ещё не занята. Кто соберёт систему первым — задаёт стандарты рынка. Дальше будет поздно.",
   },
 ];
 
-/* Staircase offsets — each card rises higher (negative margin-top on desktop) */
+// Лесенка-смещения — карточки на разной высоте (намеренный слом ровной сетки).
 const STAIR_OFFSETS = ["md:mt-24", "md:mt-12", "md:mt-0"];
 
 export default function WhyNow() {
+  // Стрелку рисуем в viewBox = пиксели контейнера (замер через ResizeObserver) —
+  // 1:1, без растяжения → кривая и наконечник не искажаются.
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [dim, setDim] = useState({ w: 1150, h: 300 });
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const measure = () => setDim({ w: el.clientWidth, h: el.clientHeight });
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const { w, h } = dim;
+  const pt = (fx: number, fy: number) => `${Math.round(fx * w)} ${Math.round(fy * h)}`;
+  // «Свуш»: держится низко, затем резко взмывает вверх-вправо — читается как изгиб/восхождение.
+  const arrowPath = `M ${pt(0.05, 0.86)} C ${pt(0.5, 0.86)}, ${pt(0.72, 0.66)}, ${pt(0.92, 0.1)}`;
+
   return (
-    <section className="py-14 sm:py-20 md:py-36 relative bg-navy-900 overflow-hidden">
+    <section className="py-16 sm:py-24 md:py-36 relative bg-navy-900 overflow-hidden" style={{ fontFamily: HELV }}>
       <SectionParticles id="whynow-particles" preset="constellation" />
-      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
-      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-cyber-purple/5 rounded-full blur-[150px] pointer-events-none" />
-      <div className="absolute top-1/3 left-0 w-[400px] h-[400px] bg-gold/[0.03] rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-cyber-blue/20 to-transparent" />
+      <div className="absolute bottom-0 right-0 w-[520px] h-[520px] bg-cyber-blue/[0.05] rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute top-1/3 left-0 w-[400px] h-[400px] bg-cyber-blue/[0.04] rounded-full blur-[120px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
-        {/* Header */}
+        {/* Header — editorial, слева, сломанная иерархия */}
         <ScrollReveal direction="up">
-          <div className="mb-12 sm:mb-16 md:mb-28 text-center">
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="w-10 h-px bg-gradient-to-r from-transparent to-gold/40" />
-              <span className="text-base md:text-xl font-heading font-bold uppercase tracking-[0.18em] text-white">
-                Почему сейчас
-              </span>
-              <div className="w-10 h-px bg-gradient-to-l from-transparent to-gold/40" />
-            </div>
-            <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-5">
-              <span className="block">Профессия юриста</span>
+          <div className="mb-16 md:mb-28 max-w-4xl">
+            <p className="font-mono text-[12px] tracking-[0.2em] uppercase text-cyber-blue/60 mb-6">
+              почему сейчас · голубой океан
+            </p>
+            <h2
+              className="leading-[0.9]"
+              style={{ fontFamily: HELV, textTransform: "none", letterSpacing: "-0.03em" }}
+            >
               <span
-                className="block"
-                style={{
-                  background: "linear-gradient(135deg, #00CFFF 0%, #7B61FF 50%, #FF007A 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
+                className="font-serif-display italic block text-[#e6e6e6]/50 mb-2"
+                style={{ fontSize: "clamp(22px, 3vw, 42px)" }}
               >
-                меняется прямо сейчас
+                профессия юриста
+              </span>
+              <span className="block text-white" style={{ fontFamily: HELV, fontWeight: 800, fontSize: "clamp(40px, 6.4vw, 92px)" }}>
+                меняется
+              </span>
+              <span
+                className="block text-cyber-blue"
+                style={{ fontFamily: HELV, fontWeight: 800, fontSize: "clamp(42px, 6.6vw, 94px)", lineHeight: 0.86, textShadow: "0 0 60px rgba(0,207,255,0.4)" }}
+              >
+                прямо сейчас
               </span>
             </h2>
-            <p className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">
-              Искусственный интеллект трансформирует юридическую отрасль быстрее, чем любую другую
+            <p className="mt-8 text-[16px] md:text-[18px] text-[#e6e6e6]/55 max-w-xl leading-relaxed">
+              Ниша ИИ для юриста по банкротству ещё свободна. Кто соберёт систему первым —
+              задаёт правила рынка.
             </p>
           </div>
         </ScrollReveal>
 
-        {/* Staircase cards with curved arrow */}
-        <div className="relative">
-
-          {/* ═══ Curved arrow SVG — visible on desktop ═══ */}
+        {/* Карточки — лесенка + пунктирная изогнутая стрелка вверх (пронизывает три блока).
+            viewBox = пиксели контейнера → без искажений при любом размере экрана. */}
+        <div ref={wrapRef} className="relative">
           <svg
             className="hidden md:block absolute inset-0 w-full h-full pointer-events-none z-20"
-            viewBox="0 0 1200 500"
+            viewBox={`0 0 ${w} ${h}`}
             fill="none"
-            preserveAspectRatio="none"
           >
-            {/* Curved path from card 1 bottom-right to card 3 top */}
-            <path
-              d="M250 380 C350 380, 400 280, 600 260 S850 120, 970 100"
-              stroke="url(#arrowGrad)"
-              strokeWidth="2"
-              strokeDasharray="8 4"
-              fill="none"
-              opacity="0.5"
-            />
-            {/* Arrow head */}
-            <polygon
-              points="960,92 975,100 962,110"
-              fill="#00CFFF"
-              opacity="0.6"
-            />
-            {/* Gradient definition */}
             <defs>
-              <linearGradient id="arrowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#00CFFF" stopOpacity="0.2" />
-                <stop offset="50%" stopColor="#7B61FF" stopOpacity="0.4" />
-                <stop offset="100%" stopColor="#00CFFF" stopOpacity="0.7" />
-              </linearGradient>
+              <marker
+                id="wn-arrow"
+                markerWidth="9"
+                markerHeight="9"
+                refX="5.5"
+                refY="3"
+                orient="auto"
+                markerUnits="strokeWidth"
+              >
+                <path
+                  d="M0.6 0.6 L6 3 L0.6 5.4"
+                  fill="none"
+                  stroke="#00CFFF"
+                  strokeWidth="1.3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </marker>
             </defs>
+            <path
+              d={arrowPath}
+              stroke="#00CFFF"
+              strokeWidth="2"
+              strokeDasharray="2 10"
+              strokeLinecap="round"
+              fill="none"
+              opacity="0.55"
+              markerEnd="url(#wn-arrow)"
+              style={{ animation: "dash-flow 1.1s linear infinite" }}
+            />
           </svg>
-
-          {/* Cards grid — staircase layout */}
-          <div className="grid md:grid-cols-3 gap-6 md:gap-8 items-end">
-            {steps.map((step, i) => (
-              <ScrollReveal key={i} direction="up" delay={i * 150}>
-                <div className={`relative ${STAIR_OFFSETS[i]}`}>
-
-                  {/* Step number — big, floating behind */}
-                  <div
-                    className="absolute -top-8 -left-2 text-[80px] md:text-[100px] font-heading font-black leading-none select-none pointer-events-none opacity-[0.04]"
-                  >
-                    {step.num}
-                  </div>
-
-                  {/* Card */}
-                  <div
-                    className="relative bg-white/[0.02] backdrop-blur-sm border border-white/[0.07] p-5 md:p-9 group
-                      hover:border-gold/40 transition-all duration-700
-                      hover:bg-white/[0.04]"
-                    style={{
-                      boxShadow: `0 0 0 0 transparent`,
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.boxShadow = `0 0 40px ${step.glowColor}`;
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.boxShadow = `0 0 0 0 transparent`;
-                    }}
-                  >
-                    {/* Corner accents */}
-                    <svg className="absolute top-0 left-0 w-7 h-7 pointer-events-none" viewBox="0 0 28 28" fill="none">
-                      <path d="M0 14V1.5C0 0.672 0.672 0 1.5 0H14" stroke={step.color === "cyber-purple" ? "rgba(123,97,255,0.4)" : "rgba(0,207,255,0.4)"} strokeWidth="1.5" />
-                    </svg>
-                    <svg className="absolute bottom-0 right-0 w-7 h-7 pointer-events-none" viewBox="0 0 28 28" fill="none">
-                      <path d="M28 14V26.5C28 27.328 27.328 28 26.5 28H14" stroke={step.color === "cyber-purple" ? "rgba(123,97,255,0.4)" : "rgba(0,207,255,0.4)"} strokeWidth="1.5" />
-                    </svg>
-
-                    {/* Number badge */}
-                    <div className="flex items-center justify-between mb-7">
-                      <span className="text-xs font-mono text-gray-600 tracking-wider">{step.num}</span>
-                      {/* Progress dots */}
-                      <div className="flex gap-1.5">
-                        {[0, 1, 2].map((dot) => (
-                          <div
-                            key={dot}
-                            className={`w-1.5 h-1.5 rounded-full transition-colors duration-500 ${
-                              dot <= i
-                                ? step.color === "cyber-purple"
-                                  ? "bg-cyber-purple"
-                                  : "bg-gold"
-                                : "bg-white/10"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Icon */}
-                    <div
-                      className={`w-14 h-14 flex items-center justify-center mb-6 ${
-                        step.color === "cyber-purple"
-                          ? "bg-cyber-purple/10 border border-cyber-purple/20"
-                          : "bg-gold/10 border border-gold/20"
-                      } group-hover:scale-110 transition-transform duration-500`}
-                    >
-                      <svg
-                        className={`w-7 h-7 ${step.color === "cyber-purple" ? "text-cyber-purple" : "text-gold"}`}
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={1.5}
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d={step.icon} />
-                      </svg>
-                    </div>
-
-                    <h3 className="font-heading font-bold text-xl md:text-2xl mb-3 text-white group-hover:text-gold transition-colors duration-500">
-                      {step.title}
-                    </h3>
-                    <p className="text-gray-400 leading-relaxed text-[15px]">{step.text}</p>
-
-                    {/* Bottom accent line */}
-                    <div className={`absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full transition-all duration-700 ${
-                      step.color === "cyber-purple"
-                        ? "bg-gradient-to-r from-cyber-purple/60 to-transparent"
-                        : "bg-gradient-to-r from-gold/60 to-transparent"
-                    }`} />
-                  </div>
+          <div className="grid md:grid-cols-3 gap-5 md:gap-8 items-end">
+            {steps.map((s, i) => (
+            <ScrollReveal key={i} direction="up" delay={i * 120}>
+              <div className={`relative ${STAIR_OFFSETS[i]}`}>
+                {/* Гигантский номер за карточкой — слом иерархии */}
+                <div
+                  className="absolute -top-12 right-1 font-black text-white/[0.035] pointer-events-none select-none leading-none"
+                  style={{ fontFamily: HELV, fontSize: "clamp(90px, 11vw, 150px)" }}
+                >
+                  {s.num}
                 </div>
-              </ScrollReveal>
-            ))}
+
+                <div
+                  className="group relative rounded-2xl border border-white/10 bg-white/[0.02] p-6 md:p-8 transition-all duration-500 hover:border-cyber-blue/40 hover:bg-cyber-blue/[0.03] hover:-translate-y-1 hover:shadow-[0_0_44px_-10px_rgba(0,207,255,0.3)]"
+                  style={{ fontFamily: HELV }}
+                >
+                  <div className="font-mono text-[13px] text-cyber-blue/70 mb-6 tracking-widest">{s.num}</div>
+                  <h3
+                    className="text-[#f4f2ec] mb-3 group-hover:text-cyber-blue transition-colors"
+                    style={{ fontFamily: HELV, fontWeight: 600, fontSize: "clamp(19px, 2.1vw, 25px)", letterSpacing: "-0.01em", textTransform: "none" }}
+                  >
+                    {s.title}
+                  </h3>
+                  <p className="text-[#e6e6e6]/55 text-[15px] leading-relaxed">{s.text}</p>
+                  <div className="mt-6 h-px w-0 bg-gradient-to-r from-cyber-blue/60 to-transparent group-hover:w-full transition-all duration-700" />
+                </div>
+              </div>
+            </ScrollReveal>
+          ))}
           </div>
         </div>
       </div>

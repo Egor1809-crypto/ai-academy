@@ -9,7 +9,7 @@ import FomoSection from "./FomoSection";
 
 
 export const metadata = {
-  title: "О курсе | AI Legal — Нейросети для юристов",
+  title: "О курсе | ИИ для юриста по банкротству",
   description: "Узнайте, почему курс AI Legal — лучший выбор для юристов. Программа, аудитория, преимущества.",
 };
 

@@ -24,7 +24,7 @@ function buildCourseSchema() {
     "@type": "Course",
     name: COURSE.title,
     description:
-      "Практический курс по внедрению нейросетей в юридическую практику. ChatGPT, Claude, Midjourney — промпты и методики для юристов.",
+      "Первая в России система ИИ для юриста по банкротству (БФЛ): реестр требований, отзывы, оспаривание сделок, Федресурс/КАД — до внедрения своего ИИ-конвейера.",
     provider: buildOrganizationSchema(),
     hasCourseInstance: {
       "@type": "CourseInstance",
@@ -52,9 +52,9 @@ function buildCourseSchema() {
     educationalLevel: "Professional",
     about: [
       "Искусственный интеллект",
+      "Банкротство физических лиц",
       "Юриспруденция",
       "LegalTech",
-      "Промпт-инженерия",
     ],
   };
 }

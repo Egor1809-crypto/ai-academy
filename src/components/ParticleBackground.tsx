@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Particles } from "@tsparticles/react";
+import { Particles, ParticlesProvider } from "@tsparticles/react";
 import type { ISourceOptions } from "@tsparticles/engine";
+import { initEngine } from "@/lib/particles";
 
 export default function ParticleBackground() {
   // Skip the particle engine entirely for visitors who prefer reduced motion.
@@ -69,6 +70,8 @@ export default function ParticleBackground() {
   if (reducedMotion) return null;
 
   return (
-    <Particles id="hero-particles" className="absolute inset-0 z-0" options={options} />
+    <ParticlesProvider init={initEngine}>
+      <Particles id="hero-particles" className="absolute inset-0 z-0" options={options} />
+    </ParticlesProvider>
   );
 }

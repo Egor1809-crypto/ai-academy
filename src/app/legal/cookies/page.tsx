@@ -4,6 +4,7 @@ import LegalDoc, { H2 } from "@/components/LegalDoc";
 export const metadata = {
   title: `Политика использования cookie | ${SITE.name}`,
   description: "Какие файлы cookie использует сайт " + SITE.domain + " и с какой целью.",
+  alternates: { canonical: "/legal/cookies" },
 };
 
 export default function CookiesPage() {

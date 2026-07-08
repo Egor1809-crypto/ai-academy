@@ -4,6 +4,7 @@ import LegalDoc, { H2 } from "@/components/LegalDoc";
 export const metadata = {
   title: `Пользовательское соглашение | ${SITE.name}`,
   description: "Правила использования сайта и сервисов " + SITE.domain + ".",
+  alternates: { canonical: "/legal/terms" },
 };
 
 export default function TermsPage() {

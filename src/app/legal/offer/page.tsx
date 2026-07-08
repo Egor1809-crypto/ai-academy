@@ -4,6 +4,7 @@ import LegalDoc, { H2 } from "@/components/LegalDoc";
 export const metadata = {
   title: `Договор оферты | ${SITE.name}`,
   description: "Договор публичной оферты на оказание услуг по программе обучения.",
+  alternates: { canonical: "/legal/offer" },
 };
 
 export default function OfferPage() {

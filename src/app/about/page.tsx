@@ -11,6 +11,7 @@ import FomoSection from "./FomoSection";
 export const metadata = {
   title: "О курсе | ИИ для юриста по банкротству",
   description: "Узнайте, почему курс AI Legal — лучший выбор для юристов. Программа, аудитория, преимущества.",
+  alternates: { canonical: "/about" },
 };
 
 export default function AboutPage() {

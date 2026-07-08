@@ -8,6 +8,7 @@ import TariffsHero from "./TariffsHero";
 export const metadata = {
   title: "Тарифы | ИИ для юриста по банкротству",
   description: "Выберите подходящий тариф обучения AI Legal. Рассрочка 0%, возврат 13% через налоговый вычет, гарантия возврата 7 дней.",
+  alternates: { canonical: "/tariffs" },
 };
 
 export default function TariffsPage() {

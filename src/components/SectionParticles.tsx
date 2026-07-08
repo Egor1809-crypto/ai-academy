@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Particles } from "@tsparticles/react";
+import { Particles, ParticlesProvider } from "@tsparticles/react";
 import type { ISourceOptions } from "@tsparticles/engine";
+import { initEngine } from "@/lib/particles";
 
 /**
  * Preset configurations — each section gets a unique particle feel.
@@ -251,7 +252,9 @@ export default function SectionParticles({ id, preset }: SectionParticlesProps) 
       aria-hidden="true"
     >
       {active && (
-        <Particles id={id} className="absolute inset-0" options={options} />
+        <ParticlesProvider init={initEngine}>
+          <Particles id={id} className="absolute inset-0" options={options} />
+        </ParticlesProvider>
       )}
     </div>
   );

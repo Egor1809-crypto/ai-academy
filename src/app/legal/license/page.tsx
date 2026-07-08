@@ -5,6 +5,7 @@ export const metadata = {
   title: `Лицензия | ${SITE.name}`,
   description:
     "Сведения о статусе образовательной деятельности AI Legal Academy и условиях применимости социального налогового вычета.",
+  alternates: { canonical: "/legal/license" },
 };
 
 export default function LicensePage() {

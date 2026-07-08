@@ -4,6 +4,7 @@ import LegalDoc, { H2 } from "@/components/LegalDoc";
 export const metadata = {
   title: `Согласие на обработку персональных данных | ${SITE.name}`,
   description: "Текст согласия на обработку персональных данных оператором " + SITE.operator + ".",
+  alternates: { canonical: "/legal/consent" },
 };
 
 export default function ConsentPage() {

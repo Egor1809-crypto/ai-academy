@@ -3,7 +3,6 @@ import { Space_Grotesk, Inter, Lora } from "next/font/google";
 import { shuffleFontVars } from "@/lib/shuffleFonts";
 import ScrollProgress from "@/components/ScrollProgress";
 import ManyashaChat from "@/components/ManyashaChat";
-import ParticlesInit from "@/components/ParticlesInit";
 import JsonLd from "@/components/JsonLd";
 import CookieConsent from "@/components/CookieConsent";
 import "./globals.css";
@@ -51,9 +50,6 @@ export const metadata: Metadata = {
     "LegalTech банкротство",
     "AI Legal Academy",
   ],
-  alternates: {
-    canonical: "/",
-  },
   openGraph: {
     title: "ИИ для юриста по банкротству (БФЛ) | AI Legal",
     description:
@@ -107,11 +103,9 @@ export default function RootLayout({
         <JsonLd />
       </head>
       <body className="antialiased selection:bg-gold selection:text-navy-900">
-        <ParticlesInit>
-          <ScrollProgress />
-          {children}
-          <ManyashaChat />
-        </ParticlesInit>
+        <ScrollProgress />
+        {children}
+        <ManyashaChat />
         <CookieConsent />
       </body>
     </html>

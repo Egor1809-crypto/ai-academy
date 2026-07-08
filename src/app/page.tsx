@@ -19,6 +19,10 @@ import CTA from "@/components/CTA";
 import RevealFooter from "@/components/RevealFooter";
 import FloatingTelegram from "@/components/FloatingTelegram";
 
+export const metadata = {
+  alternates: { canonical: "/" },
+};
+
 export default function Home() {
   return (
     <>

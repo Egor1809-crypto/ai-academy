@@ -9,6 +9,7 @@ export const metadata = {
   title: "Эксперты | ИИ для юриста по банкротству",
   description:
     "Познакомьтесь с преподавателями курса AI Legal. Практикующие юристы с реальным опытом внедрения AI.",
+  alternates: { canonical: "/experts" },
 };
 
 const expertise = [

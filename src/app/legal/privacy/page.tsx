@@ -4,6 +4,7 @@ import LegalDoc, { H2 } from "@/components/LegalDoc";
 export const metadata = {
   title: `Политика конфиденциальности | ${SITE.name}`,
   description: "Политика обработки персональных данных оператора " + SITE.operator + ".",
+  alternates: { canonical: "/legal/privacy" },
 };
 
 export default function PrivacyPage() {

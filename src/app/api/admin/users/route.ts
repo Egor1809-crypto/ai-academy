@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { isAdminRequest } from "@/lib/admin";
+import { requireAdmin } from "@/lib/admin";
 import { createRateLimiter, getClientIP } from "@/lib/rate-limit";
 
 const limiter = createRateLimiter("admin-users", { limit: 30, windowSeconds: 60 });
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  if (!isAdminRequest(req)) {
+  if (!(await requireAdmin())) {
     await new Promise((r) => setTimeout(r, 500));
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

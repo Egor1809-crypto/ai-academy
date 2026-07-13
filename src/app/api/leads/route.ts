@@ -3,7 +3,6 @@ import { LeadStatus } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { createRateLimiter, getClientIP } from "@/lib/rate-limit";
 import {
-  safeCompare,
   sanitizeInput,
   isValidPhone,
   isValidEmail,
@@ -12,6 +11,7 @@ import {
   truncateIp,
 } from "@/lib/security";
 import { getCurrentUser } from "@/lib/auth";
+import { requireAdmin } from "@/lib/admin";
 import { SITE } from "@/data/content";
 
 // Срок хранения лида по умолчанию (ст.5 п.7 152-ФЗ — ограничение срока хранения).
@@ -225,9 +225,7 @@ export async function PATCH(req: NextRequest) {
     );
   }
 
-  const password = req.headers.get("x-admin-password");
-  const adminPassword = process.env.ADMIN_PASSWORD;
-  if (!password || !adminPassword || !safeCompare(password, adminPassword)) {
+  if (!(await requireAdmin())) {
     await new Promise((r) => setTimeout(r, 500));
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -261,10 +259,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const password = req.headers.get("x-admin-password");
-  const adminPassword = process.env.ADMIN_PASSWORD;
-
-  if (!password || !adminPassword || !safeCompare(password, adminPassword)) {
+  if (!(await requireAdmin())) {
     // Artificial delay to further mitigate brute force
     await new Promise((r) => setTimeout(r, 500));
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

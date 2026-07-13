@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { isAdminRequest } from "@/lib/admin";
+import { requireAdmin } from "@/lib/admin";
 import { createRateLimiter, getClientIP } from "@/lib/rate-limit";
 
 const limiter = createRateLimiter("admin-broadcast", { limit: 20, windowSeconds: 60 });
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
       { status: 429, headers: { "Retry-After": String(rl.retryAfterSeconds) } },
     );
   }
-  if (!isAdminRequest(req)) {
+  if (!(await requireAdmin())) {
     await new Promise((r) => setTimeout(r, 500));
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       { status: 429, headers: { "Retry-After": String(rl.retryAfterSeconds) } },
     );
   }
-  if (!isAdminRequest(req)) {
+  if (!(await requireAdmin())) {
     await new Promise((r) => setTimeout(r, 500));
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

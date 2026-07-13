@@ -62,7 +62,6 @@ function statusCls(status: string): string {
 }
 
 export default function AdminPage() {
-  const [password, setPassword] = useState("");
   const [authed, setAuthed] = useState(false);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -75,18 +74,18 @@ export default function AdminPage() {
   const [broadcastSending, setBroadcastSending] = useState(false);
   const [broadcastNote, setBroadcastNote] = useState("");
 
-  const pw = () => sessionStorage.getItem("admin_pw") || "";
-
-  const fetchLeads = useCallback(async (password: string) => {
+  // Auth is by SESSION ROLE now (gated server-side in admin/layout.tsx); the
+  // session cookie is sent automatically, so no x-admin-password header/storage.
+  const fetchLeads = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/leads", { headers: { "x-admin-password": password } });
+      const res = await fetch("/api/leads");
       if (!res.ok) throw new Error("auth");
       setLeads(await res.json());
       setAuthed(true);
     } catch {
-      setError("Неверный пароль или ошибка сервера");
+      setError("Нет доступа. Войдите под аккаунтом администратора.");
     } finally {
       setLoading(false);
     }
@@ -94,7 +93,7 @@ export default function AdminPage() {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/users", { headers: { "x-admin-password": pw() } });
+      const res = await fetch("/api/admin/users");
       if (res.ok) setUsers(await res.json());
     } catch {
       /* ignore */
@@ -103,7 +102,7 @@ export default function AdminPage() {
 
   const fetchBroadcasts = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/broadcast", { headers: { "x-admin-password": pw() } });
+      const res = await fetch("/api/admin/broadcast");
       if (res.ok) setBroadcasts(await res.json());
     } catch {
       /* ignore */
@@ -111,8 +110,7 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
-    const saved = sessionStorage.getItem("admin_pw");
-    if (saved) fetchLeads(saved);
+    fetchLeads();
   }, [fetchLeads]);
 
   useEffect(() => {
@@ -121,19 +119,13 @@ export default function AdminPage() {
     if (tab === "broadcast") fetchBroadcasts();
   }, [authed, tab, fetchUsers, fetchBroadcasts]);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    sessionStorage.setItem("admin_pw", password);
-    fetchLeads(password);
-  };
-
-  const handleLogout = () => {
-    sessionStorage.removeItem("admin_pw");
-    setAuthed(false);
-    setLeads([]);
-    setUsers([]);
-    setBroadcasts([]);
-    setPassword("");
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      /* ignore */
+    }
+    window.location.href = "/";
   };
 
   const changeStatus = async (id: number, status: string) => {
@@ -141,12 +133,12 @@ export default function AdminPage() {
     try {
       await fetch("/api/leads", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", "x-admin-password": pw() },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, status }),
       });
     } catch {
       /* revert on failure */
-      fetchLeads(pw());
+      fetchLeads();
     }
   };
 
@@ -159,7 +151,7 @@ export default function AdminPage() {
     try {
       const res = await fetch("/api/admin/broadcast", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-admin-password": pw() },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message }),
       });
       if (res.ok) {
@@ -189,43 +181,20 @@ export default function AdminPage() {
 
   const tariffKeys = Array.from(new Set(leads.map((l) => l.tariff)));
 
-  // ── Login screen ──
+  // ── Access gate ──
+  // The real gate is server-side (admin/layout.tsx redirects non-admins to /login).
+  // This only covers the brief first fetch, or a session that lacks the admin role.
   if (!authed) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-navy-900 px-4">
-        <form onSubmit={handleLogin} className="bg-navy-800 border border-white/10 p-8 w-full max-w-sm rounded-xl">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <div className="w-8 h-8 bg-gold flex items-center justify-center font-heading font-bold text-navy-900 text-lg">
-              L
-            </div>
-            <span className="font-heading font-bold text-xl tracking-wider text-white">
-              AI<span className="text-gold">LEGAL</span>
-            </span>
-          </div>
-          <h1 className="font-heading font-bold text-xl mb-6 text-center text-gray-400">Админ-панель</h1>
-          <input
-            type="password"
-            placeholder="Пароль"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-navy-900 border border-white/10 px-4 py-3 text-white placeholder-gray-500 focus:border-gold focus:outline-none mb-4 rounded-lg"
-          />
-          {error && (
-            <div className="flex items-center gap-2 text-red-400 text-sm bg-red-400/5 border border-red-400/20 px-3 py-2 mb-4 rounded-lg">
-              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              {error}
-            </div>
+      <div className="min-h-screen flex items-center justify-center bg-navy-900 px-4 text-center">
+        <div>
+          <p className="text-gray-400 mb-3">{loading ? "Загрузка…" : error || "Проверка доступа…"}</p>
+          {!loading && error && (
+            <a href="/login" className="text-cyber-blue underline underline-offset-4">
+              Войти под администратором
+            </a>
           )}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 bg-gold text-navy-900 font-bold uppercase text-sm cursor-pointer hover:bg-gold-light transition-colors disabled:opacity-50 rounded-lg"
-          >
-            {loading ? "Загрузка..." : "Войти"}
-          </button>
-        </form>
+        </div>
       </div>
     );
   }
@@ -251,7 +220,7 @@ export default function AdminPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => {
-                fetchLeads(pw());
+                fetchLeads();
                 if (tab === "users") fetchUsers();
                 if (tab === "broadcast") fetchBroadcasts();
               }}

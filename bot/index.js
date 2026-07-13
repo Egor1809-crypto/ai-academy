@@ -11,6 +11,7 @@ import { readFileSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import { PrismaClient } from "@prisma/client";
+import { createHash } from "crypto";
 
 // ─────────────────────────────────────────────────────────────
 // ENV & CONFIG
@@ -796,26 +797,57 @@ async function notifyAdmin(text) {
 // SITE LOGIN: "Войти через Telegram" deep-link confirmation
 // ─────────────────────────────────────────────────────────────
 
+/** Matching-number nonce (must mirror src/lib/security.ts authNonce exactly). */
+function authNonce(code) {
+  const h = createHash("sha256").update(code).digest("hex").slice(0, 6);
+  return String(parseInt(h, 16) % 100).padStart(2, "0");
+}
+
 /**
- * The site opens t.me/<bot>?start=auth_<code>. When the user presses Start we
- * confirm their Telegram identity to the site over the shared ADMIN_PASSWORD
- * secret; the site then logs the waiting browser in.
+ * Telegram website-login. The site opens t.me/<bot>?start=auth_<code>. Previously
+ * pressing Start SILENTLY confirmed — which let an attacker phish a victim's click
+ * into an account takeover. Now we require EXPLICIT confirmation with a number that
+ * must match the one shown in the initiating browser (number-matching): a victim
+ * who never opened the site sees a number matching nothing and declines.
  */
 async function handleTelegramAuth(ctx, code) {
+  if (!BOT_SHARED_SECRET) {
+    await ctx.reply("⚠️ Вход через сайт временно недоступен. Сообщите администратору.");
+    return;
+  }
+  if (!/^[a-f0-9]{48}$/.test(code)) {
+    await ctx.reply("⚠️ Некорректная ссылка входа. Откройте сайт и нажмите «Войти через Telegram» заново.");
+    return;
+  }
+  const nonce = authNonce(code);
+  const kb = new InlineKeyboard()
+    .text(`✅ Это я — войти (${nonce})`, `auth_ok_${code}`)
+    .row()
+    .text("❌ Это не я", `auth_no_${code}`);
+  await ctx.reply(
+    `🔐 <b>Запрос на вход на сайт</b>\n\n` +
+      `Кто-то входит в личный кабинет на <b>expertum.pro</b>.\n\n` +
+      `⚠️ Подтверждайте, <b>только если это вы сами</b> прямо сейчас входите на сайте ` +
+      `и число на экране сайта совпадает с этим: <b>${nonce}</b>\n\n` +
+      `Если это были не вы — нажмите «Это не я», никто не войдёт.`,
+    { parse_mode: "HTML", reply_markup: kb },
+  );
+}
+
+// Явное подтверждение входа по кнопке (замена авто-подтверждения на Start).
+// Реальный вызов confirm к сайту происходит только здесь, после сверки числа.
+bot.callbackQuery(/^auth_ok_/, async (ctx) => {
+  await ctx.answerCallbackQuery();
+  const code = ctx.callbackQuery.data.slice("auth_ok_".length);
   const from = ctx.from;
   if (!BOT_SHARED_SECRET) {
-    await ctx.reply(
-      "⚠️ Вход через сайт временно недоступен. Сообщите администратору.",
-    );
+    await ctx.editMessageText("⚠️ Вход временно недоступен.").catch(() => {});
     return;
   }
   try {
     const res = await fetch(`${API_URL}/api/auth/telegram/confirm`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-bot-secret": BOT_SHARED_SECRET,
-      },
+      headers: { "Content-Type": "application/json", "x-bot-secret": BOT_SHARED_SECRET },
       body: JSON.stringify({
         code,
         telegramId: String(from?.id ?? ""),
@@ -823,27 +855,27 @@ async function handleTelegramAuth(ctx, code) {
         firstName: from?.first_name || "",
       }),
     });
-
     if (res.ok) {
-      await ctx.reply(
-        `✅ <b>Вход подтверждён!</b>\n\n` +
-          `Вернитесь на сайт — личный кабинет уже открыт. 🪆`,
-        { parse_mode: "HTML", reply_markup: mainKeyboard() },
-      );
+      await ctx
+        .editMessageText(`✅ <b>Вход подтверждён!</b>\n\nВернитесь на сайт — личный кабинет уже открыт. 🪆`, { parse_mode: "HTML" })
+        .catch(() => {});
     } else if (res.status === 410) {
-      await ctx.reply(
-        "⏳ Ссылка для входа устарела. Откройте сайт и нажмите «Войти через Telegram» заново.",
-      );
+      await ctx.editMessageText("⏳ Ссылка для входа устарела. Откройте сайт и нажмите «Войти через Telegram» заново.").catch(() => {});
     } else {
-      await ctx.reply(
-        "⚠️ Не удалось подтвердить вход. Попробуйте ещё раз с сайта.",
-      );
+      await ctx.editMessageText("⚠️ Не удалось подтвердить вход. Попробуйте ещё раз с сайта.").catch(() => {});
     }
   } catch (e) {
-    console.error("[TelegramAuth] Failed:", e.message);
-    await ctx.reply("⚠️ Сервер сайта недоступен. Попробуйте позже.");
+    console.error("[TelegramAuth] confirm failed:", e.message);
+    await ctx.editMessageText("⚠️ Сервер сайта недоступен. Попробуйте позже.").catch(() => {});
   }
-}
+});
+
+bot.callbackQuery(/^auth_no_/, async (ctx) => {
+  await ctx.answerCallbackQuery({ text: "Вход отклонён" });
+  await ctx
+    .editMessageText("❌ Вход отклонён. Если это были не вы — всё в порядке, никто не вошёл. Ссылка станет недействительной автоматически.")
+    .catch(() => {});
+});
 
 // ─────────────────────────────────────────────────────────────
 // SET BOT COMMANDS

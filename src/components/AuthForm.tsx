@@ -20,6 +20,7 @@ export default function AuthForm() {
   // — Telegram —
   const [tgPending, setTgPending] = useState(false);
   const [tgError, setTgError] = useState("");
+  const [tgNonce, setTgNonce] = useState("");
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -57,6 +58,7 @@ export default function AuthForm() {
 
   const handleTelegram = useCallback(async () => {
     setTgError("");
+    setTgNonce("");
     setTgPending(true);
     try {
       const res = await fetch("/api/auth/telegram/start", { method: "POST" });
@@ -66,6 +68,7 @@ export default function AuthForm() {
         setTgPending(false);
         return;
       }
+      setTgNonce(String(data.nonce ?? ""));
 
       window.open(data.deepLink, "_blank", "noopener,noreferrer");
 
@@ -238,9 +241,22 @@ export default function AuthForm() {
                 {tgPending ? "Ожидаем подтверждения…" : "Войти через Telegram"}
               </button>
               {tgPending && (
-                <p className="text-xs text-gray-400 text-center mt-3">
-                  Откройте бота, нажмите «Старт» — и вернитесь сюда.
-                </p>
+                <div className="mt-3 text-center">
+                  {tgNonce && (
+                    <div className="mb-2">
+                      <p className="text-xs text-gray-400 mb-1">В боте сверьте число и подтвердите:</p>
+                      <span
+                        className="inline-block font-mono font-bold text-3xl tracking-[0.3em] text-cyber-blue"
+                        style={{ textShadow: "0 0 24px rgba(0,207,255,0.45)" }}
+                      >
+                        {tgNonce}
+                      </span>
+                    </div>
+                  )}
+                  <p className="text-xs text-gray-500">
+                    Откройте бота → «Старт» → нажмите «✅ Это я» <b>только если число совпало</b>.
+                  </p>
+                </div>
               )}
               {tgError && (
                 <p className="text-red-400 text-xs text-center mt-3">{tgError}</p>

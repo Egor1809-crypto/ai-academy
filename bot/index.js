@@ -43,11 +43,10 @@ const BOT_TOKEN = env.BOT_TOKEN;
 const SITE_URL = env.SITE_URL;
 const API_URL = env.API_URL || "http://localhost:3099";
 const ADMIN_CHAT_ID = env.ADMIN_CHAT_ID || "";
-const ADMIN_PASSWORD = env.ADMIN_PASSWORD || "";
-// Dedicated server-to-server secret for bot→site calls. Falls back to
-// ADMIN_PASSWORD for a zero-downtime transition until BOT_SHARED_SECRET is set
-// in both envs (site reads it via isBotRequest()).
-const BOT_SHARED_SECRET = env.BOT_SHARED_SECRET || ADMIN_PASSWORD;
+// Dedicated server-to-server secret for bot→site calls (site verifies via
+// isBotRequest()). The legacy ADMIN_PASSWORD fallback was removed — the web admin
+// moved to tech-pravo.ru and ADMIN_PASSWORD is no longer used anywhere.
+const BOT_SHARED_SECRET = env.BOT_SHARED_SECRET || "";
 const NAVI_API_KEY = env.NAVI_API_KEY || "";
 const NAVI_BASE_URL = "https://api.navy/v1";
 const AI_MODEL = "deepseek-chat";
@@ -1381,25 +1380,6 @@ bot.command("admin", async (ctx) => {
     return;
   }
 
-  let todayLeads = 0;
-  let totalLeads = 0;
-  try {
-    const res = await fetch(`${API_URL}/api/leads`, {
-      headers: { "x-admin-password": ADMIN_PASSWORD },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      const leads = Array.isArray(data) ? data : (data.leads || []);
-      totalLeads = leads.length;
-      const today = new Date().toISOString().slice(0, 10);
-      todayLeads = leads.filter(
-        (l) => l.createdAt && l.createdAt.slice(0, 10) === today
-      ).length;
-    }
-  } catch (e) {
-    // API unavailable, show what we can
-  }
-
   const userCount = await getUserCount();
   const activeToday = await getActiveToday();
 
@@ -1408,8 +1388,7 @@ bot.command("admin", async (ctx) => {
       `──────────────────────────\n\n` +
       `👥 <b>Пользователи бота:</b> ${userCount}\n` +
       `📊 <b>Активны сегодня:</b> ${activeToday}\n\n` +
-      `📋 <b>Всего заявок (API):</b> ${totalLeads}\n` +
-      `📋 <b>Заявок сегодня:</b> ${todayLeads}\n\n` +
+      `📋 <b>Заявки:</b> в админке tech-pravo.ru\n\n` +
       `──────────────────────────\n\n` +
       `<b>Команды:</b>\n` +
       `/broadcast <i>текст</i> — рассылка всем пользователям\n` +
@@ -1426,29 +1405,11 @@ bot.command("stats", async (ctx) => {
   const userCount = await getUserCount();
   const activeToday = await getActiveToday();
 
-  let totalLeads = 0;
-  try {
-    const res = await fetch(`${API_URL}/api/leads`, {
-      headers: { "x-admin-password": ADMIN_PASSWORD },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      const leads = Array.isArray(data) ? data : (data.leads || []);
-      totalLeads = leads.length;
-    }
-  } catch (e) {
-    // ignore
-  }
-
-  const conversionRate = userCount > 0 ? ((totalLeads / userCount) * 100).toFixed(1) : "0";
-
   await ctx.reply(
     `📊 <b>Статистика</b>\n\n` +
       `──────────────────────────\n\n` +
       `👥 Всего пользователей: <b>${userCount}</b>\n` +
-      `📊 Активны сегодня: <b>${activeToday}</b>\n` +
-      `📋 Всего заявок: <b>${totalLeads}</b>\n` +
-      `📈 Конверсия: <b>${conversionRate}%</b>`,
+      `📊 Активны сегодня: <b>${activeToday}</b>`,
     { parse_mode: "HTML" }
   );
 });

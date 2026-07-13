@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { LeadStatus } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { createRateLimiter, getClientIP } from "@/lib/rate-limit";
 import {
@@ -11,7 +10,6 @@ import {
   truncateIp,
 } from "@/lib/security";
 import { getCurrentUser } from "@/lib/auth";
-import { requireAdmin } from "@/lib/admin";
 import { SITE } from "@/data/content";
 
 // Срок хранения лида по умолчанию (ст.5 п.7 152-ФЗ — ограничение срока хранения).
@@ -24,8 +22,6 @@ const submitLimiter = createRateLimiter("leads-submit", { limit: 5, windowSecond
 // defeated by IP/IPv6 rotation, which would flood the lead table, the public
 // "spots left" counter (/api/spots) and hub-forwarding. Generous for real signups.
 const submitGlobalLimiter = createRateLimiter("leads-submit-global", { limit: 60, windowSeconds: 60 });
-// Admin reads: 30 per minute
-const adminLimiter = createRateLimiter("leads-admin", { limit: 30, windowSeconds: 60 });
 
 // Пересылка лида в единый хаб заявок (tech-pravo.ru). Fire-and-forget: сбой хаба
 // никогда не должен ронять приём заявки на этом сайте.
@@ -213,69 +209,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-const ALLOWED_STATUSES = ["new", "contacted", "paid", "rejected"];
-
-export async function PATCH(req: NextRequest) {
-  const ip = getClientIP(req);
-  const rl = adminLimiter.check(ip);
-  if (!rl.allowed) {
-    return NextResponse.json(
-      { error: "Too many requests" },
-      { status: 429, headers: { "Retry-After": String(rl.retryAfterSeconds) } },
-    );
-  }
-
-  if (!(await requireAdmin())) {
-    await new Promise((r) => setTimeout(r, 500));
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  try {
-    const body = await req.json();
-    const id = Number(body.id);
-    const status = String(body.status ?? "");
-    if (!Number.isInteger(id) || !ALLOWED_STATUSES.includes(status)) {
-      return NextResponse.json({ error: "Invalid id or status" }, { status: 400 });
-    }
-    const lead = await prisma.lead.update({ where: { id }, data: { status: status as LeadStatus } });
-    return NextResponse.json({ success: true, id: lead.id, status: lead.status });
-  } catch (error) {
-    console.error("Lead update error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
-
-export async function GET(req: NextRequest) {
-  // Rate limit admin endpoint
-  const ip = getClientIP(req);
-  const rl = adminLimiter.check(ip);
-  if (!rl.allowed) {
-    return NextResponse.json(
-      { error: "Too many requests" },
-      {
-        status: 429,
-        headers: { "Retry-After": String(rl.retryAfterSeconds) },
-      },
-    );
-  }
-
-  if (!(await requireAdmin())) {
-    // Artificial delay to further mitigate brute force
-    await new Promise((r) => setTimeout(r, 500));
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  try {
-    const leads = await prisma.lead.findMany({
-      orderBy: { createdAt: "desc" },
-    });
-
-    return NextResponse.json(leads);
-  } catch (error) {
-    console.error("Leads fetch error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
-  }
-}
+// Admin lead read (GET) and status update (PATCH) were removed: lead management
+// moved to the partner admin panel at tech-pravo.ru (leads are pushed there via
+// forwardToHub). Only the public POST (lead submission) remains on this site.

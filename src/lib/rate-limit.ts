@@ -6,9 +6,17 @@
  * For multi-instance — swap to Redis-backed approach.
  */
 
+import { truncateIp } from "./security";
+
 interface RateLimitEntry {
   timestamps: number[];
 }
+
+// Hard cap on distinct keys per limiter. Even with /64 keying a wide spread of
+// source networks could otherwise grow the Map until the process hits PM2's
+// max_memory_restart and the in-memory global counters reset — disarming the only
+// cost ceiling. Over the cap we evict the least-recently-active tenth.
+const MAX_KEYS = 20_000;
 
 interface RateLimiterOptions {
   /** Max requests allowed in the window */
@@ -55,6 +63,16 @@ export function createRateLimiter(name: string, options: RateLimiterOptions) {
     check(key: string): { allowed: true } | { allowed: false; retryAfterSeconds: number } {
       cleanup();
 
+      // Bound distinct-key growth (see MAX_KEYS). Only fires when already over the
+      // cap, then drops ~10% of the least-recently-active keys.
+      if (store.size > MAX_KEYS) {
+        const byRecency = [...store.entries()].sort(
+          (a, b) => (a[1].timestamps[a[1].timestamps.length - 1] ?? 0) - (b[1].timestamps[b[1].timestamps.length - 1] ?? 0),
+        );
+        const evict = Math.ceil(MAX_KEYS * 0.1);
+        for (let i = 0; i < evict && i < byRecency.length; i++) store.delete(byRecency[i][0]);
+      }
+
       const now = Date.now();
       const windowMs = options.windowSeconds * 1000;
       const cutoff = now - windowMs;
@@ -100,6 +118,7 @@ const TRUSTED_PROXY_HOPS = Math.max(1, Number(process.env.TRUSTED_PROXY_HOPS ?? 
  * since everything to the left can be forged by the client.
  */
 export function getClientIP(req: Request): string {
+  let raw = "";
   const forwarded = req.headers.get("x-forwarded-for");
   if (forwarded) {
     const parts = forwarded
@@ -108,11 +127,21 @@ export function getClientIP(req: Request): string {
       .filter(Boolean);
     if (parts.length > 0) {
       // Take the entry our own trusted proxy appended (Nth from the right).
-      const idx = Math.max(0, parts.length - TRUSTED_PROXY_HOPS);
-      return parts[idx];
+      raw = parts[Math.max(0, parts.length - TRUSTED_PROXY_HOPS)];
     }
   }
-  const realIp = req.headers.get("x-real-ip");
-  if (realIp) return realIp.trim();
-  return "unknown";
+  if (!raw) {
+    const realIp = req.headers.get("x-real-ip");
+    if (realIp) raw = realIp.trim();
+  }
+  if (!raw) raw = "unknown";
+
+  // IPv6 → /64 network. A client with a routed /64 (standard on cheap VPS)
+  // otherwise rotates source addresses to win a fresh rate-limit bucket every
+  // request; collapsing to the /64 makes the whole allocation share one bucket.
+  // IPv4 is kept full (a /24 would unfairly bucket entire NATs together).
+  // truncateIp already expands "::" correctly and returns the /64 as "<4 hextets>::".
+  // Audit callers pass this through truncateIp again (idempotent for IPv6, /24 for IPv4).
+  if (raw.includes(":")) return truncateIp(raw) ?? raw;
+  return raw;
 }

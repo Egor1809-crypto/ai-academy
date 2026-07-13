@@ -39,6 +39,8 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Don't advertise the framework/version in X-Powered-By (fingerprinting).
+  poweredByHeader: false,
   // Pin the workspace root to this project — a stray lockfile in the home
   // directory otherwise makes Next infer the wrong root and pull in files
   // (e.g. the bundled manyasha-main subproject) outside this app.

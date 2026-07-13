@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHash } from "crypto";
 import { prisma } from "@/lib/prisma";
-import { createSession, setSessionCookie, verifyPassword } from "@/lib/auth";
+import { createSession, setSessionCookie, verifyPassword, DUMMY_PASSWORD_HASH } from "@/lib/auth";
 import { createRateLimiter, getClientIP } from "@/lib/rate-limit";
 import { truncateIp } from "@/lib/security";
 
@@ -49,9 +49,13 @@ export async function POST(req: NextRequest) {
 
     const user = await prisma.user.findUnique({ where: { email } });
 
-    // Always run a hash comparison to avoid leaking whether the email exists.
-    const ok =
-      user?.passwordHash != null && (await verifyPassword(password, user.passwordHash));
+    // Always run exactly one scrypt — against a dummy hash when the account or its
+    // password hash is absent — so response time never reveals whether the email
+    // exists (closes the account-enumeration timing side-channel). `ok` stays true
+    // only for a real account whose stored hash actually matched.
+    const stored = user?.passwordHash ?? DUMMY_PASSWORD_HASH;
+    const matches = await verifyPassword(password, stored);
+    const ok = matches && user?.passwordHash != null;
 
     if (!user || !ok) {
       // Журналирование попыток входа (логи PM2 → logrotate). BUG_FIX_CONTEXT:

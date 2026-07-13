@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /api/
 
-Sitemap: https://ailegal.ru/sitemap.xml
+Sitemap: https://expertum.pro/sitemap.xml

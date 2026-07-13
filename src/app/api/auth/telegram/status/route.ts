@@ -24,7 +24,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ status: "notfound" });
     }
 
-    // Already consumed by this browser earlier — treat as confirmed.
+    // Already consumed by an earlier poll of this same browser — the session was
+    // minted on that response; just report confirmed.
     if (authCode.consumedAt) {
       return NextResponse.json({ status: "confirmed" });
     }
@@ -36,7 +37,22 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ status: "pending" });
     }
 
-    // Confirmed by the bot — create the session for this browser now.
+    // Confirmed by the bot and not yet consumed. Claim it ATOMICALLY and ONE-TIME:
+    // the conditional updateMany lets exactly one concurrent request win (closing the
+    // race where two polls both mint a session) and enforces not-expired in the same
+    // statement, so a confirmed-but-expired code can no longer create a session.
+    const now = new Date();
+    const claim = await prisma.authCode.updateMany({
+      where: { code, consumedAt: null, confirmedAt: { not: null }, expiresAt: { gt: now } },
+      data: { consumedAt: now },
+    });
+    if (claim.count !== 1) {
+      // Lost the race, or the code expired between read and claim — resolve real state.
+      const fresh = await prisma.authCode.findUnique({ where: { code } });
+      return NextResponse.json({ status: fresh?.consumedAt ? "confirmed" : "expired" });
+    }
+
+    // We hold the exclusive claim → mint the session for this browser.
     if (!authCode.telegramId) {
       return NextResponse.json({ status: "expired" });
     }
@@ -47,10 +63,6 @@ export async function GET(req: NextRequest) {
 
     const token = await createSession(user.id);
     await setSessionCookie(token);
-    await prisma.authCode.update({
-      where: { code },
-      data: { consumedAt: new Date() },
-    });
 
     return NextResponse.json({ status: "confirmed" });
   } catch (error) {

@@ -29,6 +29,15 @@ export async function verifyPassword(password: string, stored: string): Promise<
   return timingSafeEqual(keyBuf, derived);
 }
 
+/**
+ * Throwaway hash of the correct format (16-byte salt : 64-byte key), generated
+ * once per process. Login verifies against this when the account or its
+ * passwordHash is absent, so exactly one scrypt always runs regardless of whether
+ * the email exists — equalizing response time and closing the account-enumeration
+ * timing side-channel. It can never match a real password (the key is random).
+ */
+export const DUMMY_PASSWORD_HASH = `${randomBytes(16).toString("hex")}:${randomBytes(64).toString("hex")}`;
+
 /** Create a DB-backed session and return its opaque token. */
 export async function createSession(userId: number): Promise<string> {
   const token = randomBytes(32).toString("hex"); // 64 hex chars

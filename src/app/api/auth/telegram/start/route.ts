@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { createRateLimiter, getClientIP } from "@/lib/rate-limit";
+import { authNonce } from "@/lib/security";
 
 const BOT_USERNAME = process.env.TELEGRAM_BOT_USERNAME || "ailegal_academy_bot";
 const CODE_TTL_MS = 5 * 60 * 1000; // 5 minutes
@@ -25,7 +26,8 @@ export async function POST(req: NextRequest) {
     await prisma.authCode.create({ data: { code, expiresAt } });
 
     const deepLink = `https://t.me/${BOT_USERNAME}?start=auth_${code}`;
-    return NextResponse.json({ code, deepLink });
+    // Verification nonce the user must match against the bot's confirmation prompt.
+    return NextResponse.json({ code, deepLink, nonce: authNonce(code) });
   } catch (error) {
     console.error("Telegram auth start error:", error);
     return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });

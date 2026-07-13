@@ -13,6 +13,18 @@ export function safeCompare(a: string, b: string): boolean {
 }
 
 /**
+ * Deterministic 2-digit verification nonce derived from a Telegram auth code.
+ * Shown identically in the initiating BROWSER and in the BOT's confirmation
+ * prompt so the human can match them (like GitHub device-login number matching).
+ * A phishing victim who never opened the site sees a number matching nothing on
+ * their screen → declines. The bot duplicates this exact derivation.
+ */
+export function authNonce(code: string): string {
+  const h = createHash("sha256").update(code).digest("hex").slice(0, 6);
+  return String(parseInt(h, 16) % 100).padStart(2, "0");
+}
+
+/**
  * Sanitize user input: strip HTML tags, trim whitespace, limit length.
  */
 export function sanitizeInput(input: string, maxLength = 500): string {

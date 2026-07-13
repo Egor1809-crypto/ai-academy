@@ -20,11 +20,46 @@ const LEAD_RETENTION_MS = 3 * 365 * 24 * 60 * 60 * 1000; // ~3 года
 
 // 5 submissions per 10 minutes per IP — very strict, prevents spam
 const submitLimiter = createRateLimiter("leads-submit", { limit: 5, windowSeconds: 600 });
+// Global backstop across ALL IPs (mirrors chat/tts): the per-IP cap alone is
+// defeated by IP/IPv6 rotation, which would flood the lead table, the public
+// "spots left" counter (/api/spots) and hub-forwarding. Generous for real signups.
+const submitGlobalLimiter = createRateLimiter("leads-submit-global", { limit: 60, windowSeconds: 60 });
 // Admin reads: 30 per minute
 const adminLimiter = createRateLimiter("leads-admin", { limit: 30, windowSeconds: 60 });
 
+// Пересылка лида в единый хаб заявок (tech-pravo.ru). Fire-and-forget: сбой хаба
+// никогда не должен ронять приём заявки на этом сайте.
+function forwardToHub(lead: {
+  name?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  comment?: string | null;
+  tariff?: string | null;
+}): void {
+  const url = process.env.LEADS_HUB_URL || "https://tech-pravo.ru/api/leads/ingest";
+  const key = process.env.LEADS_HUB_KEY;
+  if (!key) return;
+  void fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Site-Id": "expertum.pro",
+      "X-Api-Key": key,
+    },
+    body: JSON.stringify({
+      name: lead.name,
+      phone: lead.phone,
+      email: lead.email,
+      message: lead.comment,
+      request_type: lead.tariff ? `tariff:${lead.tariff}` : "lead",
+      consent: true,
+      payload: { tariff: lead.tariff, site: "expertum.pro" },
+    }),
+  }).catch((e) => console.error("forwardToHub failed:", e?.message || e));
+}
+
 export async function POST(req: NextRequest) {
-  // Rate limit
+  // Rate limit — per-IP first, then a global backstop against IP-rotation floods.
   const ip = getClientIP(req);
   const rl = submitLimiter.check(ip);
   if (!rl.allowed) {
@@ -34,6 +69,13 @@ export async function POST(req: NextRequest) {
         status: 429,
         headers: { "Retry-After": String(rl.retryAfterSeconds) },
       },
+    );
+  }
+  const rlGlobal = submitGlobalLimiter.check("global");
+  if (!rlGlobal.allowed) {
+    return NextResponse.json(
+      { error: "Сервис временно перегружен. Попробуйте чуть позже." },
+      { status: 429, headers: { "Retry-After": String(rlGlobal.retryAfterSeconds) } },
     );
   }
 
@@ -139,6 +181,7 @@ export async function POST(req: NextRequest) {
           ...consentFields,
         },
       });
+      forwardToHub({ name: cleanName, phone: cleanPhone, email: cleanEmail, comment: cleanComment, tariff: cleanTariff });
       return NextResponse.json({ success: true, id: lead.id });
     }
 
@@ -159,6 +202,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    forwardToHub({ name: cleanName, phone: cleanPhone, email: cleanEmail, comment: cleanComment, tariff: cleanTariff });
     return NextResponse.json({ success: true, id: lead.id });
   } catch (error) {
     console.error("Lead creation error:", error);

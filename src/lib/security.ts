@@ -106,3 +106,25 @@ export function truncateIp(ip: string | null | undefined): string | null {
   }
   return v.slice(0, 64);
 }
+
+/**
+ * Same-origin check for state-changing / cookie-minting requests (defense-in-depth
+ * over the sameSite cookie). A cross-site browser POST always carries an Origin that
+ * won't match ours → rejected. No Origin (non-browser: bot / server-to-server, or a
+ * same-tab navigation) passes — those aren't browser-CSRF and are gated elsewhere.
+ */
+const ALLOWED_ORIGIN_HOSTS = new Set([
+  "expertum.pro",
+  "www.expertum.pro",
+  "localhost:3099",
+  "127.0.0.1:3099",
+]);
+export function isSameOrigin(req: Request): boolean {
+  const origin = req.headers.get("origin");
+  if (!origin) return true;
+  try {
+    return ALLOWED_ORIGIN_HOSTS.has(new URL(origin).host);
+  } catch {
+    return false;
+  }
+}

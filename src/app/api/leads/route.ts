@@ -8,8 +8,10 @@ import {
   bodyTooLarge,
   normalizePhone,
   truncateIp,
+  isSameOrigin,
 } from "@/lib/security";
 import { getCurrentUser } from "@/lib/auth";
+import { Prisma } from "@prisma/client";
 import { SITE } from "@/data/content";
 
 // Срок хранения лида по умолчанию (ст.5 п.7 152-ФЗ — ограничение срока хранения).
@@ -54,9 +56,30 @@ function forwardToHub(lead: {
   }).catch((e) => console.error("forwardToHub failed:", e?.message || e));
 }
 
+// Append-only реестр согласий по лиду (ст.9 152-ФЗ / ст.18 149-ФЗ): pdn фиксируем
+// всегда (заявка принимается только при consent===true), marketing — если дано. Раньше
+// ConsentRecord не писался нигде — модель-«обещание» без записей. Не должен ронять приём.
+async function writeLeadConsent(leadId: number, marketing: boolean, ip: string): Promise<void> {
+  const version = SITE.legalVersion;
+  const truncated = truncateIp(ip);
+  const rows: Prisma.ConsentRecordCreateManyInput[] = [
+    { leadId, type: "pdn", granted: true, version, ip: truncated },
+  ];
+  if (marketing) rows.push({ leadId, type: "marketing", granted: true, version, ip: truncated });
+  try {
+    await prisma.consentRecord.createMany({ data: rows });
+  } catch (e) {
+    console.error("writeLeadConsent failed:", e);
+  }
+}
+
 export async function POST(req: NextRequest) {
   // Rate limit — per-IP first, then a global backstop against IP-rotation floods.
   const ip = getClientIP(req);
+  // Defense-in-depth CSRF over sameSite=lax. Bot posts have no Origin → allowed.
+  if (!isSameOrigin(req)) {
+    return NextResponse.json({ error: "Недопустимый источник запроса" }, { status: 403 });
+  }
   const rl = submitLimiter.check(ip);
   if (!rl.allowed) {
     return NextResponse.json(
@@ -177,6 +200,7 @@ export async function POST(req: NextRequest) {
           ...consentFields,
         },
       });
+      await writeLeadConsent(lead.id, marketingConsent, ip);
       forwardToHub({ name: cleanName, phone: cleanPhone, email: cleanEmail, comment: cleanComment, tariff: cleanTariff });
       return NextResponse.json({ success: true, id: lead.id });
     }
@@ -198,6 +222,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    await writeLeadConsent(lead.id, marketingConsent, ip);
     forwardToHub({ name: cleanName, phone: cleanPhone, email: cleanEmail, comment: cleanComment, tariff: cleanTariff });
     return NextResponse.json({ success: true, id: lead.id });
   } catch (error) {

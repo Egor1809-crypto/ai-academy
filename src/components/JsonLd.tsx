@@ -116,7 +116,10 @@ export default function JsonLd() {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      // Экранируем "<" → <: JSON.stringify не экранирует его, и значение с
+      // "</script>" иначе разорвало бы контекст тега (XSS-латентность при будущих
+      // динамических данных). Сейчас данные статичны, но это defense-in-depth.
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }}
     />
   );
 }

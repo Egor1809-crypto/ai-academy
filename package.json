@@ -1,5 +1,5 @@
 {
-  "name": "ai-cademy",
+  "name": "ai-academy",
   "version": "1.0.0",
   "description": "",
   "scripts": {
@@ -12,16 +12,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sizovda93/AI-cademy.git"
+    "url": "git+https://github.com/Egor1809-crypto/ai-academy.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "bugs": {
-    "url": "https://github.com/sizovda93/AI-cademy/issues"
+    "url": "https://github.com/Egor1809-crypto/ai-academy/issues"
   },
-  "homepage": "https://github.com/sizovda93/AI-cademy#readme",
+  "homepage": "https://github.com/Egor1809-crypto/ai-academy#readme",
   "dependencies": {
     "@prisma/client": "^6.19.2",
     "@tsparticles/react": "^4.0.5",
@@ -29,8 +29,7 @@
     "next": "^16.2.1",
     "prisma": "^6.19.2",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "tsparticles": "^4.0.5"
+    "react-dom": "^19.2.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.2",

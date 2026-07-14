@@ -1,7 +1,6 @@
 import Navbar from "@/components/Navbar";
 import FooterCompact from "@/components/FooterCompact";
 import Experts from "@/components/Experts";
-import Testimonials from "@/components/Testimonials";
 import CTA from "@/components/CTA";
 import ScrollReveal from "@/components/ScrollReveal";
 
@@ -13,9 +12,9 @@ export const metadata = {
 };
 
 const expertise = [
-  { number: "15+", label: "Лет в практике" },
-  { number: "500+", label: "Юристов обучено" },
-  { number: "50+", label: "Фирм под AI" },
+  { number: "8", label: "Уроков курса" },
+  { number: "40+", label: "Шаблонов БФЛ" },
+  { number: "БФЛ", label: "Специализация" },
 ];
 
 export default function ExpertsPage() {
@@ -113,7 +112,6 @@ export default function ExpertsPage() {
         </section>
 
         <Experts />
-        <Testimonials />
         <CTA />
       </main>
       <FooterCompact />

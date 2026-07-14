@@ -108,3 +108,33 @@ export async function destroyCurrentSession(): Promise<void> {
     store.delete(SESSION_COOKIE);
   }
 }
+
+// ── Telegram-login owner binding ────────────────────────────────
+// The browser that starts the TG-login flow gets an httpOnly cookie holding a
+// random owner token, which is also stored on the AuthCode row. `status` mints a
+// session only when the cookie matches — so knowing the code alone (e.g. via an
+// <img src=".../status?code=…"> forced on a victim's browser) can no longer claim
+// the session. Closes the session-fixation / account-takeover vector.
+const TG_OWNER_COOKIE = "tg_auth_owner";
+const TG_OWNER_TTL_S = 5 * 60; // matches the auth-code TTL
+
+export async function setAuthOwnerCookie(token: string): Promise<void> {
+  const store = await cookies();
+  store.set(TG_OWNER_COOKIE, token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: TG_OWNER_TTL_S,
+  });
+}
+
+export async function getAuthOwnerToken(): Promise<string | null> {
+  const store = await cookies();
+  return store.get(TG_OWNER_COOKIE)?.value ?? null;
+}
+
+export async function clearAuthOwnerCookie(): Promise<void> {
+  const store = await cookies();
+  store.delete(TG_OWNER_COOKIE);
+}

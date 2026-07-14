@@ -67,6 +67,20 @@ if (__missing.length) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// Fetch с жёстким таймаутом (AbortController). grammy обрабатывает апдейты
+// ПОСЛЕДОВАТЕЛЬНО (bot.start без runner), поэтому один зависший upstream (NAVI/сайт)
+// без таймаута заблокировал бы обработку сообщений ВСЕХ пользователей до дефолтного
+// таймаута undici (~5 мин). abort → throw → обрабатывается вызывающим catch.
+async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 // 152-ФЗ: текст-уведомление о согласии, добавляется в начало флоу сбора заявки.
 // Продолжение флоу (ввод имени) — affirmative action подтверждения согласия.
 const CONSENT_NOTICE =
@@ -728,7 +742,7 @@ async function askManyashaAI(userText, chatHistory) {
   trimmed.push({ role: "user", content: userText });
 
   try {
-    const response = await fetch(`${NAVI_BASE_URL}/chat/completions`, {
+    const response = await fetchWithTimeout(`${NAVI_BASE_URL}/chat/completions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -743,7 +757,7 @@ async function askManyashaAI(userText, chatHistory) {
         max_tokens: 400,
         temperature: 0.7,
       }),
-    });
+    }, 8000);
 
     if (!response.ok) {
       console.error("[ManyashaAI] API error:", response.status);
@@ -844,7 +858,7 @@ bot.callbackQuery(/^auth_ok_/, async (ctx) => {
     return;
   }
   try {
-    const res = await fetch(`${API_URL}/api/auth/telegram/confirm`, {
+    const res = await fetchWithTimeout(`${API_URL}/api/auth/telegram/confirm`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-bot-secret": BOT_SHARED_SECRET },
       body: JSON.stringify({
@@ -853,7 +867,7 @@ bot.callbackQuery(/^auth_ok_/, async (ctx) => {
         telegramUsername: from?.username || "",
         firstName: from?.first_name || "",
       }),
-    });
+    }, 5000);
     if (res.ok) {
       await ctx
         .editMessageText(`✅ <b>Вход подтверждён!</b>\n\nВернитесь на сайт — личный кабинет уже открыт. 🪆`, { parse_mode: "HTML" })
@@ -1526,22 +1540,30 @@ bot.command("broadcast", async (ctx) => {
     data: { message: text.slice(0, 4000), status: "sent", sentAt: new Date() },
   });
 
-  const { sent, failed } = await deliverToAll(recipients, text, broadcast.id);
-
-  // Итоговые счётчики доставки на строке Broadcast.
-  await prisma.broadcast.update({
-    where: { id: broadcast.id },
-    data: { sentCount: sent, failedCount: failed },
-  });
-
+  // Доставку запускаем В ФОНЕ и сразу отвечаем админу: grammy обрабатывает апдейты
+  // последовательно, поэтому await deliverToAll (~40 мс/получателя) блокировал бы
+  // обработку сообщений ВСЕХ пользователей на минуты при большой аудитории.
   await ctx.reply(
-    `📤 <b>Рассылка завершена</b>\n\n` +
-      `✅ Доставлено: ${sent}\n` +
-      `❌ Ошибки: ${failed}\n` +
+    `📤 <b>Рассылка запущена</b>\n\n` +
       `📊 Получателей с согласием: ${recipients.length}\n` +
-      `🔕 Отфильтровано без согласия: ${filteredOut}`,
+      `🔕 Отфильтровано без согласия: ${filteredOut}\n\n` +
+      `Итог придёт по завершении.`,
     { parse_mode: "HTML" }
   );
+
+  deliverToAll(recipients, text, broadcast.id)
+    .then(async ({ sent, failed }) => {
+      await prisma.broadcast
+        .update({ where: { id: broadcast.id }, data: { sentCount: sent, failedCount: failed } })
+        .catch((e) => console.error("[Broadcast] счётчики не обновлены:", e.message));
+      await notifyAdmin(
+        `📤 <b>Рассылка завершена</b>\n\n✅ Доставлено: ${sent}\n❌ Ошибки: ${failed}\n📊 Получателей: ${recipients.length}\n🔕 Отфильтровано: ${filteredOut}`,
+      ).catch(() => {});
+    })
+    .catch(async (e) => {
+      console.error("[Broadcast] доставка прервана:", e.message);
+      await notifyAdmin(`⚠️ <b>Рассылка прервана</b>: ${esc(e.message)}`).catch(() => {});
+    });
 });
 
 // ─────────────────────────────────────────────────────────────
@@ -1622,9 +1644,12 @@ bot.on("message:text", async (ctx) => {
     ctx.session.data.phone = text;
     ctx.session.step = null;
 
-    // Save lead via API
+    // Save lead via API. res.ok обязателен: сайт валидирует телефон (может вернуть
+    // 400) — раньше ошибка глушилась и лид молча терялся из CRM. Гайд юзеру шлём в
+    // любом случае, но админа помечаем, если лид НЕ сохранён, чтобы завести вручную.
+    let leadSaved = false;
     try {
-      await fetch(`${API_URL}/api/leads`, {
+      const res = await fetchWithTimeout(`${API_URL}/api/leads`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -1636,14 +1661,15 @@ bot.on("message:text", async (ctx) => {
           consent: true,
           marketingConsent: false,
         }),
-      });
+      }, 5000);
+      leadSaved = res.ok;
     } catch (e) {
-      // API may be unavailable, continue anyway
+      console.error("[LeadMagnet] save failed:", e.message);
     }
 
     // Notify admin
     await notifyAdmin(
-      `🔔 <b>Новый лид (гайд)</b>\n\n` +
+      `🔔 <b>Новый лид (гайд)</b>${leadSaved ? "" : " ⚠️ <b>НЕ СОХРАНЁН В CRM</b>"}\n\n` +
         `👤 ${esc(ctx.session.data.name)}\n` +
         `📱 ${esc(ctx.session.data.phone)}\n` +
         `📱 Telegram: @${esc(ctx.from?.username || "нет")}\n` +
@@ -1725,8 +1751,12 @@ async function submitLead(ctx) {
 
   const label = product || tariff || "Не выбрано";
 
+  // res.ok обязателен: раньше при отказе сайта (невалидный телефон → 400) заявка
+  // молча терялась из CRM, а юзеру и админу показывался успех. Теперь помечаем админа,
+  // если заявка НЕ сохранена, чтобы менеджер завёл её вручную (лид не теряется).
+  let leadSaved = false;
   try {
-    const res = await fetch(`${API_URL}/api/leads`, {
+    const res = await fetchWithTimeout(`${API_URL}/api/leads`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -1739,16 +1769,15 @@ async function submitLead(ctx) {
         consent: true,
         marketingConsent: false,
       }),
-    });
-
-    if (!res.ok) throw new Error("API error");
+    }, 5000);
+    leadSaved = res.ok;
   } catch (e) {
-    // API unavailable — still show confirmation
+    console.error("[submitLead] save failed:", e.message);
   }
 
   // Notify admin
   await notifyAdmin(
-    `🔔 <b>Новая заявка</b>\n\n` +
+    `🔔 <b>Новая заявка</b>${leadSaved ? "" : " ⚠️ <b>НЕ СОХРАНЕНА В CRM</b>"}\n\n` +
       `👤 ${esc(name)}\n` +
       `📱 ${esc(phone)}\n` +
       `${email ? `📧 ${esc(email)}\n` : ""}` +
@@ -1805,9 +1834,9 @@ async function pollBroadcastQueue() {
   if (broadcastPolling || !BOT_SHARED_SECRET) return;
   broadcastPolling = true;
   try {
-    const res = await fetch(`${API_URL}/api/bot/broadcasts`, {
+    const res = await fetchWithTimeout(`${API_URL}/api/bot/broadcasts`, {
       headers: { "x-bot-secret": BOT_SHARED_SECRET },
-    });
+    }, 5000);
     if (!res.ok) return;
     const data = await res.json();
     const b = data.broadcast;
@@ -1823,14 +1852,14 @@ async function pollBroadcastQueue() {
     if (recipients.length === 0) {
       // Нет согласий — подтверждаем задачу сайту с нулевой доставкой (не зависаем в pending).
       console.info(`[BroadcastPoll] Отфильтровано без согласия: ${filteredOut}/${totalUsers}. Получателей нет — рассылка не отправлена.`);
-      await fetch(`${API_URL}/api/bot/broadcasts`, {
+      await fetchWithTimeout(`${API_URL}/api/bot/broadcasts`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "x-bot-secret": BOT_SHARED_SECRET,
         },
         body: JSON.stringify({ id: b.id, sentCount: 0, failedCount: 0 }),
-      });
+      }, 5000);
       await notifyAdmin(
         `📭 <b>Рассылка с сайта не отправлена</b>\n\nНет пользователей с согласием на рекламу (ст.18 149-ФЗ).\nОтфильтровано без согласия: ${filteredOut} из ${totalUsers}.`,
       );
@@ -1843,14 +1872,14 @@ async function pollBroadcastQueue() {
     // используем её b.id как broadcastId для логов получателей (C7, ст.18 149-ФЗ).
     const { sent, failed } = await deliverToAll(recipients, b.message, b.id);
 
-    await fetch(`${API_URL}/api/bot/broadcasts`, {
+    await fetchWithTimeout(`${API_URL}/api/bot/broadcasts`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "x-bot-secret": BOT_SHARED_SECRET,
       },
       body: JSON.stringify({ id: b.id, sentCount: sent, failedCount: failed }),
-    });
+    }, 5000);
 
     await notifyAdmin(
       `📤 <b>Рассылка с сайта доставлена</b>\n\n✅ Доставлено: ${sent}\n❌ Ошибки: ${failed}\n🔕 Отфильтровано без согласия: ${filteredOut}`,

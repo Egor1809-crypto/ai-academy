@@ -21,10 +21,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser, destroyCurrentSession } from "@/lib/auth";
 import { createRateLimiter, getClientIP } from "@/lib/rate-limit";
+import { normalizePhone, isSameOrigin } from "@/lib/security";
+import { Prisma } from "@prisma/client";
 
 const limiter = createRateLimiter("account-erase", { limit: 5, windowSeconds: 300 });
 
 export async function POST(req: NextRequest) {
+  if (!isSameOrigin(req)) {
+    return NextResponse.json({ error: "Недопустимый источник запроса" }, { status: 403 });
+  }
   const rl = limiter.check(getClientIP(req));
   if (!rl.allowed) {
     return NextResponse.json(
@@ -40,13 +45,22 @@ export async function POST(req: NextRequest) {
 
   try {
     const userId = user.id;
+    // Право на удаление (ст.14 152-ФЗ) должно стирать ВСЕ ПДн субъекта, а не только
+    // лиды с проставленным userId. Анонимные / без-email / Telegram-only заявки
+    // привязаны к аккаунту лишь частично — поэтому дополнительно удаляем лиды по
+    // нормализованному телефону и email пользователя. ConsentRecord.leadId=SetNull →
+    // записи согласий остаются как доказательство факта/отзыва (это правомерно).
+    const phoneDigits = user.phone ? normalizePhone(user.phone) : null;
+    const leadOr: Prisma.LeadWhereInput[] = [{ userId }];
+    if (phoneDigits) leadOr.push({ phoneNormalized: phoneDigits });
+    if (user.email) leadOr.push({ email: { equals: user.email, mode: "insensitive" } });
     // BUG_FIX_CONTEXT: раньше сначала снимали сессию, затем тремя раздельными await
     // удаляли данные — если lead/user.delete падал, пользователь уже разлогинен, а
     // строки User/Lead оставались (частичное невосстановимое состояние, ст.14 не
     // исполнена). Теперь удаление атомарно в транзакции ДО снятия сессии: при сбое
     // пользователь остаётся залогинен, получает 500 и может повторить; данные целостны.
     await prisma.$transaction([
-      prisma.lead.deleteMany({ where: { userId } }),
+      prisma.lead.deleteMany({ where: { OR: leadOr } }),
       prisma.user.delete({ where: { id: userId } }),
     ]);
     // Данные удалены (Session каскадно удалилась вместе с User) — снимаем cookie сессии.

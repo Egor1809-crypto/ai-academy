@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { createSession, setSessionCookie } from "@/lib/auth";
+import { createSession, setSessionCookie, getAuthOwnerToken, clearAuthOwnerCookie } from "@/lib/auth";
 import { createRateLimiter, getClientIP } from "@/lib/rate-limit";
 
 // Polling — allow frequent checks but cap abuse
@@ -41,9 +41,16 @@ export async function GET(req: NextRequest) {
     // the conditional updateMany lets exactly one concurrent request win (closing the
     // race where two polls both mint a session) and enforces not-expired in the same
     // statement, so a confirmed-but-expired code can no longer create a session.
+    // Owner binding: only the browser that initiated /start (and holds the matching
+    // httpOnly cookie) may claim the session. Without it, knowing the code is not
+    // enough to mint a session — closes the session-fixation / ATO vector.
+    const owner = await getAuthOwnerToken();
+    if (!owner) {
+      return NextResponse.json({ status: "pending" });
+    }
     const now = new Date();
     const claim = await prisma.authCode.updateMany({
-      where: { code, consumedAt: null, confirmedAt: { not: null }, expiresAt: { gt: now } },
+      where: { code, consumedAt: null, confirmedAt: { not: null }, expiresAt: { gt: now }, ownerToken: owner },
       data: { consumedAt: now },
     });
     if (claim.count !== 1) {
@@ -63,6 +70,7 @@ export async function GET(req: NextRequest) {
 
     const token = await createSession(user.id);
     await setSessionCookie(token);
+    await clearAuthOwnerCookie();
 
     return NextResponse.json({ status: "confirmed" });
   } catch (error) {

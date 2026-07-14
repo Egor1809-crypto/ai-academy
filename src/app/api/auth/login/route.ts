@@ -3,7 +3,7 @@ import { createHash } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { createSession, setSessionCookie, verifyPassword, DUMMY_PASSWORD_HASH } from "@/lib/auth";
 import { createRateLimiter, getClientIP } from "@/lib/rate-limit";
-import { truncateIp } from "@/lib/security";
+import { truncateIp, isSameOrigin } from "@/lib/security";
 
 /**
  * Записать событие входа в журнал ИБ (модель LoginEvent). ПДн минимизированы:
@@ -30,6 +30,10 @@ const limiter = createRateLimiter("auth-login", { limit: 10, windowSeconds: 300 
 
 export async function POST(req: NextRequest) {
   const ip = getClientIP(req);
+  // Defense-in-depth CSRF: reject cross-site browser POSTs (over sameSite=lax).
+  if (!isSameOrigin(req)) {
+    return NextResponse.json({ error: "Недопустимый источник запроса" }, { status: 403 });
+  }
   const rl = limiter.check(ip);
   if (!rl.allowed) {
     return NextResponse.json(
@@ -41,7 +45,9 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const email = String(body.email ?? "").trim().toLowerCase();
-    const password = String(body.password ?? "");
+    // Cap length before scrypt: a multi-KB/MB password would burn CPU (DoS).
+    // Real passwords are far under 200 chars; longer input can't be a valid login.
+    const password = String(body.password ?? "").slice(0, 200);
 
     if (!email || !password) {
       return NextResponse.json({ error: "Введите email и пароль" }, { status: 400 });
@@ -64,7 +70,7 @@ export async function POST(req: NextRequest) {
       // и корреляция попыток сохраняются, plaintext-ПДн — нет.
       const emailHash = createHash("sha256").update(email).digest("hex").slice(0, 12);
       console.warn(
-        `[auth][login][FAIL] ${JSON.stringify({ ts: new Date().toISOString(), ip, emailHash })}`,
+        `[auth][login][FAIL] ${JSON.stringify({ ts: new Date().toISOString(), ip: truncateIp(ip), emailHash })}`,
       );
       await journalLogin("fail", ip, user?.id ?? null, emailHash);
       // Constant-ish delay to slow brute force
@@ -90,7 +96,7 @@ export async function POST(req: NextRequest) {
     await setSessionCookie(token);
 
     console.info(
-      `[auth][login][OK] ${JSON.stringify({ ts: new Date().toISOString(), ip, userId: user.id })}`,
+      `[auth][login][OK] ${JSON.stringify({ ts: new Date().toISOString(), ip: truncateIp(ip), userId: user.id })}`,
     );
     await journalLogin("ok", ip, user.id, null);
     return NextResponse.json({ success: true });

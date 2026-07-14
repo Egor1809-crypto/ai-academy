@@ -25,10 +25,11 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    // Count only leads that actually occupy a spot — exclude rejected ones so
-    // refusals/spam don't artificially close the course on the landing page.
+    // Занятые места считаем ТОЛЬКО по реально подтверждённым (оплата/квалификация),
+    // а не по всем поданным заявкам: иначе поток фейковых заявок с ротацией телефона
+    // за пару минут обнуляет счётчик и показывает «мест нет» (саботаж конверсии).
     const leadsCount = await prisma.lead.count({
-      where: { status: { not: "rejected" } },
+      where: { status: { in: ["paid", "qualified"] } },
     });
     const spotsLeft = Math.max(0, TOTAL_SPOTS - leadsCount);
 

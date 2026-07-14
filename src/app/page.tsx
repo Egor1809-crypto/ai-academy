@@ -14,7 +14,6 @@ import DataSecurity from "@/components/DataSecurity";
 import Bonus from "@/components/Bonus";
 import Tariffs from "@/components/Tariffs";
 import Program from "@/components/Program";
-import Testimonials from "@/components/Testimonials";
 import CTA from "@/components/CTA";
 import RevealFooter from "@/components/RevealFooter";
 import FloatingTelegram from "@/components/FloatingTelegram";
@@ -49,7 +48,6 @@ export default function Home() {
         <Tariffs showComparison={false} />
         <Program />
         <SectionDivider />
-        <Testimonials />
         <CTA />
       </RevealFooter>
     </>

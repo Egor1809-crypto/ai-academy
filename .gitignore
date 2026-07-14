@@ -50,3 +50,6 @@ bot/data/
 
 # Stray nested project copy (has its own .git — never commit)
 /ai-academy/
+
+# Learning materials (large, local-only — never commit to public repo)
+/Фронтир - обучение/

@@ -3,6 +3,7 @@ import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { createRateLimiter, getClientIP } from "@/lib/rate-limit";
 import { authNonce } from "@/lib/security";
+import { setAuthOwnerCookie } from "@/lib/auth";
 
 const BOT_USERNAME = process.env.TELEGRAM_BOT_USERNAME || "ailegal_academy_bot";
 const CODE_TTL_MS = 5 * 60 * 1000; // 5 minutes
@@ -22,8 +23,12 @@ export async function POST(req: NextRequest) {
 
   try {
     const code = randomBytes(24).toString("hex"); // 48 chars
+    // Random owner token binds this code to the initiating browser (httpOnly cookie
+    // below); only that browser can later claim the session in /status.
+    const ownerToken = randomBytes(32).toString("hex");
     const expiresAt = new Date(Date.now() + CODE_TTL_MS);
-    await prisma.authCode.create({ data: { code, expiresAt } });
+    await prisma.authCode.create({ data: { code, expiresAt, ownerToken } });
+    await setAuthOwnerCookie(ownerToken);
 
     const deepLink = `https://t.me/${BOT_USERNAME}?start=auth_${code}`;
     // Verification nonce the user must match against the bot's confirmation prompt.

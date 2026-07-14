@@ -103,7 +103,7 @@ export default function Hero() {
 
             <ManyashaEffects />
 
-            <div className="mascot-float relative z-10 w-full scale-125 lg:scale-[1.8] translate-y-10 lg:translate-y-16 origin-center">
+            <div className="mascot-float relative z-10 w-full scale-125 lg:scale-[1.8] translate-y-[calc(2.5rem+3cm)] lg:translate-y-[calc(4rem+3cm)] origin-center">
               <ManyashaOrbit />
 
               <div className="relative z-10">

@@ -5,9 +5,45 @@ import { bodyTooLarge } from "@/lib/security";
 
 const NAVI_API_KEY = process.env.NAVI_API_KEY;
 const NAVI_BASE_URL = "https://api.navy/v1";
-const MODEL = "gpt-4o-mini";
+// Каскад моделей: первичная — deepseek-v4-pro; при ошибке/недоступности пробуем
+// запасные по порядку. whisper (STT) и tts-1 (озвучка) — отдельные задачи, не здесь.
+const CHAT_MODELS = ["deepseek-v4-pro", "deepseek-v4-flash", "qwen3.5-397b-a17b", "minimax-m3"];
+const AI_TIMEOUT_MS = 12000;
 
 const SYSTEM_PROMPT = MANYASHA_PROMPT_SITE;
+
+// Один вызов к NAVI с жёстким таймаутом (AbortController); бросает при не-2xx / пустом ответе.
+async function callChatModel(model: string, messages: { role: string; content: string }[]): Promise<string> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
+  try {
+    const response = await fetch(`${NAVI_BASE_URL}/chat/completions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${NAVI_API_KEY}` },
+      body: JSON.stringify({ model, messages, max_tokens: 450, temperature: 0.7 }),
+      signal: controller.signal,
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    const reply: string | undefined = data.choices?.[0]?.message?.content;
+    if (!reply) throw new Error("empty reply");
+    return reply;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// Каскад: пробуем модели по порядку, первая успешная выигрывает; null — все отказали/зависли.
+async function askAI(messages: { role: string; content: string }[]): Promise<string | null> {
+  for (const model of CHAT_MODELS) {
+    try {
+      return await callChatModel(model, messages);
+    } catch (e) {
+      console.error(`[AI][chat] модель ${model} не ответила:`, e instanceof Error ? e.message : e);
+    }
+  }
+  return null;
+}
 
 // Демо-режим «попробуй AI-юриста»: в отличие от персоны Маняши (которая ведёт по
 // курсу), здесь AI ДОЛЖЕН реально решить юридическую задачу — показать ценность.
@@ -104,36 +140,16 @@ export async function POST(req: NextRequest) {
       content: m.content.slice(0, 2000),
     }));
 
-    const response = await fetch(`${NAVI_BASE_URL}/chat/completions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${NAVI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...trimmedMessages,
-        ],
-        // 450 (было 300): демо-«разбор» со структурой (суть + разделы + списки) требует
-        // чуть больше места. Влияет на стоимость API — при желании легко вернуть на 300.
-        max_tokens: 450,
-        temperature: 0.7,
-      }),
-    });
+    // Каскад моделей deepseek-v4-pro → deepseek-v4-flash → qwen3.5 → minimax-m3.
+    const reply = await askAI([
+      { role: "system", content: systemPrompt },
+      ...trimmedMessages,
+    ]);
 
-    if (!response.ok) {
-      // Log status only — avoid persisting upstream response bodies.
-      console.error("Navy API error:", response.status);
-      return NextResponse.json(
-        { error: "AI service error" },
-        { status: 502 },
-      );
+    if (reply === null) {
+      // Все модели отказали/зависли — статус логируется внутри askAI.
+      return NextResponse.json({ error: "AI service error" }, { status: 502 });
     }
-
-    const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content ?? "Извините, не могу ответить сейчас.";
 
     return NextResponse.json({ reply });
   } catch (error) {

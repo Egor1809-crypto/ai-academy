@@ -49,7 +49,9 @@ const ADMIN_CHAT_ID = env.ADMIN_CHAT_ID || "";
 const BOT_SHARED_SECRET = env.BOT_SHARED_SECRET || "";
 const NAVI_API_KEY = env.NAVI_API_KEY || "";
 const NAVI_BASE_URL = "https://api.navy/v1";
-const AI_MODEL = "deepseek-chat";
+// Каскад моделей: первичная — deepseek-v4-pro; при ошибке/недоступности пробуем
+// запасные по порядку (тот же список, что на сайте — chat/route.ts).
+const CHAT_MODELS = ["deepseek-v4-pro", "deepseek-v4-flash", "qwen3.5-397b-a17b", "minimax-m3"];
 const MAX_AI_INPUT = 1000; // cap user text forwarded to the paid LLM
 // Аудитория бота теперь живёт в БД (таблица User), а не в bot/data/users.json.
 // Бот парсит bot/.env в локальный объект env (НЕ в process.env), поэтому Prisma
@@ -741,35 +743,46 @@ async function askManyashaAI(userText, chatHistory) {
   const trimmed = chatHistory.slice(-10);
   trimmed.push({ role: "user", content: userText });
 
-  try {
-    const response = await fetchWithTimeout(`${NAVI_BASE_URL}/chat/completions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${NAVI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: AI_MODEL,
-        messages: [
-          { role: "system", content: MANYASHA_SYSTEM_PROMPT },
-          ...trimmed,
-        ],
-        max_tokens: 400,
-        temperature: 0.7,
-      }),
-    }, 8000);
+  const messages = [
+    { role: "system", content: MANYASHA_SYSTEM_PROMPT },
+    ...trimmed,
+  ];
 
-    if (!response.ok) {
-      console.error("[ManyashaAI] API error:", response.status);
-      return null;
+  // Каскад моделей: deepseek-v4-pro (первичная) → запасные по порядку. Первая успешная
+  // выигрывает; если все отказали/зависли — null (вызывающий покажет фолбэк-сообщение).
+  for (const model of CHAT_MODELS) {
+    try {
+      const response = await fetchWithTimeout(`${NAVI_BASE_URL}/chat/completions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${NAVI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model,
+          messages,
+          max_tokens: 400,
+          temperature: 0.7,
+        }),
+      }, 8000);
+
+      if (!response.ok) {
+        console.error(`[ManyashaAI] модель ${model}: HTTP ${response.status}`);
+        continue;
+      }
+
+      const data = await response.json();
+      const reply = data.choices?.[0]?.message?.content;
+      if (!reply) {
+        console.error(`[ManyashaAI] модель ${model}: пустой ответ`);
+        continue;
+      }
+      return reply;
+    } catch (e) {
+      console.error(`[ManyashaAI] модель ${model}: ${e.message}`);
     }
-
-    const data = await response.json();
-    return data.choices?.[0]?.message?.content ?? null;
-  } catch (e) {
-    console.error("[ManyashaAI] Fetch error:", e.message);
-    return null;
   }
+  return null;
 }
 
 function mainKeyboard() {

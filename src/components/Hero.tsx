@@ -110,12 +110,6 @@ export default function Hero() {
                 <Manyasha
                   size="hero"
                   hoverSpeech="Привет! Я Маняша — твой AI-помощник по юридическим нейросетям!"
-                  pages={[
-                    { label: "О курсе", href: "/about", speech: "Расскажу всё о нашем курсе!" },
-                    { label: "Программа", href: "/program", speech: "Покажу программу обучения..." },
-                    { label: "Эксперты", href: "/experts", speech: "Познакомлю с нашими спикерами!" },
-                    { label: "Тарифы", href: "/tariffs", speech: "Подберём подходящий тариф!" },
-                  ]}
                 />
               </div>
             </div>
